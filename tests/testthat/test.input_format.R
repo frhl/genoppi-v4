@@ -14,7 +14,6 @@ test_that('input format can describe different datastes',{
   
   # next test ..
   
-  
 })
 
 test_that('yields errors',{
