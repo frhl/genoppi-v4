@@ -28,6 +28,8 @@ Imports:
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
+    'launch_genoppi.R'
+    'misc.R'
     'test.R'
-
+    'read_input.R'
 
