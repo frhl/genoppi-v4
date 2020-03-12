@@ -11,3 +11,4 @@ launch_genoppi <- function(local=T) {
   }
   shiny::runApp(appDir, display.mode = "normal")
 }
+
