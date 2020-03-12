@@ -4,10 +4,14 @@
 \alias{read_input}
 \title{read input}
 \usage{
-read_input(filename)
+read_input(filename, header, sep)
 }
 \arguments{
 \item{filename}{path to input file}
+
+\item{header}{a logical value indicating whether the file contains the names of the variables as its first line.}
+
+\item{sep}{the field character seperator, see \code{?read.table}.}
 }
 \description{
 reads
