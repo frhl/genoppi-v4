@@ -1,0 +1,32 @@
+Package: genoppi-v4
+Title: genoppi
+Version: 0.0.1
+Authors@R: 
+    c(person(given = "Frederik",
+             family = "Lassen",
+             role = c("aut", "cre"),
+             email = "frhl@gmail.com"))
+Maintainer: Frederik <frhl@gmail.com>
+Description: Tools for working with proteomics data.
+License: MIT + file LICENSE
+LazyData: true
+Depends:
+    R (>= 3.6.1)
+Suggests:
+    devtools
+Imports:
+    assertthat,
+    utils,
+    R6,
+    crayon,
+    rprojroot,
+    hash,
+    ggplot2,
+    ggrepel,
+    limma
+Encoding: UTF-8
+RoxygenNote: 7.0.2
+Collate: 
+    'test.R'
+
+
