@@ -1,4 +1,4 @@
-context('check input')
+context('check_input')
 library(testthat)
 
 # make artificial data

@@ -29,13 +29,14 @@ Imports:
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
+    'check_input.R'
+    'read_input.R'
+    'calc_mod_ttest.R'
+    'id_enriched_proteins.R'
     'calculate_logfc.R'
     'data.R'
     'impute_gaussian.R'
-    'check_input.R'
-    'read_input.R'
     'launch_genoppi.R'
     'misc.R'
     'test.R'
     'theme_genoppi.R'
-
