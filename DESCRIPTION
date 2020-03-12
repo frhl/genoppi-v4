@@ -23,7 +23,8 @@ Imports:
     hash,
     ggplot2,
     ggrepel,
-    limma
+    limma,
+    shiny
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
