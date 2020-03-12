@@ -1,3 +1,4 @@
+context('read input')
 library(testthat)
 
 # make artificial data

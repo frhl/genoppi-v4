@@ -1,3 +1,4 @@
+context('check input')
 library(testthat)
 
 # make artificial data
