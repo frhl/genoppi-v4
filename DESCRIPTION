@@ -37,4 +37,5 @@ Collate:
     'launch_genoppi.R'
     'misc.R'
     'test.R'
+    'theme_genoppi.R'
 
