@@ -1,10 +1,10 @@
 #' InWeb Hash Table
 #'
-#' InWeb Hash table downloaded on october 2018.
-#' 
+#' @description InWeb Hash table downloaded on october 2018.
 #' @docType data
-#' @author Yu-Han Shu/April Kim
+#' @author Yu-Han Hsu/April Kim
 #'
 "inweb_hash"
+
 
 
