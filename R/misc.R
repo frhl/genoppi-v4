@@ -28,5 +28,5 @@ null_omit <- function(lst) {
 #' @param file string, e.g. a filename.
 #' @export
 catf <- function(msg, file = stderr()){
-  if (!is.null(file)) cat(file, msg)
+  if (!is.null(file)) cat(file = file, msg)
 }
