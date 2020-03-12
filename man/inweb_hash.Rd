@@ -12,6 +12,6 @@ inweb_hash
 InWeb Hash table downloaded on october 2018.
 }
 \author{
-Yu-Han Shu/April Kim
+Yu-Han Hsu/April Kim
 }
 \keyword{datasets}
