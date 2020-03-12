@@ -8,9 +8,10 @@
 read_input <- function(filename, header, sep){
   
   input = read.table(filename, header, sep)
-  
+  check = input_format(input)
   
   return(NULL)
 }
+
 
 
