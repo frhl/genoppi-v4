@@ -8,10 +8,10 @@
 #' @param df a data.frame with numeric columns
 #' @param width numeric. change the factor of the standard deviation.
 #' @param shift numeric. Negative values will shift the median distribution downwards.
+#' @param verbose print info alongside execution.
 #' @note No down-shifting and stdwith of 0.5 do not simualte low abudant missing values.
 #' down-shifting of 0.8 and stdwidth of 0.5 simulates low abundant missing values. 
 #' down-shifting of 3.6 and stdwith of 0.5 results in (usually undesired) bi-modal distribution.
-#' 
 #' @references (Perseus, Tyanova et al. 2016)
 #' @return data.frame with missing values imputed.
 #' @export
@@ -28,7 +28,7 @@ impute_gaussian <- function(df, width = 0.3, shift = -1.8, verbose = T){
     return(x)
   }
   nimputed <- sum(is.na(df[,numerics]))
-  if (verbose & nimputed > 0) warn(paste('[impute] imputed',nimputed, 'value(s).'))
+  if (verbose & nimputed > 0) catf(paste('[impute] imputed',nimputed, 'value(s).'))
   if (sum(cols) == 1) df[, cols] <- impute(df[,cols & numerics])
   if (sum(cols) > 1) df[, cols] <- lapply(df[,cols & numerics], impute)
   return(df)
