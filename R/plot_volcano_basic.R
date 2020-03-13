@@ -20,8 +20,8 @@
 
 plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey', size_point = 3){
   
+  # check requirements
   require(ggplot2)
-
   if (!all(c('gene','logFC', 'pvalue', 'significant') %in% colnames(df))) stop('data.frame does not contain some of logFC, pvalue and signifcant.')
   
   # no colors specified will result in standard color scheme
