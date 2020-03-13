@@ -7,24 +7,24 @@
 #' @param fdr_cutoff numeric value indicating FDR cutoff
 #' @return boolean vector indicating which df rows (proteins) are enriched
 
-id_enriched_proteins <- function(df, logfc_dir, logfc_cutoff, p_cutoff, fdr_cutoff){
+id_enriched_proteins <- function(df, logfc_dir='positive', fdr_cutoff=0.1, logfc_cutoff=NULL, p_cutoff=NULL){
 
   sig <- rep(T,nrow(df))
 
-  if (!is.na(logfc_dir)) {
+  if (!is.null(logfc_dir)) {
     if (logfc_dir=="positive") sig <- sig & df$logFC > 0
     else if (logfc_dir=="negative") sig <- sig & df$logFC < 0
   }
 
-  if (!is.na(logfc_cutoff)) {
+  if (!is.null(logfc_cutoff)) {
     sig <- sig & abs(df$logFC) > abs(logfc_cutoff)
   }  
 
-  if (!is.na(p_cutoff)) {
+  if (!is.null(p_cutoff)) {
     sig <- sig & df$pvalue < p_cutoff
   }
 
-  if (!is.na(fdr_cutoff)) {
+  if (!is.null(fdr_cutoff)) {
     sig <- sig & df$FDR <= fdr_cutoff
   }
 
