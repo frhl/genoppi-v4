@@ -5,17 +5,19 @@ library(testthat)
 df <- read.table("data/test.BCL2vsIgG.GPiN.txt",sep="\t",header=T)
 statsDf <- calc_mod_ttest(df)
 
-
 test_that('id_enriched_proteins return correct enriched proteins',{
 
   # a few different test cases
-  result <- id_enriched_proteins(statsDf,NA,NA,NA,0.1) # bidirectional, FDR<=0.1
-  expect_equal(sum(result),71)  
+  result <- id_enriched_proteins(statsDf, #fdr_cutoff=0.1) # bidirectional, FDR<=0.1
+	logfc_dir=NULL,logfc_cutoff=NULL,p_cutoff=NULL,fdr_cutoff=0.1) # bidirectional, FDR<=0.1
+  expect_equal(sum(result$significant),71)  
 
-  result <- id_enriched_proteins(statsDf,"positive",NA,0.05,NA) # logFC>0, p<0.05
-  expect_equal(sum(result),56)
+  result <- id_enriched_proteins(statsDf, #logfc_dir="positive",p_cutoff=0.05) # logFC>0, p<0.05
+	logfc_dir="positive",logfc_cutoff=NULL,p_cutoff=0.05,fdr_cutoff=NULL) # logFC>0, p<0.05
+  expect_equal(sum(result$significant),56)
 
-  result <- id_enriched_proteins(statsDf,"negative",-5,NA,0.1) # logFC<-5, FDR<=0.1
-  expect_equal(sum(result),16)  
+  result <- id_enriched_proteins(statsDf, #logfc_dir="negative",logfc_cutoff=-5,fdr_cutoff=0.1) # logFC<-5, FDR<=0.1
+	logfc_dir="negative",logfc_cutoff=-5,p_cutoff=NULL,fdr_cutoff=0.1) # logFC<-5, FDR<=0.1
+  expect_equal(sum(result$significant),16)  
  
 })

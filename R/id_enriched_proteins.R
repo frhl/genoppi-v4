@@ -5,9 +5,10 @@
 #' @param logfc_cutoff numeric value indicating logFC cutoff
 #' @param p_cutoff numeric value indicating pvalue cutoff
 #' @param fdr_cutoff numeric value indicating FDR cutoff
-#' @return boolean vector indicating which df rows (proteins) are enriched
+#' @return data.frame containing df + signficanct column of boolean values indicating which df rows (proteins) are enriched
+#' @export
 
-id_enriched_proteins <- function(df, logfc_dir='positive', fdr_cutoff=0.1, logfc_cutoff=NULL, p_cutoff=NULL){
+id_enriched_proteins <- function(df, logfc_dir="positive", logfc_cutoff=NULL, p_cutoff=NULL, fdr_cutoff=0.1){
 
   sig <- rep(T,nrow(df))
 
@@ -28,5 +29,6 @@ id_enriched_proteins <- function(df, logfc_dir='positive', fdr_cutoff=0.1, logfc
     sig <- sig & df$FDR <= fdr_cutoff
   }
 
-  return(sig)
+  df$significant <- sig
+  return(df)
 }

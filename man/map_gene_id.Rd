@@ -4,13 +4,13 @@
 \alias{map_gene_id}
 \title{map id to gene}
 \usage{
-map_gene_id(uniprot)
+map_gene_id(df)
 }
 \arguments{
-\item{uniprot}{a vector of uniprot IDs without isoform.}
+\item{df}{data.frame containing accession_number column}
 }
 \value{
-a vector of corresponding hgnc symbols
+list of (df with accession_number column replaced by gene column, df with accession_number and gene columns)
 }
 \description{
 maps an uniprot id to hgnc symbol using a hashmap
