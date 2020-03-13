@@ -8,7 +8,7 @@
 #' can be supplied to indicate the volcano color scheme and whether to draw names of proteins.
 
 
-basic_volcano <- function(df, bait, title = '',size_point = 3, size_text=3, color_alpha=0.8){
+plot_volcano <- function(df, bait, title = '',size_point = 3, size_text=3, color_alpha=0.8){
   
   
   require(ggplot2)
