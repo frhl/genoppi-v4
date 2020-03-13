@@ -4,18 +4,24 @@
 \alias{id_enriched_proteins}
 \title{Identify enriched proteins}
 \usage{
-id_enriched_proteins(df, logfc_dir, logfc_cutoff, p_cutoff, fdr_cutoff)
+id_enriched_proteins(
+  df,
+  logfc_dir = "positive",
+  fdr_cutoff = 0.1,
+  logfc_cutoff = NULL,
+  p_cutoff = NULL
+)
 }
 \arguments{
 \item{df}{data.frame contaiing logFC, pvalue, and FDR columns}
 
 \item{logfc_dir}{string indicating direction of logFC cutoff ("positive" or "negative")}
 
+\item{fdr_cutoff}{numeric value indicating FDR cutoff}
+
 \item{logfc_cutoff}{numeric value indicating logFC cutoff}
 
 \item{p_cutoff}{numeric value indicating pvalue cutoff}
-
-\item{fdr_cutoff}{numeric value indicating FDR cutoff}
 }
 \value{
 boolean vector indicating which df rows (proteins) are enriched
