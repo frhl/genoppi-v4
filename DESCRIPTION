@@ -39,5 +39,6 @@ Collate:
     'impute_gaussian.R'
     'launch_genoppi.R'
     'misc.R'
+    'plot_volcano_basic.R'
     'test.R'
     'theme_genoppi.R'

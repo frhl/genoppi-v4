@@ -4,16 +4,23 @@
 #' @param bait the gene name of the bait.
 #' @param col_significant the color of significant proteins/rows.
 #' @param col_other the color of non-significnt proteins/rows.
+#' @param size_point the size of the points. 
 #' @usage takes in a data.frane with the columns gene, logFC, pvalue and significant 
 #' to draw a volcano. Optionally, a column indicating 'color' (string) can be supplied to 
 #' indicate the volcano color scheme and whether to draw names of specific proteins.
 #' @export
+#' @examples
+#' \dontrun{
+#' # artifical data 
+#' df = data.frame(gene=letters, fdr=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
+#' plot_volcano(df) + labs(title='Random generated data and gglabs')
+#' }
+#' 
 
 
-plot_volcano <- function(df, bait, col_signficant = "#41AB5D", col_other = 'grey'){
+plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey', size_point = 3){
   
   require(ggplot2)
-  require(ggrepel)
 
   if (!all(c('gene','logFC', 'pvalue', 'significant') %in% colnames(df))) stop('data.frame does not contain some of logFC, pvalue and signifcant.')
   
