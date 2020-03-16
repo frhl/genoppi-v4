@@ -8,6 +8,10 @@ get_gene_list(filename, header = T, sep = "\\t")
 }
 \arguments{
 \item{filename}{file path of gene list file (containing gene and (optional) significant columns)}
+
+\item{header}{boolean indicating whether gene list file contains header}
+
+\item{sep}{file delimiter}
 }
 \value{
 list of (data.frame containing gene and significant columns, boolean value indicating if non-significant genes are included (for calling overlap enrichement functions))
