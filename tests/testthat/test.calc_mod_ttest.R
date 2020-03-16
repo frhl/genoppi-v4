@@ -1,6 +1,5 @@
 context('calc_mod_ttest')
 library(testthat)
-library(limma)
 
 # read in test data
 df <- read.table("data/test.BCL2vsIgG.GPiN.txt",sep="\t",header=T)

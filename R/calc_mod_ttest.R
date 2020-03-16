@@ -5,6 +5,7 @@
 #' @export
 
 calc_mod_ttest <- function(df){
+  require(limma)
  
   # moderated t-test
   myfit <- lmFit(subset(df, select=-c(gene)), method="robust")
