@@ -4,7 +4,7 @@
 \alias{plot_overlay}
 \title{plot overlay}
 \usage{
-plot_overlay(p, reference, point_expansion = 1.1)
+plot_overlay(p, reference, point_expansion = 1.05)
 }
 \arguments{
 \item{p}{a plot object returned from ggplot.}
@@ -20,7 +20,7 @@ Overlays a ggplot with a reference data set, e.g. a bait or a genelist. Can be a
 \dontrun{
 ## generate a random plot
 set.seed(3)
-df = data.frame(gene=letters, fdr=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
+df = data.frame(gene=letters, FDR=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
 p = plot_volcano(df) + labs(title='Random generated data and gglabs')
 
 ## Generate random dataset
