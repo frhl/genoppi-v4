@@ -50,3 +50,22 @@ test_that('iterative overlay of ggobjects with multiple shapes',{
   
   
 })
+
+test_that('genes that are in multiple lists',{
+  
+  # a few different test cases
+  df$significant <- id_enriched_proteins(df, fdr_cutoff=0.1)
+  p = plot_volcano_basic(df) + ggtitle('BCL2 vs IgG in GPiNs') 
+  p1 = plot_overlay(p, as.bait('BCL2'))
+  
+  # Generate random dataset
+  ref1= data.frame(gene=c('APC2', 'RAB7A'),col_significant='cyan',col_other='grey', shape = 4)
+  ref2= data.frame(gene=c('APC2','MAP7','KHSRP'),col_significant='blue',col_other='grey', shape = 7)
+  reference = list(ref1, ref2)
+  names(reference) = c('SCZ genelist', 'ASD genelist')
+  
+  # overlay second list
+  plot_overlay(p1, reference)  # testcase here..
+  
+  
+})

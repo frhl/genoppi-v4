@@ -3,7 +3,6 @@
 #' @param p a plot object returned from ggplot.
 #' @param reference a list of named data.frames.
 #' @param point_expansion percentage expansion of genelist points.
-#' @param legend boolean. Print legend to plot?
 #' @export
 #' @examples
 #' \dontrun{
@@ -37,25 +36,35 @@ plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
   
   # convert list to data.frame
   reference = list_to_df(reference)
-
-  # merge genelist into data.frame and plot
+  
+  # merge genelist into data.frame and check for duplicates
   mymerge = merge(p$data[,c('gene','logFC','pvalue','FDR','significant')], reference, by = 'gene')
-
+  dup = unlist(lapply(mymerge$gene, function(x) sum(mymerge$gene == x))) > 1
+  mymerge[dup, ]$alt_label <- paste0(mymerge[dup, ]$gene,' [', mymerge[dup, ]$dataset,']')
+  
   # add the new point
   p1 = p + geom_point(mymerge, 
                  mapping=aes(x=logFC, y=-log10(pvalue)), 
                  size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
                  #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
                  color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
+          
+          # add black stroke to points
           geom_point(mymerge[mymerge$stroke, ],
                  mapping=aes(x=logFC, y=-log10(pvalue)),
                  size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
                  color = 'black',
                  shape = 1) +
-          geom_text_repel(mymerge[mymerge$label,], mapping=aes(label=gene), arrow=arrow(length=unit(0.1, 'npc')),
-                    box.padding=unit(0.15, "lines"), point.padding=unit(0.2, "lines"), 
-                    size=ifelse('label_size' %in% colnames(mymerge), mymerge$labelsize, 3), 
-                    color="black")
+          
+          # add text/labels to points
+          geom_text_repel(mymerge[mymerge$label,], 
+                 mapping=aes(label=ifelse(is.na(mymerge$alt_label), 
+                                          as.character(mymerge$gene), 
+                                          as.character(mymerge$alt_label))), 
+                 arrow=arrow(length=unit(0.1, 'npc')),
+                 box.padding=unit(0.15, "lines"), point.padding=unit(0.2, "lines"), 
+                 size=ifelse('label_size' %in% colnames(mymerge), mymerge$labelsize, 3), 
+                 color="black")
   
   return(p1)
 }
@@ -80,6 +89,7 @@ list_to_df <- function(lst){
     if ('stroke' %nin% cnames) df$stroke <- TRUE
     if ('col_significant' %nin% cnames) df$col_significant <- 'yellow'
     if ('col_other' %nin% cnames) df$col_other <- 'grey'
+    if ('alt_label' %nin% cnames) df$alt_label <- NA
     # size
     # labelsize
     return(df)
