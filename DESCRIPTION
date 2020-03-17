@@ -37,7 +37,7 @@ Collate:
     'map_gene_id.R'
     'plot_volcano_basic.R'
     'plot_scatter_basic.R'
-    'overlay.R'
+    'plot_overlay.R'
     'get_inweb_list.R'
     'get_gene_list.R'
     'calc_fisher.R'

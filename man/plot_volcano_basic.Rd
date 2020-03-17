@@ -26,7 +26,7 @@ A function that draw a basic volcano plot.
 \dontrun{
 # artifical data 
 df = data.frame(gene=letters, fdr=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
-plot_volcano(df) + labs(title='Random generated data and gglabs')
+p = plot_volcano(df) + labs(title='Random generated data and gglabs')
 }
 
 }
