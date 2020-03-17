@@ -8,7 +8,7 @@
 #' \dontrun{
 #' ## generate a random plot
 #' set.seed(3)
-#' df = data.frame(gene=letters, fdr=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
+#' df = data.frame(gene=letters, FDR=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
 #' p = plot_volcano(df) + labs(title='Random generated data and gglabs')
 #'
 #' ## Generate random dataset
@@ -26,18 +26,20 @@
 
 
 
-plot_overlay <- function(p, reference, point_expansion = 1.1){
+plot_overlay <- function(p, reference, point_expansion = 1.05){
+  
+  # todo: give more informative errors..
   
   # check data of p format of reference
   stopifnot(!is.null(p$data))
   stopifnot(is.list(reference) & !is.data.frame(reference))
   
   # convert list to data.frame
-   reference = list_to_df(reference)
+  reference = list_to_df(reference)
 
   # merge genelist into data.frame and plot
-  mymerge = merge(p$data[,c('gene','logFC','pvalue','fdr','significant')], reference, by = 'gene')
-  print(mymerge)
+  mymerge = merge(p$data[,c('gene','logFC','pvalue','FDR','significant')], reference, by = 'gene')
+
   # add the new point
   p1 = p + geom_point(mymerge, 
                  mapping=aes(x=logFC, y=-log10(pvalue)), 

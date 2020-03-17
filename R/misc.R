@@ -31,5 +31,11 @@ catf <- function(msg, file = stderr()){
   if (!is.null(file)) cat(file = file, msg)
 }
 
+#' @title as.bait
+#' @description quickly format the bait so that it can be used by various overlay functions.
+#' @param bait string indicating the bait.
+#' @export
+as.bait <- function(bait) return(list(baitlist=data.frame(gene=bait, col_significant='red', col_other='orange')))
+
 
 
