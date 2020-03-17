@@ -3,6 +3,7 @@
 #' @param p a plot object returned from ggplot.
 #' @param reference a list of named data.frames.
 #' @param point_expansion percentage expansion of genelist points.
+#' @param legend boolean. Print legend to plot?
 #' @export
 #' @examples
 #' \dontrun{
@@ -26,7 +27,7 @@
 
 
 
-plot_overlay <- function(p, reference, point_expansion = 1.05){
+plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
   
   # todo: give more informative errors..
   
