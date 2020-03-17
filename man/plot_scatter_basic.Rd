@@ -4,10 +4,16 @@
 \alias{plot_scatter_basic}
 \title{Draw a scatter plot of replicates}
 \usage{
-plot_scatter_basic(df, bait, size_point = 3, size_text = 3, color_alpha = 0.8)
+plot_scatter_basic(df, bait, size_point = 3, size_text = 3)
 }
 \arguments{
-\item{df}{A data.frame containing replicate/triplicate columns.}
+\item{df}{A data.frame containing at least gene, significant, replicate/triplicate columns.}
+
+\item{bait}{the name of the bait}
+
+\item{size_point}{size of point.}
+
+\item{size_text}{size of the text label.}
 }
 \value{
 a list of ggplot objects and replicate correlations
@@ -26,5 +32,4 @@ dat = plot_scatter_basic(df, bait = 'A')
 dat
  
 }
-
 }

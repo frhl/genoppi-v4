@@ -1,13 +1,12 @@
 #' @title Plot basic volcano
-#' @description A function that draw a basic volcano plot.
+#' @description takes in a data.frane with the columns gene, logFC, pvalue and significant 
+#' to draw a volcano. Optionally, a column indicating 'color' (string) can be supplied to 
+#' indicate the volcano color scheme and whether to draw names of specific proteins.
 #' @param df a data.frame with at least columns gene, logFC, pvalue and significant.
 #' @param bait the gene name of the bait.
 #' @param col_significant the color of significant proteins/rows.
 #' @param col_other the color of non-significnt proteins/rows.
 #' @param size_point the size of the points. 
-#' @usage takes in a data.frane with the columns gene, logFC, pvalue and significant 
-#' to draw a volcano. Optionally, a column indicating 'color' (string) can be supplied to 
-#' indicate the volcano color scheme and whether to draw names of specific proteins.
 #' @export
 #' @examples
 #' \dontrun{

@@ -4,9 +4,12 @@
 \alias{plot_volcano_basic}
 \title{Plot basic volcano}
 \usage{
-takes in a data.frane with the columns gene, logFC, pvalue and significant 
-to draw a volcano. Optionally, a column indicating 'color' (string) can be supplied to 
-indicate the volcano color scheme and whether to draw names of specific proteins.
+plot_volcano_basic(
+  df,
+  col_signficant = "#41AB5D",
+  col_other = "grey",
+  size_point = 3
+)
 }
 \arguments{
 \item{df}{a data.frame with at least columns gene, logFC, pvalue and significant.}
@@ -20,7 +23,9 @@ indicate the volcano color scheme and whether to draw names of specific proteins
 \item{col_significant}{the color of significant proteins/rows.}
 }
 \description{
-A function that draw a basic volcano plot.
+takes in a data.frane with the columns gene, logFC, pvalue and significant 
+to draw a volcano. Optionally, a column indicating 'color' (string) can be supplied to 
+indicate the volcano color scheme and whether to draw names of specific proteins.
 }
 \examples{
 \dontrun{

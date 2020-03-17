@@ -1,6 +1,9 @@
 #' @title Draw a scatter plot of replicates
 #' @description Draws replicate correlation scatter plot(s)
-#' @param df A data.frame containing replicate/triplicate columns.
+#' @param df A data.frame containing at least gene, significant, replicate/triplicate columns.
+#' @param bait the name of the bait
+#' @param size_point size of point.
+#' @param size_text size of the text label.
 #' @return a list of ggplot objects and replicate correlations
 #' @export
 #' @examples 
@@ -14,12 +17,9 @@
 #' dat
 #'  
 #' }
-#' 
 
 
-
-
-plot_scatter_basic <- function(df, bait, size_point = 3, size_text=3, color_alpha=0.8){
+plot_scatter_basic <- function(df, bait, size_point = 3, size_text=3){
   
   require(ggplot2)
   require(ggrepel)
