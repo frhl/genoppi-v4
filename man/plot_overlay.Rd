@@ -14,7 +14,7 @@ plot_overlay(p, reference, point_expansion = 1.1)
 \item{point_expansion}{percentage expansion of genelist points.}
 }
 \description{
-Overlays a ggplot with a reference data set, e.g. a bait or a genelist
+Overlays a ggplot with a reference data set, e.g. a bait or a genelist. Can be applied iteratively.
 }
 \examples{
 \dontrun{

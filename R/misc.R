@@ -30,3 +30,6 @@ null_omit <- function(lst) {
 catf <- function(msg, file = stderr()){
   if (!is.null(file)) cat(file = file, msg)
 }
+
+
+

@@ -1,5 +1,5 @@
 #' @title plot overlay
-#' @description Overlays a ggplot with a reference data set, e.g. a bait or a genelist
+#' @description Overlays a ggplot with a reference data set, e.g. a bait or a genelist. Can be applied iteratively.
 #' @param p a plot object returned from ggplot.
 #' @param reference a list of named data.frames.
 #' @param point_expansion percentage expansion of genelist points.
