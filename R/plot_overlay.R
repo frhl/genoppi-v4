@@ -30,17 +30,18 @@ plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
   
   # todo: give more informative errors..
   
+  
   # check data of p format of reference
   stopifnot(!is.null(p$data))
   stopifnot(is.list(reference) & !is.data.frame(reference))
   
   # convert list to data.frame
-  reference = list_to_df(reference)
+  reference = validate_reference(list_to_df(reference))
   
   # merge genelist into data.frame and check for duplicates
   mymerge = merge(p$data[,c('gene','logFC','pvalue','FDR','significant')], reference, by = 'gene')
   dup = unlist(lapply(mymerge$gene, function(x) sum(mymerge$gene == x))) > 1
-  mymerge[dup, ]$alt_label <- paste0(mymerge[dup, ]$gene,' [', mymerge[dup, ]$dataset,']')
+  if (any(dup)) mymerge[dup, ]$alt_label <- paste0(mymerge[dup, ]$gene,' [', mymerge[dup, ]$dataset,']')
   
   # add the new point
   p1 = p + geom_point(mymerge, 
@@ -70,6 +71,7 @@ plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
 }
 
 
+
 #' @title concert genoppi genelist to data.frame
 #' @description converts a named list of datasets to
 #' a single data.frame that also contains shape, label and color.
@@ -77,7 +79,12 @@ plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
 #' @return a data.frame
 #' @note internal
 list_to_df <- function(lst){
+  # check input
   if (is.null(names(lst))) stop('lists must be named!')
+  # check that the same columns are present in each data.frame
+  expected_cols = unique(unlist(lapply(lst, function(x) colnames(x))))
+  invalid_col = lapply(lst, function(x) any(expected_cols %nin% colnames(x)))
+  if (any(unlist(invalid_col))) stop('listed data.frames must have same column names.')
   # add columns to each data.frame
   tmp_lst = lapply(1:length(lst), function(i) {
     df = lst[[i]]
@@ -99,6 +106,23 @@ list_to_df <- function(lst){
 
 
 
+#' @title validate reference data.frame
+#' @description A function that checks the column names 
+#' of a data.frame to see whether they contain values
+#' that can be used by ggplot.
+#' @param df a data.frame
+#' @param valid a vector of valid ggplot options
+#' @return a data.frame
+#' @note internal
+validate_reference <- function(df, valid = c('gene','col_significant','col_other',
+                                             'shape','dataset','stroke','alt_label',
+                                            'label','size')){
+  
+  bool = colnames(df) %in% valid
+  cols = colnames(df)[!bool]
+  warning(paste('columns:', paste(cols, collapse=', '),'from reference data.frame are not ggplot compatible and were ignored.'))
+  return(df[bool])
+}
 
 
 
