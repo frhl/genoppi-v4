@@ -2,7 +2,7 @@
 % Please edit documentation in R/map_gene_id.R
 \name{map_gene_id}
 \alias{map_gene_id}
-\title{map id to gene}
+\title{Map Uniprot accession ID to gene name (HGNC symbol)}
 \usage{
 map_gene_id(df)
 }
@@ -13,5 +13,5 @@ map_gene_id(df)
 list of (df with accession_number column replaced by gene column, df with accession_number and gene columns)
 }
 \description{
-maps an uniprot id to hgnc symbol using a hashmap
+Map and replace accession_number column in a data.frame with gene column. Isoforms (indicated by suffixes separated by . or - in acession_number) are mapped to the same gene names.
 }

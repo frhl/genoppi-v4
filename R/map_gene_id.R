@@ -1,19 +1,19 @@
-#' @title map id to gene
-#' @description maps an uniprot id to hgnc symbol using a hashmap
+#' @title Map Uniprot accession ID to gene name (HGNC symbol)
+#' @description Map and replace accession_number column in a data.frame with gene column. Isoforms (indicated by suffixes separated by . or - in acession_number) are mapped to the same gene names.
 #' @param df data.frame containing accession_number column
 #' @return list of (df with accession_number column replaced by gene column, df with accession_number and gene columns)
 #' @export
 
 map_gene_id <- function(df){
   
-  # check if data contains isoforms
-  if (any(grepl('(\\-)|(\\.)', df$accession_number))) warning('map_gene_id.R can not handle isoforms, these are included as NAs')
+  # strip any isoform suffixes (separated by . or -) before mapping
+  accession_noIsoform <- sapply(strsplit(as.character(df$accession_number),'(\\-)|(\\.)'),'[',1)
   
   # map data
   require(hashmap)
   dataPath <- system.file("extdata", "uniprotid_to_hgnc", package="genoppi")
   hm <- load_hashmap(dataPath)  
-  mappedGenes <- as.factor(hm[[df$accession_number]])
+  mappedGenes <- as.factor(hm[[accession_noIsoform]])
 
   # mapping result
   mapDf <- data.frame(accession_number=df$accession_number,gene=mappedGenes)
