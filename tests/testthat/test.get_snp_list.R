@@ -10,7 +10,7 @@ test_that('get_snp_list can return correct data.frame',{
 
   # SNP list with mapped genes overlapping proteomic data
   result <- get_snp_list(snpFile, genes)
-  expect_identical(sort(result$gene),as.factor(c("ATXN2","FUS","MATR3","SOD1","SOD1")))
+  expect_identical(sort(as.character(result$gene)),c("ATXN2","FUS","MATR3","SOD1","SOD1"))
 
   # SNP list with no overlap in proteomic data
   result2 <- get_snp_list(snpFile, genes_null)

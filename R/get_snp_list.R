@@ -1,6 +1,6 @@
 #' @title Read in SNP list data
 #' @description Create gene list data.frame from input SNP list file
-#' @param filename file path of SNP list file (one column of SNP IDs with not header) 
+#' @param filename file path of SNP list file (one column of SNP IDs with no header) 
 #' @param genes vector of gene names (genes detected in proteomic data)
 #' @return data.frame containing gene and SNP columns (restricting to genes in input genes vector; genes and SNPs can appear multiple times)
 #' @export

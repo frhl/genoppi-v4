@@ -7,7 +7,7 @@
 get_snp_list(filename, genes)
 }
 \arguments{
-\item{filename}{file path of SNP list file (one column of SNP IDs with not header)}
+\item{filename}{file path of SNP list file (one column of SNP IDs with no header)}
 
 \item{genes}{vector of gene names (genes detected in proteomic data)}
 }
