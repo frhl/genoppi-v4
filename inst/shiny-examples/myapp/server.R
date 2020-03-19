@@ -5,7 +5,7 @@
 
 #protfams_genes_cols (error on package level)
 
-#source("functions.R")
+source("~/Projects/04_genoppi/Genoppi-master/functions.R")
 
 shinyServer(function(input, output, session){
   #supress warnings
@@ -573,77 +573,40 @@ shinyServer(function(input, output, session){
     }
   })
   
+  
+  # loading the data and getting the pulldown
   a_in_pulldown <- reactive({
-    if(!is.null(input$a_file_pulldown_r)){
-      pulldown <- input$a_file_pulldown_r
-      d <- fread(pulldown$datapath, header = TRUE,
-                 sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
-      d <- na.omit(d)
-      d
-    }
+    req(input$a_file_pulldown_r)
+    d <- read_input(input$a_file_pulldown_r$datapath)
+    return(d)
   })
   
+  # map accession_numbers to gene ids if needed
   a_orig_pulldown <- reactive({
-    if(!is.null(a_in_pulldown())){
-      d <- a_in_pulldown()
-      d_col <- colnames(d)
-      if("gene" %in% d_col & "accession_number" %in% d_col){
-        df <- d
-        df$gene <- toupper(df$gene)
-      } else if("accession_number" %in% d_col){
-        withProgress(message = 'Mapping UniProt IDs to HGNC symbols',
-                     detail = 'Hold please', value = 0, {
-                       d$uniprot_new <- vapply(strsplit(d$accession_number,"-"), `[`, 1, FUN.VALUE=character(1))
-                       incProgress(0.6)
-                       df <- join(d, up_to_hgnc, type="left")
-                       df$gene[is.na(df$gene)] <- df$accession_number[is.na(df$gene)]
-                       df$all_gene_names[is.na(df$all_gene_names)] <- df$accession_number[is.na(df$all_gene_names)]
-                       incProgress(0.8)
-                       df <- df[ , !(names(df) %in% c("uniprot_new"))]
-                       incProgress(0.9)
-                       df
-                     })
-      } else if("gene" %in% d_col){
-        df <- d
-        df$gene <- toupper(df$gene)
-      }
-      df
-    }
-  })
+    pulldown <- a_in_pulldown()
+    if (pulldown$format$accession_rep == TRUE){
+      pulldown$data <- map_gene_id(pulldown$data)} # this may also be in another namespace. check!
+    pulldown$data$gene = toupper(pulldown$data$gene)
+    return(pulldown$data)
+  })  
   
-  
-  # error: when inputting gene names directly,
-  # server expects object 'all_gene_names'
-  # this should be tested however.
+  # final pulldown formatted data.frame
   a_pulldown <- reactive({
-    if(!is.null(a_orig_pulldown())){
-      d <- a_orig_pulldown()
-      d_col <- colnames(d)
-      if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col &
-         "rep1" %in% d_col & "rep2" %in% d_col){
-        df1 <- d
-      }else if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col){
-        df1 <- d
-      }else if("rep1" %in% d_col & "rep2" %in% d_col){
-        df <- d
-        if("accession_number" %in% d_col){
-          df1 <- calculate_moderated_ttest_uniprot(df)
-        }
-        else if("accession_number" %!in% d_col){
-          df1 <- calculate_moderated_ttest_hgnc(df) 
-        }
-      }
-      df1$all_gene_names <- df1$gene
-      df1
-    }
+    pulldown <- a_orig_pulldown()
+    format <- a_in_pulldown()$format
+    if (format$gene_rep | format$accession_rep){
+      result = calc_mod_ttest(pulldown) }
+    result$all_gene_names <- result$gene
+    return(result)
   })
   
-  a_converted <- reactive({
-    if(!is.null(a_orig_pulldown())){
-      d <- fread("scripts/gene-tools-master/map/results.txt", header = TRUE,
-                 sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE)
-    }
-  })
+  # edit by flassen
+  #a_converted <- reactive({
+  #  if(!is.null(a_orig_pulldown())){
+  #    d <- fread("scripts/gene-tools-master/map/results.txt", header = TRUE,
+  #               sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE)
+  #  }
+  #})
   
   
   a_in_file_color <- reactive({
@@ -1114,70 +1077,38 @@ shinyServer(function(input, output, session){
     }
   })
   
+  ## ggplot automatically generated and reactive color bars
   a_vp_colorbar <- reactive({
     FDR <- seq(0, 1, 0.01)
     limit <- rep("FDR", 101)
     d <- data.frame(limit, FDR)
+    # based on FDR
     if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
+
       d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
         scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-        labs(title = "FDR") +
-        theme(axis.title.x=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              plot.title = element_text(size = rel(1))) + coord_fixed()
+        labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
       bar
+    # based on exac
     } else if(input$colorscheme == "exac"){
       d1 <- separate_to_groups_for_exac_bar(d)
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +
-        labs(y = " pLI < 0.9     pLI >= 0.9    not in ExAC") +
-        theme(axis.title.x=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
+        labs(y = " pLI < 0.9     pLI >= 0.9    not in ExAC") + theme_genoppi_bar() + coord_fixed()
       bar
+    
+    # based on cbf
     } else if(input$colorscheme == "cbf"){
       d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
         scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-        labs(title = "FDR") +
-        theme(axis.title.x=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              plot.title = element_text(size = rel(1))) + coord_fixed()
+        labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
       bar
-    } #else if(input$colorscheme == "user"){
-    #   validate(
-    #     need(!is.null(input$file_color), "")
-    #   )
-    #   FDR <- seq(0, 1, (1/(nrow(dd))))
-    #   limit <- rep("FDR", (nrow(dd)+1))
-    #   d <- data.frame(limit, FDR)
-    #   dd <- a_in_file_color()
-    #   if(input$colorscheme_style == "cont"){
-    #     d1 <- separate_to_groups_for_color_continuous(d, dd)
-    #     mycol <- as.vector(d1$col)
-    #     bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
-    #       scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-    #       labs(title = "FDR") +
-    #       theme(axis.title.x=element_blank(),
-    #             axis.text.x=element_blank(),
-    #             axis.ticks.x=element_blank(),
-    #             panel.background=element_blank(),
-    #             plot.title = element_text(size = rel(1))) + coord_fixed()
-    #     bar
-    #   }
-    # }
+    } 
   })
   
   a_vp_colorbar_dl <- reactive({
@@ -1186,6 +1117,7 @@ shinyServer(function(input, output, session){
     d <- data.frame(limit, FDR)
     if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
+      browser()
       d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
@@ -1226,6 +1158,7 @@ shinyServer(function(input, output, session){
   })
   
   a_vp_gg <- function(){
+    browser()
     d <- a_pulldown()
     if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
