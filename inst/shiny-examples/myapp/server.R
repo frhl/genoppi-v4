@@ -186,6 +186,10 @@ shinyServer(function(input, output, session){
     textInput("a_bait_vennd", "Input HGNC symbol to search for InWeb protein interactors (e.g. ZBTB7A)")
   })
   
+  output$a_bait_search <- renderUI({
+    textInput("a_bait_search_rep", "Indicate bait")
+  })
+  
   output$a_GOI_search <- renderUI({
     textInput("a_goi_search_rep", "Search for gene (e.g. SHH)")
   })
@@ -600,7 +604,6 @@ shinyServer(function(input, output, session){
     return(result)
   })
   
-  # edit by flassen
   #a_converted <- reactive({
   #  if(!is.null(a_orig_pulldown())){
   #    d <- fread("scripts/gene-tools-master/map/results.txt", header = TRUE,
@@ -609,7 +612,9 @@ shinyServer(function(input, output, session){
   #})
   
   
+  # ??? seems to be loading some color scheme?
   a_in_file_color <- reactive({
+    browser()
     if(!is.null(input$file_color)){
       color_file <- input$file_color
       d <- fread(color_file$datapath, header = TRUE, 
@@ -1085,7 +1090,6 @@ shinyServer(function(input, output, session){
     # based on FDR
     if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
-
       d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
@@ -1122,50 +1126,39 @@ shinyServer(function(input, output, session){
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
         scale_x_continuous(breaks = seq(0, 1, 0.1)) +
-        labs(x = "FDR") +
-        theme(axis.title.y=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
+        labs(x = "FDR") + theme_genoppi_bar() + coord_fixed()
       bar
     } else if(input$colorscheme == "exac"){
       d1 <- separate_to_groups_for_exac_bar(d)
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-        labs(x = " pLI < 0.9          pLI >= 0.9       not in ExAC") +
-        theme(axis.title.y=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
+        labs(x = " pLI < 0.9          pLI >= 0.9       not in ExAC") + theme_genoppi_bar() + coord_fixed()
       bar
     } else if(input$colorscheme == "cbf"){
       d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
       mycol <- as.vector(d1$col)
       bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
         scale_x_continuous(breaks = seq(0, 1, 0.1)) +
-        labs(x = "FDR") +
-        theme(axis.title.y=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
+        labs(x = "FDR") + theme_genoppi_bar() + coord_fixed()
       bar
     }
   })
   
-  a_vp_gg <- function(){
-    browser()
+  a_vp_gg <- function(){ # can tjhis function be removed
     d <- a_pulldown()
+    browser() # what is this function really for??
     if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
       d_int <- subset(d, d$FDR <= input$a_fdr_thresh)
       d_non_int <- subset(d, !(d$FDR <= input$a_fdr_thresh))
+      
+      ## goto here
+      d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
+      
+      
+      p <- plot_volcano_basic(d)
       # data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      p <- plot_volcano_qc_gg_1(d_int, d_non_int, input$a_color_indv_sig, input$a_color_indv_insig, input$a_logFC_thresh[1], input$a_logFC_thresh[2], input$a_pval_thresh)
+      #p <- plot_volcano_qc_gg_1(d_int, d_non_int, input$a_color_indv_sig, input$a_color_indv_insig, input$a_logFC_thresh[1], input$a_logFC_thresh[2], input$a_pval_thresh)
     } else if(input$colorscheme == "exac"){
       d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
       d$s[is.na(d$s)] <- 2
@@ -1195,14 +1188,7 @@ shinyServer(function(input, output, session){
         p <- ggplot(data = data2, aes(x = logFC, y = -log10(pvalue), text = gene)) +
           geom_point(data = data1, alpha = 0.5, size = 1.5, colour = "#f7f7f7") + 
           geom_point(data = data, alpha = 0.5, size = 1.5, colour = data$col) + 
-          xlab("log2FC") + ylab("-log10(P)") +
-          theme_minimal() +
-          theme(axis.text.x = element_text(size=7),
-                axis.title.x=element_text(size=8),
-                axis.text.y=element_text(size=7),
-                axis.title.y=element_text(size=8),
-                panel.grid.minor = element_blank(),
-                plot.margin = unit(c(1,1,1,1), "pt"))
+          xlab("log2FC") + ylab("-log10(P)") + theme_genoppi()
       }
       p
     }
@@ -1408,13 +1394,14 @@ shinyServer(function(input, output, session){
     d <- a_pulldown()
     print(head(d))
     if(input$colorscheme == "fdr"){
+      
+    
       req(input$a_color_indv_sig, input$a_color_indv_insig)
-      # d[d$col=="sig"]<-col2hex(input$a_color_indv_sig)
-      # d[d$col=="insig"]<-col2hex(input$a_color_indv_insig)
-      # data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh)
-      data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      # print(head(data))
-      p <- plot_volcano_qc(data)
+      d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
+      p <- plot_volcano_basic(d)
+      p <- add_markers_basic(p)
+      p
+
     } else if(input$colorscheme == "exac"){
       d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
       d$s[is.na(d$s)] <- 2
@@ -1456,14 +1443,15 @@ shinyServer(function(input, output, session){
       p
     }
     p <- p %>%
-      layout(xaxis = list(title = "log<sub>2</sub>(Fold change)", range=~c(min(d$logFC)-0.5, max(d$logFC)+0.5)),
-             yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)", range=~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5))) %>%
+      #layout(xaxis = list(title = "log<sub>2</sub>(Fold change)", range=~c(min(d$logFC)-0.5, max(d$logFC)+0.5)),
+      #       yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)", range=~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5))) %>%
       add_lines(x = ~c(min(d$logFC)-0.5, max(d$logFC)+0.5), y = ~-log10(input$a_pval_thresh), line = list(dash = "dash", width = 0.5, color = "#2b333e"),
                 name = '', hoverinfo = "text", text = paste0("pvalue = ", input$a_pval_thresh), showlegend = F) %>%
       add_lines(x = input$a_logFC_thresh[1], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"),
                 name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[1]), showlegend = F) %>%
       add_lines(x = input$a_logFC_thresh[2], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"),
                 name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[2]), showlegend = F)
+    catf('this is ok..')
     p
   })
   
@@ -3141,6 +3129,7 @@ shinyServer(function(input, output, session){
     a_vp_colorbar()
   })
   
+  # the actual volcano plot outputted to the user
   output$VolcanoPlot <- renderPlotly({
     validate(
       need(input$a_file_pulldown_r != '', "Upload file")
@@ -3533,6 +3522,7 @@ shinyServer(function(input, output, session){
   )
   
   basic_plot_dl <- reactive({
+    browser()
     df <- a_in_pulldown()
     if("logFC" %in% colnames(df) & "FDR" %in% colnames(df) & "pvalue" %in% colnames(df) &
        "rep1" %in% colnames(df) & "rep2" %in% colnames(df)){

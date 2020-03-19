@@ -563,6 +563,7 @@ sidebar <- dashboardSidebar(
               conditionalPanel("input.sidebarmenu === 'dashboard'",
                                uiOutput("a_file"),
                                HTML('<hr style="border-color: #D6DBE0;">'),
+                               uiOutput("a_bait_search"),
                                uiOutput("a_GOI_search"),
                                uiOutput("a_color_scheme"),
                                uiOutput("a_color_style"),
