@@ -32,6 +32,7 @@ Imports:
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
+	'add_hover_markers.R'
     'check_input.R'
     'read_input.R'
     'calc_mod_ttest.R'
