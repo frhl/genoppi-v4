@@ -4,14 +4,14 @@
 \alias{read_input}
 \title{Read input data}
 \usage{
-read_input(filename, header, sep)
+read_input(filename, header = "auto", sep = "auto")
 }
 \arguments{
 \item{filename}{path to input file}
 
 \item{header}{a logical value indicating whether the file contains the names of the variables as its first line}
 
-\item{sep}{the field character seperator, see \code{?read.table}}
+\item{sep}{the field character seperator, see \code{?fread}}
 }
 \value{
 list contaiing input data.frame and list of boolean variables indicating input format
