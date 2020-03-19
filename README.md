@@ -1,5 +1,11 @@
-# genoppi-v4
-Genoppi version 4. See 'issues' for current development todo's. 
+# genoppi-v4 (developer version)
+Genoppi version 4. See 'issues' for current development todo's. Run the current shiny app development by loading the package and running:
+
+```R
+library(genoppi)
+launch_genoppi() # will launch a shiny app
+
+```
 
 ## R-package development
 
