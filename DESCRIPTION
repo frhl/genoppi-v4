@@ -13,7 +13,8 @@ LazyData: true
 Depends:
     R (>= 3.6.1)
 Suggests:
-    devtools
+    devtools,
+    shinydashboard
 Imports:
     assertthat,
     stats,
@@ -26,7 +27,8 @@ Imports:
     ggplot2,
     ggrepel,
     limma,
-    shiny
+    shiny,
+    data.table
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 

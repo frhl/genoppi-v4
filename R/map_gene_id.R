@@ -6,6 +6,8 @@
 
 map_gene_id <- function(df){
   
+  stopifnot('accession_number' %in% colnames(df))
+  
   # strip any isoform suffixes (separated by . or -) before mapping
   accession_noIsoform <- sapply(strsplit(as.character(df$accession_number),'(\\-)|(\\.)'),'[',1)
   

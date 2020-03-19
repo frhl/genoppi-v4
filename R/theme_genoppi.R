@@ -15,4 +15,13 @@ theme_genoppi <- function(){
   p
 }
 
-
+#' @title genoppi themed bar
+#' @description genoppi themed bar for shiny
+theme_genoppi_bar <- function(){
+  p <- theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        panel.background=element_blank(),
+        plot.title = element_text(size = rel(1)))
+  p
+}
