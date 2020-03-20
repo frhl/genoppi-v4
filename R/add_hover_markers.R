@@ -2,16 +2,65 @@
 #' @description A function that takes a ggplot as input and 'plotlyfies' it so
 #' that it becomes interactive by adding markers.
 #' @param plt a ggplot
+#' @note internal
 #' @family shiny
 
 add_markers_basic <- function(p){
   
+  # go through colors and check if they are in a genelist
+  p_overlay <- data.frame(
+    gene = p$overlay$gene,
+    color = ifelse(p$overlay$significant, p$overlay$col_significant, p$overlay$col_other)
+  )
+  # assign new color
+  p$data[p$data$gene %in% p_overlay$gene, ]$color <- p_overlay$color
+  catf(p_overlay$color)
+  
+  # plotlify
   p1 <- plot_ly(showlegend = FALSE, width = 550, height = 550)
-  p1 <- add_markers(p1, data = p$data, x = ~logFC, y = ~-log10(pvalue), color = p$data$color,
-                    marker = list(size = 7, cmin = 0, cmax = 1, line = list(width=0.2, color = "blue")),
+  p1 <- add_markers(p1, data = p$data, x = ~logFC, y = ~-log10(pvalue),
+                    marker = list(size = 7, cmin = 0, cmax = 1, color = p$data$color, line = list(width=0.2, color='black')),
                     opacity = 0.9,
-                    text = ~paste0(all_gene_names, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text", name = "pull down")
+                    text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text", name = "pull down")
+  p1$data <- p$data
   p1
 }
+
+#' @title add hover lines
+#' @description A function that adds reactive dashed lines to a plotly object.
+#' @param p a ggplot
+#' @param line_pvalue the pvalue threshold
+#' @param line_logfc the logfc threshold 
+#' @note internal
+#' @family shiny
+add_hover_lines <- function(p, line_pvalue, line_logfc){
+  
+  stopifnot(!is.null(p$data))
+  
+  p <- p %>%
+  add_lines(x = ~c(min(p$data$logFC)-0.5, max(p$data$logFC)+0.5), y = ~-log10(line_pvalue), line = list(dash = "dash", width = 0.5, color = "#2b333e"),
+            name = '', hoverinfo = "text", text = paste0("pvalue = ", line_pvalue), showlegend = F) %>%
+    add_lines(x = line_logfc[1], y = ~c(min(-log10(p$data$pvalue)-0.5), max(-log10(p$data$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"),
+              name = '', hoverinfo = "text", text = paste0("logFC = ", line_logfc[1]), showlegend = F) %>%
+    add_lines(x = line_logfc[2], y = ~c(min(-log10(p$data$pvalue)-0.5), max(-log10(p$data$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"),
+              name = '', hoverinfo = "text", text = paste0("logFC = ", line_logfc[2]), showlegend = F)
+  p
+}
+
+#' @title add reactive dashed lines
+#' @description Format plotly axes.
+#' @param p a ggplot
+#' @note internal
+#' @family shiny
+add_layout_html_axes <- function(p){
+  
+  stopifnot(!is.null(p$data))
+  p <- p %>% layout(xaxis = list(title = "log<sub>2</sub>(Fold change)", range=~c(min(p$data$logFC)-0.5, max(p$data$logFC)+0.5)),
+         yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)", range=~c(min(-log10(p$data$pvalue)-0.5), max(-log10(p$data$pvalue))+0.5)))
+  p
+}
+
+
+
 
 

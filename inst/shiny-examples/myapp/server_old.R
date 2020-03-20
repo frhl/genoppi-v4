@@ -39,53 +39,30 @@ shinyServer(function(input, output, session){
                  inline = T)
   })
   
-  output$a_logfc_direction_ui <- renderUI({
-    radioButtons("a_logfc_direction", "LogFC direction",
-                 c("-" = "negative", 
-                   "Both" = "both",
-                   "+" = "positive"),
+  output$a_file_color <- renderUI({
+    validate(
+      need(input$colorscheme == "user", "")
+    )
+    fileInput('file_color', 'Upload user score input',
+              accept = c(
+                'text/csv',
+                'text/comma-separated-values',
+                'text/tab-separated-values',
+                'text/plain',
+                '.csv',
+                '.tsv')
+    )
+  })
+  
+  output$a_color_style <- renderUI({
+    validate(
+      need(input$colorscheme == "user", "")
+    )
+    radioButtons("colorscheme_style", "Color scale:",
+                 c("Continuous" = "cont", 
+                   "Discrete" = "disc"),
                  inline = T)
   })
-  
-  
-  # 
-  output$a_significance_type_ui <- renderUI({
-    radioButtons("a_significance_type", "Significance",
-                 c("FDR" = "fdr", "P-value" = "pvalue"),
-                 inline = T)
-  })
-  
-  output$FDR_thresh <- renderUI({
-    #validate(need(input$a_significance_type == 'fdr', ''))
-    sliderInput("a_fdr_thresh", "FDR threshold",
-                min = 0, max = 1, value = 0.1, step = 0.01)
-  })
-  
-  output$PVal_thresh <- renderUI({
-    #validate(need(input$a_significance_type == 'pvalue', ''))
-    sliderInput("a_pval_thresh", "p-value threshold",
-                min = 0, max = 1, value = 0.05, step = 0.001)
-  })
-  
-  
-  
-  
-  # based on a_pulldown(), create slider for logFC
-  output$logFC_thresh <- renderUI({
-    if(!is.null(input$a_file_pulldown_r)){
-      df <- a_pulldown()
-      min_logFC <- min(df$logFC)
-      min_logFC <- round(min_logFC-0.5, 1)
-      max_logFC <- max(df$logFC)
-      max_logFC <- round(max_logFC+0.5, 1)
-      sliderInput("a_logFC_thresh", "logFC threshold",
-                  min = min_logFC, max = max_logFC, value = c(0, max_logFC), step = 0.1)
-    }else
-      sliderInput("a_logFC_thresh", "logFC threshold",
-                  min = -1, max = 1, value = c(0, 1), step = 0.1)
-  })  
-
-  
   
   output$a_color_theme <- renderUI({
     validate(
@@ -217,8 +194,37 @@ shinyServer(function(input, output, session){
     textInput("a_goi_search_rep", "Search for gene (e.g. SHH)")
   })
   
-
- 
+  output$FDR_thresh <- renderUI({
+    sliderInput("a_fdr_thresh", "FDR threshold",
+                min = 0, max = 1, value = 0.1, step = 0.01)
+  })
+  
+  output$PVal_thresh <- renderUI({
+    sliderInput("a_pval_thresh", "p-value threshold",
+                min = 0, max = 1, value = 0.05, step = 0.001)
+  })
+  
+  # based on a_pulldown(), create slider for logFC
+  output$logFC_thresh <- renderUI({
+    if(!is.null(input$a_file_pulldown_r)){
+      df <- a_pulldown()
+      min_logFC <- min(df$logFC)
+      min_logFC <- round(min_logFC-0.5, 1)
+      max_logFC <- max(df$logFC)
+      max_logFC <- round(max_logFC+0.5, 1)
+      # combined_max <- max(-(min_logFC), max_logFC)
+      #numericInput("a_logFC_thresh", "logFC threshold",
+      #            min = 0, max = combined_max, value = 1, step = 0.1)
+      # min_logFC <- floor(min(df$logFC))
+      # min_logFC <- floor(min_logFC-0.5)
+      # max_logFC <- ceiling(max(df$logFC))
+      # max_logFC <- signif(max_logFC+0.5, 1)
+      sliderInput("a_logFC_thresh", "logFC threshold",
+                  min = min_logFC, max = max_logFC, value = c(0, max_logFC), step = 0.1)
+    }else
+      sliderInput("a_logFC_thresh", "logFC threshold",
+                  min = -1, max = 1, value = c(0, 1), step = 0.1)
+  })
   
   output$a_text_label <- renderUI({
     radioButtons('a_marker_text', 'Turn on/off labels',
@@ -598,17 +604,24 @@ shinyServer(function(input, output, session){
     return(result)
   })
   
-
-  # ??? seems to be loading some color scheme?
-  #a_in_file_color <- reactive({
-  #  browser()
-  #  if(!is.null(input$file_color)){
-  #    color_file <- input$file_color
-  #    d <- fread(color_file$datapath, header = TRUE, 
-  #               sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
-  #    d <- na.omit(d)
+  #a_converted <- reactive({
+  #  if(!is.null(a_orig_pulldown())){
+  #    d <- fread("scripts/gene-tools-master/map/results.txt", header = TRUE,
+  #               sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE)
   #  }
   #})
+  
+  
+  # ??? seems to be loading some color scheme?
+  a_in_file_color <- reactive({
+    browser()
+    if(!is.null(input$file_color)){
+      color_file <- input$file_color
+      d <- fread(color_file$datapath, header = TRUE, 
+                 sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
+      d <- na.omit(d)
+    }
+  })
   
   ##
   
@@ -1074,6 +1087,8 @@ shinyServer(function(input, output, session){
     FDR <- seq(0, 1, 0.01)
     limit <- rep("FDR", 101)
     d <- data.frame(limit, FDR)
+    # based on FDR
+    if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
       d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
       mycol <- as.vector(d1$col)
@@ -1081,12 +1096,30 @@ shinyServer(function(input, output, session){
         scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
         labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
       bar
+    # based on exac
+    } else if(input$colorscheme == "exac"){
+      d1 <- separate_to_groups_for_exac_bar(d)
+      mycol <- as.vector(d1$col)
+      bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +
+        labs(y = " pLI < 0.9     pLI >= 0.9    not in ExAC") + theme_genoppi_bar() + coord_fixed()
+      bar
+    
+    # based on cbf
+    } else if(input$colorscheme == "cbf"){
+      d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+      mycol <- as.vector(d1$col)
+      bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
+        scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
+        labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
+      bar
+    } 
   })
   
   a_vp_colorbar_dl <- reactive({
     FDR <- seq(0, 1, 0.01)
     limit <- rep("FDR", 101)
     d <- data.frame(limit, FDR)
+    if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
       browser()
       d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
@@ -1095,12 +1128,70 @@ shinyServer(function(input, output, session){
         scale_x_continuous(breaks = seq(0, 1, 0.1)) +
         labs(x = "FDR") + theme_genoppi_bar() + coord_fixed()
       bar
+    } else if(input$colorscheme == "exac"){
+      d1 <- separate_to_groups_for_exac_bar(d)
+      mycol <- as.vector(d1$col)
+      bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
+        labs(x = " pLI < 0.9          pLI >= 0.9       not in ExAC") + theme_genoppi_bar() + coord_fixed()
+      bar
+    } else if(input$colorscheme == "cbf"){
+      d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+      mycol <- as.vector(d1$col)
+      bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
+        scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+        labs(x = "FDR") + theme_genoppi_bar() + coord_fixed()
+      bar
+    }
   })
   
   a_vp_gg <- function(){ # can tjhis function be removed
     d <- a_pulldown()
-    d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
-    p <- plot_volcano_basic(d)
+    browser() # what is this function really for??
+    if(input$colorscheme == "fdr"){
+      req(input$a_color_indv_sig, input$a_color_indv_insig)
+      d_int <- subset(d, d$FDR <= input$a_fdr_thresh)
+      d_non_int <- subset(d, !(d$FDR <= input$a_fdr_thresh))
+      
+      ## goto here
+      d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
+      
+      
+      p <- plot_volcano_basic(d)
+      # data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+      #p <- plot_volcano_qc_gg_1(d_int, d_non_int, input$a_color_indv_sig, input$a_color_indv_insig, input$a_logFC_thresh[1], input$a_logFC_thresh[2], input$a_pval_thresh)
+    } else if(input$colorscheme == "exac"){
+      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
+      d$s[is.na(d$s)] <- 2
+      below_thresh <- subset(d, s < 0.9)
+      above_thresh <- subset(d, s >= 0.9)
+      no_exist <- subset(d, s == 2)
+      p <- plot_volcano_exac_gg(below_thresh, above_thresh, no_exist)
+    } else if(input$colorscheme == "cbf"){
+      data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+      p <- plot_volcano_qc_gg(data)
+    } else if(input$colorscheme == "user"){
+      validate(
+        need(!is.null(input$file_color), "Please upload file with gene and score")
+      )
+      d1 <- a_in_file_color()
+      req(input$colorbrewer_theme)
+      col_theme <- input$colorbrewer_theme
+      if(input$colorscheme_style == "cont"){
+        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+      } else if(input$colorscheme_style == "disc"){
+        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+        data2 <- rbind(data, data1)
+        p <- ggplot(data = data2, aes(x = logFC, y = -log10(pvalue), text = gene)) +
+          geom_point(data = data1, alpha = 0.5, size = 1.5, colour = "#f7f7f7") + 
+          geom_point(data = data, alpha = 0.5, size = 1.5, colour = data$col) + 
+          xlab("log2FC") + ylab("-log10(P)") + theme_genoppi()
+      }
+      p
+    }
     p
   }
   
@@ -1108,7 +1199,6 @@ shinyServer(function(input, output, session){
     validate(
       need(!is.null(a_search_gene()), "")
     )
-    browser()
     p <- a_vp_gg()
     goi <- a_search_gene()
     orig_data <- a_pulldown()
@@ -1127,7 +1217,7 @@ shinyServer(function(input, output, session){
     pf_col <- input$colorbrewer_theme_pf
     label <- input$a_marker_text_prot_fam_db
     
-    #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+    if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
       df <- ldply(a_pf_db$d_g2s, data.frame)
       if(nrow(df) != 0){
         vp_layer_genes <- vp_layer_for_uploaded_genes_gg(p, df, pf_col, label)
@@ -1135,16 +1225,15 @@ shinyServer(function(input, output, session){
       } else{
         p1 <- p
       }
-    #}
-    #else if(input$colorscheme == "cbf"){
-    #  df <- ldply(a_pf_db$d_g2s, data.frame)
-    #  if(nrow(df) != 0){
-    #    vp_layer_genes <- vp_layer_for_uploaded_genes_cbf_gg(p, df, label)
-    #    p1 <- vp_layer_genes
-    #  } else{
-    #    p1 <- p
-    #  }
-    #}
+    } else if(input$colorscheme == "cbf"){
+      df <- ldply(a_pf_db$d_g2s, data.frame)
+      if(nrow(df) != 0){
+        vp_layer_genes <- vp_layer_for_uploaded_genes_cbf_gg(p, df, label)
+        p1 <- vp_layer_genes
+      } else{
+        p1 <- p
+      }
+    }
     p1
   }
   
@@ -1181,50 +1270,50 @@ shinyServer(function(input, output, session){
   
   a_sp_gg <- function(){
     d <- a_pulldown()
-    #if(input$colorscheme == "fdr"){
+    if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
       data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
       p <- plot_scatter_qc_gg(data)
-    #} else if(input$colorscheme == "exac"){
-    #  d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
-    #  d$s[is.na(d$s)] <- 2
-    #  below_thresh <- subset(d, s < 0.9)
-    #  above_thresh <- subset(d, s >= 0.9)
-    #  no_exist <- subset(d, s == 2)
-    #  p <- plot_scatter_exac_gg(below_thresh, above_thresh, no_exist)
-    #} else if(input$colorscheme == "cbf"){
-    #  data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-    #  p <- plot_scatter_qc_gg(data)
-    #} else if(input$colorscheme == "user"){
-    #  validate(
-    #    need(!is.null(input$file_color), "Please upload file with gene and score")
-    #  )
-    #  d1 <- a_in_file_color()
-    #  req(input$colorbrewer_theme)
-    #  col_theme <- input$colorbrewer_theme
-    #  if(input$colorscheme_style == "cont"){
-    #    df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
-    #    data <- df$df1
-    #    data1 <- df$no_exist
-    #  } else if(input$colorscheme_style == "disc"){
-    #    df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
-    #    data <- df$df1
-    #    data1 <- df$no_exist
-    #    data2 <- rbind(data, data1)
-    #    p <- ggplot(data = data2, aes(x = logFC, y = -log10(pvalue), text = gene)) +
-    #      geom_point(data = data1, alpha = 0.5, size = 1.5, colour = "#f7f7f7") + 
-    #      geom_point(data = data, alpha = 0.5, size = 1.5, colour = data$col) + 
-    #      xlab("log2FC") + ylab("-log10(P)") +
-    #      theme_minimal() +
-    #      theme(axis.text.x = element_text(size=7),
-    #            axis.title.x=element_text(size=8),
-    #            axis.text.y=element_text(size=7),
-    #            axis.title.y=element_text(size=8),
-    #            panel.grid.minor = element_blank(),
-    #            plot.margin = unit(c(1,1,1,1), "pt"))
-    #  }
-    #  p
-    #}
+    } else if(input$colorscheme == "exac"){
+      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
+      d$s[is.na(d$s)] <- 2
+      below_thresh <- subset(d, s < 0.9)
+      above_thresh <- subset(d, s >= 0.9)
+      no_exist <- subset(d, s == 2)
+      p <- plot_scatter_exac_gg(below_thresh, above_thresh, no_exist)
+    } else if(input$colorscheme == "cbf"){
+      data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+      p <- plot_scatter_qc_gg(data)
+    } else if(input$colorscheme == "user"){
+      validate(
+        need(!is.null(input$file_color), "Please upload file with gene and score")
+      )
+      d1 <- a_in_file_color()
+      req(input$colorbrewer_theme)
+      col_theme <- input$colorbrewer_theme
+      if(input$colorscheme_style == "cont"){
+        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+      } else if(input$colorscheme_style == "disc"){
+        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+        data2 <- rbind(data, data1)
+        p <- ggplot(data = data2, aes(x = logFC, y = -log10(pvalue), text = gene)) +
+          geom_point(data = data1, alpha = 0.5, size = 1.5, colour = "#f7f7f7") + 
+          geom_point(data = data, alpha = 0.5, size = 1.5, colour = data$col) + 
+          xlab("log2FC") + ylab("-log10(P)") +
+          theme_minimal() +
+          theme(axis.text.x = element_text(size=7),
+                axis.title.x=element_text(size=8),
+                axis.text.y=element_text(size=7),
+                axis.title.y=element_text(size=8),
+                panel.grid.minor = element_blank(),
+                plot.margin = unit(c(1,1,1,1), "pt"))
+      }
+      p
+    }
     p
   }
   
@@ -1250,7 +1339,7 @@ shinyServer(function(input, output, session){
     pf_col <- input$colorbrewer_theme_pf
     label <- input$a_marker_text_prot_fam_db
     
-    #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+    if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
       df <- ldply(a_pf_db$d_g2s, data.frame)
       if(nrow(df) != 0){
         sp_layer_genes <- sp_layer_for_uploaded_genes_gg(p, df, pf_col, label)
@@ -1258,15 +1347,15 @@ shinyServer(function(input, output, session){
       } else{
         p1 <- p
       }
-    #} else if(input$colorscheme == "cbf"){
-    #  df <- ldply(a_pf_db$d_g2s, data.frame)
-    #  if(nrow(df) != 0){
-    #    sp_layer_genes <- sp_layer_for_uploaded_genes_cbf_gg(p, df, label)
-    #    p1 <- sp_layer_genes
-    #  } else{
-    #    p1 <- p
-    #  }
-    #}
+    } else if(input$colorscheme == "cbf"){
+      df <- ldply(a_pf_db$d_g2s, data.frame)
+      if(nrow(df) != 0){
+        sp_layer_genes <- sp_layer_for_uploaded_genes_cbf_gg(p, df, label)
+        p1 <- sp_layer_genes
+      } else{
+        p1 <- p
+      }
+    }
     p1
   }
   
@@ -1303,36 +1392,70 @@ shinyServer(function(input, output, session){
   
   a_vp <- reactive({
     d <- a_pulldown()
-    req(input$a_color_indv_sig, input$a_color_indv_insig)
-    d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
-    p <- plot_volcano_basic(d)
-    #p <- add_markers_basic(p)
-    #p <- add_hover_lines(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
-    #p <- add_layout_html_axes(p)
-    return(p)
-  })
-  
-  a_vp_layerx <- reactive({
-    #browser()
-    p <- a_vp()
-    p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
-    #p <- p <- plot_overlay(p, as.bait('BCL2'))
-    p <- add_markers_basic(p)
-    p <- add_hover_lines(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
-    p <- add_layout_html_axes(p)
-    return(p)
+    print(head(d))
+    if(input$colorscheme == "fdr"){
+      
     
-    #goi <- a_search_gene()
-    #orig_data <- a_pulldown()
-    #searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    #p1 <- search_volcano(p, searchgene)
-    #p1
+      req(input$a_color_indv_sig, input$a_color_indv_insig)
+      d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
+      p <- plot_volcano_basic(d)
+      p <- add_markers_basic(p)
+      p
+
+    } else if(input$colorscheme == "exac"){
+      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
+      d$s[is.na(d$s)] <- 2
+      below_thresh <- subset(d, s < 0.9)
+      above_thresh <- subset(d, s >= 0.9)
+      no_exist <- subset(d, s == 2)
+      p <- plot_volcano_exac(below_thresh, above_thresh, no_exist)
+    } else if(input$colorscheme == "cbf"){
+      data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+      p <- plot_volcano_qc(data)
+    } else if(input$colorscheme == "user"){
+      validate(
+        need(!is.null(input$file_color), "Please upload file with gene and score")
+      )
+      d1 <- a_in_file_color()
+      req(input$colorbrewer_theme)
+      col_theme <- input$colorbrewer_theme
+      if(input$colorscheme_style == "cont"){
+        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+      } else if(input$colorscheme_style == "disc"){
+        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+      }
+      p <- plot_ly(showlegend = T, width = 650, height = 550)
+      p <- add_markers(p, data = data1, x = ~logFC, y = ~-log10(pvalue),
+                       marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
+                       opacity = 0.8,
+                       text = ~paste(all_gene_names), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
+      for(i in nrow(data)){
+        p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
+                         marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
+                         opacity = 1,
+                         text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
+                         name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
+      }
+      p
+    }
+    p <- p %>%
+      #layout(xaxis = list(title = "log<sub>2</sub>(Fold change)", range=~c(min(d$logFC)-0.5, max(d$logFC)+0.5)),
+      #       yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)", range=~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5))) %>%
+      add_lines(x = ~c(min(d$logFC)-0.5, max(d$logFC)+0.5), y = ~-log10(input$a_pval_thresh), line = list(dash = "dash", width = 0.5, color = "#2b333e"),
+                name = '', hoverinfo = "text", text = paste0("pvalue = ", input$a_pval_thresh), showlegend = F) %>%
+      add_lines(x = input$a_logFC_thresh[1], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"),
+                name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[1]), showlegend = F) %>%
+      add_lines(x = input$a_logFC_thresh[2], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"),
+                name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[2]), showlegend = F)
+    catf('this is ok..')
+    p
   })
-  
-  
   
   a_vp1 <- reactive({
-    browser()
     d <- a_pulldown()
     q <- a_vp_gg()
     gg_p <- ggplotly(p = q, tooltip="text") #, tooltip = c("gene", "FDR")
@@ -1366,15 +1489,13 @@ shinyServer(function(input, output, session){
     validate(
       need(!is.null(a_search_gene()), "")
     )
-    p <- a_vp_layerx()
+    p <- a_vp()
     goi <- a_search_gene()
     orig_data <- a_pulldown()
     searchgene <- orig_data[grepl(goi,orig_data$gene),]
     p1 <- search_volcano(p, searchgene)
     p1
   })
-  
-
   
   a_pf_db_vp <- reactive({
     validate(
@@ -1396,7 +1517,7 @@ shinyServer(function(input, output, session){
     d <- a_pulldown()
     a_pf_db <- a_pf_db_vp()
     pf_col <- input$colorbrewer_theme_pf
-    #if(input$colorscheme == "fdr"){
+    if(input$colorscheme == "fdr"){
       req(input$a_color_indv_sig, input$a_color_indv_insig)
       data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
       p <- plot_ly(colors = pf_col, showlegend = T, width = 650, height = 550)
@@ -1407,69 +1528,68 @@ shinyServer(function(input, output, session){
                          text = ~paste(gene), hoverinfo = "text", name = "pull down")
       }
       p 
-    #} else if(input$colorscheme == "exac"){
-    #  d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
-    #  d$s[is.na(d$s)] <- 2
-    #  below_thresh <- subset(d, s < 0.9)
-    #  above_thresh <- subset(d, s >= 0.9)
-    #  no_exist <- subset(d, s == 2)
-    #  p <- plot_ly(colors = pf_col, showlegend = T, width = 650, height = 550)
-    #  p <- add_markers(p, data = below_thresh, x = ~logFC, y = ~-log10(pvalue),
-    #                   marker = list(size = 8, line = list(width=0.1, color = 'black'), cmin = 0, cmax = 1, color = "#66c2a5"),
-    #                   opacity = 0.8, 
-    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("pLI<0.9 (", nrow(below_thresh), ")"))
-    #  p <- add_markers(p, data = above_thresh, x = ~logFC, y = ~-log10(pvalue),
-    #                   marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#fc8d62"),
-    #                   opacity = 0.8, 
-    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("pLI>=0.9 (", nrow(above_thresh), ")"))
-    #  p <- add_markers(p, data = no_exist, x = ~logFC, y = ~-log10(pvalue),
-    #                   marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#8da0cb"),
-    #                   opacity = 0.8, 
-    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("not in ExAC (", nrow(no_exist), ")"))
-    #  p
-    #} else if(input$colorscheme == "cbf"){
-    #  data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-    #  p <- plot_ly(colors = "Greys", showlegend = T, width = 650, height = 550)
-    #  for(i in nrow(data)){
-    #    p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
-    #                     marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), 
-    #                     opacity = 0.6, 
-    #                     text = ~paste(gene), hoverinfo = "text", name = "pull down")
-    #  }
-    #} else if(input$colorscheme == "user"){
-    #  validate(
-    #    need(!is.null(input$file_color), "Please upload file with gene and score")
-    #  )
-    #  d1 <- a_in_file_color()
-    #  col_theme <- input$colorbrewer_theme
-    #  if(input$colorscheme_style == "cont"){
-    #    df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
-    #    data <- df$df1
-    #    data1 <- df$no_exist
-    #  } else if(input$colorscheme_style == "disc"){
-    #    df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
-    #    data <- df$df1
-    #    data1 <- df$no_exist
-    #  }
-    #  p <- plot_ly(colors = pf_col, showlegend = T, width = 650, height = 550)
-    #  p <- add_markers(p, data = data1, x = ~logFC, y = ~-log10(pvalue),
-    #                   marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
-    #                   opacity = 0.8,
-    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
-    #  for(i in nrow(data)){
-    #    p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
-    #                     marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
-    #                     opacity = 1,
-    #                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
-    #                     name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
-    #  }
-    #  p
-    #}
+    } else if(input$colorscheme == "exac"){
+      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
+      d$s[is.na(d$s)] <- 2
+      below_thresh <- subset(d, s < 0.9)
+      above_thresh <- subset(d, s >= 0.9)
+      no_exist <- subset(d, s == 2)
+      p <- plot_ly(colors = pf_col, showlegend = T, width = 650, height = 550)
+      p <- add_markers(p, data = below_thresh, x = ~logFC, y = ~-log10(pvalue),
+                       marker = list(size = 8, line = list(width=0.1, color = 'black'), cmin = 0, cmax = 1, color = "#66c2a5"),
+                       opacity = 0.8, 
+                       text = ~paste(gene), hoverinfo = "text", name = paste0("pLI<0.9 (", nrow(below_thresh), ")"))
+      p <- add_markers(p, data = above_thresh, x = ~logFC, y = ~-log10(pvalue),
+                       marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#fc8d62"),
+                       opacity = 0.8, 
+                       text = ~paste(gene), hoverinfo = "text", name = paste0("pLI>=0.9 (", nrow(above_thresh), ")"))
+      p <- add_markers(p, data = no_exist, x = ~logFC, y = ~-log10(pvalue),
+                       marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#8da0cb"),
+                       opacity = 0.8, 
+                       text = ~paste(gene), hoverinfo = "text", name = paste0("not in ExAC (", nrow(no_exist), ")"))
+      p
+    } else if(input$colorscheme == "cbf"){
+      data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+      p <- plot_ly(colors = "Greys", showlegend = T, width = 650, height = 550)
+      for(i in nrow(data)){
+        p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
+                         marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), 
+                         opacity = 0.6, 
+                         text = ~paste(gene), hoverinfo = "text", name = "pull down")
+      }
+    } else if(input$colorscheme == "user"){
+      validate(
+        need(!is.null(input$file_color), "Please upload file with gene and score")
+      )
+      d1 <- a_in_file_color()
+      col_theme <- input$colorbrewer_theme
+      if(input$colorscheme_style == "cont"){
+        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+      } else if(input$colorscheme_style == "disc"){
+        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
+        data <- df$df1
+        data1 <- df$no_exist
+      }
+      p <- plot_ly(colors = pf_col, showlegend = T, width = 650, height = 550)
+      p <- add_markers(p, data = data1, x = ~logFC, y = ~-log10(pvalue),
+                       marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
+                       opacity = 0.8,
+                       text = ~paste(gene), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
+      for(i in nrow(data)){
+        p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
+                         marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
+                         opacity = 1,
+                         text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
+                         name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
+      }
+      p
+    }
     p <- p %>%
       layout(xaxis = list(range=~c(min(d$logFC)-0.5, max(d$logFC)+0.5)),
              yaxis = list(range=~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5)))
-    
-    #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+    if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
       df <- ldply(a_pf_db$d_g2s, data.frame)
       if(nrow(df) != 0){
         if(input$a_marker_text_prot_fam_db == "yes_label"){
@@ -1482,20 +1602,20 @@ shinyServer(function(input, output, session){
         vp_layer_no_genes <- vp_layer_for_uploaded_genes_none(p, d)
         p <- vp_layer_no_genes
       }
-    #} else if(input$colorscheme == "cbf"){
-    #  df <- ldply(a_pf_db$d_g2s, data.frame)
-    #  if(nrow(df) != 0){
-    #    if(input$a_marker_text_prot_fam_db == "yes_label"){
-    #      vp_layer_genes <- vp_layer_for_uploaded_genes_cbf(p, df)
-    #    } else if(input$a_marker_text_prot_fam_db == "no_label"){
-    #      vp_layer_genes <- vp_layer_for_uploaded_genes_cbf_no_text(p, df)
-    #    }
-    #    p <- vp_layer_genes
-    #  } else{
-    #    vp_layer_no_genes <- vp_layer_for_uploaded_genes_none_cbf(p, d)
-    #    p <- vp_layer_no_genes
-    #  }
-    #}
+    } else if(input$colorscheme == "cbf"){
+      df <- ldply(a_pf_db$d_g2s, data.frame)
+      if(nrow(df) != 0){
+        if(input$a_marker_text_prot_fam_db == "yes_label"){
+          vp_layer_genes <- vp_layer_for_uploaded_genes_cbf(p, df)
+        } else if(input$a_marker_text_prot_fam_db == "no_label"){
+          vp_layer_genes <- vp_layer_for_uploaded_genes_cbf_no_text(p, df)
+        }
+        p <- vp_layer_genes
+      } else{
+        vp_layer_no_genes <- vp_layer_for_uploaded_genes_none_cbf(p, d)
+        p <- vp_layer_no_genes
+      }
+    }
     p <- p %>%
       add_lines(x = ~c(min(d$logFC)-0.5, max(d$logFC)+0.5), y = ~-log10(input$a_pval_thresh), line = list(dash = "dash", width = 0.5, color = "#2b333e"), 
                 name = '', hoverinfo = "text", text = paste0("pvalue = ", input$a_pval_thresh), showlegend = F) %>%
@@ -3016,7 +3136,7 @@ shinyServer(function(input, output, session){
     )
     if(is.null(a_pf_db())){
       if(is.null(a_search_gene())){
-        a_vp_layerx()
+        a_vp()
       } else{
         a_vp_plus_rep()
       }

@@ -67,6 +67,9 @@ plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
                  size=ifelse('label_size' %in% colnames(mymerge), mymerge$labelsize, 3), 
                  color="black")
   
+  # save overlay and modify plotting data.frame
+  if (!is.null(p1$overlay)) {p1$overlay = rbind(p1$overlay, mymerge)} else {p1$overlay = mymerge}
+  
   return(p1)
 }
 

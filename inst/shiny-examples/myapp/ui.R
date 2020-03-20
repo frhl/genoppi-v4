@@ -11,7 +11,7 @@ body <- dashboardBody(
                                  fluidRow(
                                    column(3, uiOutput("a_prot_fam_db")),
                                    column(2, uiOutput("a_text_prot_fam_db")),
-                                   column(3, uiOutput("a_color_theme_pf")),
+                                   #column(3, uiOutput("a_color_theme_pf")),
                                    column(3, downloadButton("download_pf_cleaned_input", "Remove selected PF from input"))
                                  ),
                                  fluidRow(
@@ -22,7 +22,7 @@ body <- dashboardBody(
                                    column(2, uiOutput("a_color_theme_indv_insig"))
                                  ),
                                  fluidRow(
-                                   column(4, uiOutput("a_color_theme"))
+                                   #column(4, uiOutput("a_color_theme"))
                                  ),
                                  fluidRow(
                                    column(1),
@@ -72,7 +72,7 @@ body <- dashboardBody(
                                  fluidRow(
                                    column(2, uiOutput("a_color_theme_multi_sig")), 
                                    column(2, uiOutput("a_color_theme_multi_insig")),
-                                   column(2, uiOutput("a_color_theme_integrated")),
+                                   #column(2, uiOutput("a_color_theme_integrated")),
                                    column(2, uiOutput("a_color_theme_snp")),
                                    column(2, uiOutput("a_color_theme_goi")),
                                    column(2, uiOutput("a_color_theme_inweb"))
@@ -566,8 +566,10 @@ sidebar <- dashboardSidebar(
                                uiOutput("a_bait_search"),
                                uiOutput("a_GOI_search"),
                                uiOutput("a_color_scheme"),
+                               uiOutput('a_logfc_direction_ui'),
                                uiOutput("a_color_style"),
                                uiOutput("a_file_color"),
+                               uiOutput("a_significance_type_ui"),
                                uiOutput("FDR_thresh"),
                                uiOutput("PVal_thresh"),
                                uiOutput("logFC_thresh")

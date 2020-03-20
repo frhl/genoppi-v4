@@ -13,4 +13,12 @@ add_markers_basic(p)
 A function that takes a ggplot as input and 'plotlyfies' it so
 that it becomes interactive by adding markers.
 }
+\note{
+internal
+}
+\seealso{
+Other shiny: 
+\code{\link{add_hover_lines}()},
+\code{\link{add_layout_html_axes}()}
+}
 \concept{shiny}
