@@ -5,16 +5,10 @@
 #' @note internal
 #' @family shiny
 
-add_markers_basic <- function(p){
+add_markers_basic_volcano <- function(p){
   
-  # go through colors and check if they are in a genelist
-  p_overlay <- data.frame(
-    gene = p$overlay$gene,
-    color = ifelse(p$overlay$significant, p$overlay$col_significant, p$overlay$col_other)
-  )
-  # assign new color
-  p$data[p$data$gene %in% p_overlay$gene, ]$color <- p_overlay$color
-  catf(p_overlay$color)
+  # modify base ggplot from an overlay
+  if (!is.null(p$overlay)) p <- modify_ggplot_from_overlay(p)
   
   # plotlify
   p1 <- plot_ly(showlegend = FALSE, width = 550, height = 550)
@@ -33,7 +27,7 @@ add_markers_basic <- function(p){
 #' @param line_logfc the logfc threshold 
 #' @note internal
 #' @family shiny
-add_hover_lines <- function(p, line_pvalue, line_logfc){
+add_hover_lines_volcano <- function(p, line_pvalue, line_logfc){
   
   stopifnot(!is.null(p$data))
   
@@ -52,7 +46,7 @@ add_hover_lines <- function(p, line_pvalue, line_logfc){
 #' @param p a ggplot
 #' @note internal
 #' @family shiny
-add_layout_html_axes <- function(p){
+add_layout_html_axes_volcano <- function(p){
   
   stopifnot(!is.null(p$data))
   p <- p %>% layout(xaxis = list(title = "log<sub>2</sub>(Fold change)", range=~c(min(p$data$logFC)-0.5, max(p$data$logFC)+0.5)),

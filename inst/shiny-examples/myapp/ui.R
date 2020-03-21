@@ -19,7 +19,8 @@ body <- dashboardBody(
                                  ),
                                  fluidRow(
                                    column(2, uiOutput("a_color_theme_indv_sig")),
-                                   column(2, uiOutput("a_color_theme_indv_insig"))
+                                   column(2, uiOutput("a_color_theme_indv_insig")),
+                                   column(2, uiOutput('a_select_scatterplot_ui'))
                                  ),
                                  fluidRow(
                                    #column(4, uiOutput("a_color_theme"))
@@ -34,7 +35,7 @@ body <- dashboardBody(
                                  fluidRow(
                                    column(1, plotOutput("FDR_colorbar", width = "50px")),
                                    column(6, plotlyOutput("VolcanoPlot")), #, width = "550px", height = "550px"
-                                   column(3, tableOutput("VP_count"))
+                                   column(3, tableOutput("VP_count")),
                                  ),
                                  br(),
                                  br(),
@@ -47,7 +48,7 @@ body <- dashboardBody(
                                  br(),
                                  fluidRow(
                                    column(1),
-                                   column(1, myDownloadButton("download_sp_gg", "Scatter"))
+                                   column(1, myDownloadButton("download_sp_gg", "Scatter")),
                                  ),
                                  fluidRow(
                                    column(1),

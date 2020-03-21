@@ -217,8 +217,25 @@ shinyServer(function(input, output, session){
     textInput("a_goi_search_rep", "Search for gene (e.g. SHH)")
   })
   
-
- 
+  
+  ##
+  available_replicates <- reactive({
+    d <- a_pulldown()
+    if(!is.null(d)){
+      reps = sum(grepl('^rep[0-9]+$',colnames(d)))
+      enum = enumerate_replicate_combinations(reps)
+      enum = as.data.frame(apply(enum, 2, function(x) paste0('rep', x)))
+      enum = paste0(enum[,1],'.',enum[,2])
+    } else {
+      enum = 'rep1.rep2'
+    }
+    return(enum)
+  })
+  
+  output$a_select_scatterplot_ui <- renderUI({
+    selectInput('a_select_scatterplot','Scatterplot', choices = available_replicates())
+  })
+ #
   
   output$a_text_label <- renderUI({
     radioButtons('a_marker_text', 'Turn on/off labels',
@@ -1099,7 +1116,7 @@ shinyServer(function(input, output, session){
   
   a_vp_gg <- function(){ # can tjhis function be removed
     d <- a_pulldown()
-    d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
+    d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
     p <- plot_volcano_basic(d)
     p
   }
@@ -1304,11 +1321,11 @@ shinyServer(function(input, output, session){
   a_vp <- reactive({
     d <- a_pulldown()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
-    d$significant <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
+    d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
     p <- plot_volcano_basic(d)
-    #p <- add_markers_basic(p)
-    #p <- add_hover_lines(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
-    #p <- add_layout_html_axes(p)
+    #p <- add_markers_basic_volcano(p)
+    #p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
+    #p <- add_layout_html_axes_volcano(p)
     return(p)
   })
   
@@ -1317,9 +1334,9 @@ shinyServer(function(input, output, session){
     p <- a_vp()
     p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
     #p <- p <- plot_overlay(p, as.bait('BCL2'))
-    p <- add_markers_basic(p)
-    p <- add_hover_lines(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
-    p <- add_layout_html_axes(p)
+    p <- add_markers_basic_volcano(p)
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
+    p <- add_layout_html_axes_volcano(p)
     return(p)
     
     #goi <- a_search_gene()
@@ -1544,63 +1561,23 @@ shinyServer(function(input, output, session){
   })
   
   a_sp <- reactive({
+    
+    # what replicates are inputted
+    req(input$a_select_scatterplot)
+    rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
+    
+    # handle all plots
     d <- a_pulldown()
-    cc <- a_sp_cor()
-    if(input$colorscheme == "fdr"){
-      req(input$a_color_indv_sig, input$a_color_indv_insig)
-      d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      p <- plot_scatter_qc(d, d1)
-      p
-    } else if(input$colorscheme == "exac"){
-      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
-      d$s[is.na(d$s)] <- 2
-      below_thresh <- subset(d, s < 0.9)
-      above_thresh <- subset(d, s >= 0.9)
-      no_exist <- subset(d, s == 2)
-      p <- plot_scatter_exac(d, below_thresh, above_thresh, no_exist)
-      p
-    }
-    if(input$colorscheme == "cbf"){
-      d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-      p <- plot_scatter_qc(d, d1)
-      p
-    } else if(input$colorscheme == "user"){
-      validate(
-        need(!is.null(input$file_color), "Please upload file with gene and score")
-      )
-      d1 <- a_in_file_color()
-      req(input$colorbrewer_theme)
-      col_theme <- input$colorbrewer_theme
-      if(input$colorscheme_style == "cont"){
-        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-      } else if(input$colorscheme_style == "disc"){
-        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-      }
-      p <- plot_ly(showlegend = FALSE, width = 550, height = 550) 
-      p <- add_lines(p, data = d, x = ~c((min(rep1, rep2)), (max(rep1, rep2))), y = ~c((min(rep1, rep2)), (max(rep1, rep2))),
-                     text = "x=y", hoverinfo = "text",
-                     line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
-      p <- add_markers(p, data = data1, x = ~rep1, y = ~rep2,
-                       marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
-                       opacity = 0.8,
-                       text = ~paste(gene), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
-      for(i in nrow(data)){
-        p <- add_markers(p, data = data, x = ~rep1, y = ~rep2,
-                         marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
-                         opacity = 1,
-                         text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
-                         name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
-      }
-      p
-    }
-    p <- p %>%
-      layout(xaxis = list(title = "rep1", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
-             yaxis = list(title = "rep2", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
-             title = cc, titlefont = list(size=15))
+    d = id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
+    p = plot_scatter_basic(d)
+    
+    # handle individual plot
+    p1 = p[[input$a_select_scatterplot]]$ggplot
+    p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep))
+    p1 = add_markers_basic_scatterplot(p1, repA = rep[1], repB = rep[2])
+    p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2])
+    p1
+
   })
   
   a_sp_plus <- reactive({
@@ -3045,6 +3022,12 @@ shinyServer(function(input, output, session){
   })
   
   output$ScatterPlot <- renderPlotly({
+    validate(need(input$a_file_pulldown_r != '', "Upload file"))
+    a_sp()
+  })
+  
+  
+  output$ScatterPlotOld <- renderPlotly({
     validate(
       need(input$a_file_pulldown_r != '', "Upload file")
     )

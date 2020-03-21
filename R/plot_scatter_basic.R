@@ -19,7 +19,7 @@
 #' }
 
 
-plot_scatter_basic <- function(df, bait, size_point = 3, size_text=3){
+plot_scatter_basic <- function(df, bait=NULL, size_point = 3, col_signficant = "#41AB5D", col_other = 'grey'){
   
   require(ggplot2)
   require(ggrepel)
@@ -29,6 +29,12 @@ plot_scatter_basic <- function(df, bait, size_point = 3, size_text=3){
   stopifnot('significant' %in% colnames(df))
   col_rep <- as.vector(grepl('rep', colnames(df)) & unlist(lapply(df, is.numeric)))
   reps = regmatches(colnames(df), regexpr('rep[0-9]',colnames(df)))
+  
+  # no colors specified will result in standard color scheme
+  if ('color' %nin% colnames(df)){
+    df$color = NA
+    df$color = ifelse(df$significant, col_signficant, col_other)
+  }
   
   # store plots in list
   plts = list()
@@ -40,19 +46,19 @@ plot_scatter_basic <- function(df, bait, size_point = 3, size_text=3){
     repB = reps[combinations$repB[i]]
     name = paste0(repA,'.',repB)
     correlation = cor(df[,repA], df[,repB])
-    temp_df = df[,c(repA, repB, 'significant', 'gene')]
+    temp_df = df[,c(repA, repB, 'logFC', 'FDR', 'pvalue', 'significant', 'gene', 'color')]
     
     # add points
     p = ggplot(temp_df, mapping=aes_(x=as.name(repA), y=as.name(repB))) + 
         geom_point(alpha=1, size=size_point, color=ifelse(temp_df$significant, "#41AB5D", "grey"), stroke = 0.6) +
         
         # instead.. use plot_overlay() function
-        geom_point(subset(temp_df, gene %in% bait & significant), mapping=aes_(x=as.name(repA), y=as.name(repB)),size=size_point, color="red") + 
-        geom_point(subset(temp_df, gene %in% bait & !significant), mapping=aes_(x=as.name(repA), y=as.name(repB)),size=size_point, color="orange") +
-        geom_point(subset(temp_df, gene %in% bait), mapping=aes_(x=as.name(repA), y=as.name(repB)), size=size_point, color="black", shape=1) +	
-        geom_text_repel(subset(temp_df, gene %in% bait), mapping=aes(label=gene),
-                      arrow=arrow(length=unit(0.015, 'npc')), box.padding=unit(0.15, "lines"),
-                      point.padding=unit(0.2, "lines"), color="black", size=size_text) +
+        #geom_point(subset(temp_df, gene %in% bait & significant), mapping=aes_(x=as.name(repA), y=as.name(repB)),size=size_point, color="red") + 
+        #geom_point(subset(temp_df, gene %in% bait & !significant), mapping=aes_(x=as.name(repA), y=as.name(repB)),size=size_point, color="orange") +
+        #geom_point(subset(temp_df, gene %in% bait), mapping=aes_(x=as.name(repA), y=as.name(repB)), size=size_point, color="black", shape=1) +	
+        #geom_text_repel(subset(temp_df, gene %in% bait), mapping=aes(label=gene),
+        #              arrow=arrow(length=unit(0.015, 'npc')), box.padding=unit(0.15, "lines"),
+        #              point.padding=unit(0.2, "lines"), color="black", size=size_text) +
         
         # add theme and unit line
         geom_abline(intercept=0, slope=1, linetype="longdash", size=0.2) +
@@ -70,20 +76,6 @@ plot_scatter_basic <- function(df, bait, size_point = 3, size_text=3){
 
 
 
-#' @title enumerate replicate combinations
-#' @description enumerates unique replicate comparisons
-#' @param len number of replicates
-#' @family misc
-#' @export
-
-enumerate_replicate_combinations <- function(len){
-  enumerate = expand.grid(data.frame(A=1:sum(len),B=1:sum(len)))
-  enumerate = as.data.frame(t(apply(enumerate,1,sort)))
-  enumerate = enumerate[!duplicated(enumerate), ]
-  enumerate = enumerate[enumerate$V1 != enumerate$V2,]
-  colnames(enumerate) = c('repA', 'repB')
-  return(enumerate)
-}
 
 
 
