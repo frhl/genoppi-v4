@@ -4,7 +4,7 @@
 \alias{add_markers_overlay_volcano}
 \title{add hover markers}
 \usage{
-add_markers_overlay_volcano(p)
+add_markers_overlay_volcano(p, id = "SNP", id_text = "")
 }
 \arguments{
 \item{p}{a ggplot}

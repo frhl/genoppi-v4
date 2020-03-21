@@ -16,6 +16,8 @@ add_markers_basic_volcano <- function(p){
                     marker = list(size = 7, cmin = 0, cmax = 1, color = p$data$color, line = list(width=0.2, color='black')),
                     opacity = 0.9,
                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text", name = "pull down")
+  
+  # save data for future overlays
   p1$data <- p$data
   p1$overlay <- p$overlay
   p1
@@ -28,19 +30,27 @@ add_markers_basic_volcano <- function(p){
 #' @param p a ggplot
 #' @note internal
 #' @family shiny
-add_markers_overlay_volcano <- function(p){
+add_markers_overlay_volcano <- function(p, id='SNP', id_text = ''){
+
+  # exepct that id is in columns
+  #stopifnot(id %in% colnames(p$overlay))  
   
   # modify base ggplot from an overlay
   if (!is.null(p$overlay)) p <- modify_ggplot_from_overlay(p)
+
   # modify base ggplot from an overlay
   p1 <- add_markers(p, data = p$overlay, x = ~logFC, y= ~-log10(pvalue),
                       marker = list(color = ifelse(p$overlay$significant, p$overlay$col_significant, p$overlay$col_other),
-                                    size = 12, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
+                                    size = 8, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
                       mode = "markers+text", hoverinfo = "text", legendgroup = "group3",
-                      text = ~paste(gene, sep = "<br>"), textposition = ~ifelse(logFC>0,"top right","top left"), textfont = list(size = 11),
-                      name = "SNP")
+                      text = ~paste(gene, alt_label, sep = "<br>"), 
+                      textposition = ~ifelse(logFC>0,"top right","top left"), textfont = list(size = 11),
+                      name = id)
+  
+  # save data for future overlays
   p1$data <- p$data
   p1$overlay <- p$overlay
+  p1
 }
 
 

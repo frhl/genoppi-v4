@@ -40,8 +40,14 @@ plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
   
   # merge genelist into data.frame and check for duplicates
   mymerge = merge(p$data[,c('gene','logFC','pvalue','FDR','significant')], reference, by = 'gene')
+  
+  # duplicates are merged my alt-text.
   dup = unlist(lapply(mymerge$gene, function(x) sum(mymerge$gene == x))) > 1
-  if (any(dup)) mymerge[dup, ]$alt_label <- paste0(mymerge[dup, ]$gene,' [', mymerge[dup, ]$dataset,']')
+  
+  #min(which(dup == TRUE))
+  #paste(mymerge[dup, ]$alt_label, collapse =', ')
+  
+  #if (any(dup)) mymerge[dup, ]$alt_label <- paste0(mymerge[dup, ]$gene,' [', mymerge[dup, ]$dataset,']')
   
   # add the new point
   p1 = p + geom_point(mymerge, 
