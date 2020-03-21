@@ -132,7 +132,7 @@ shinyServer(function(input, output, session){
       need(input$colorscheme == "fdr", "")
     )
     region <- c(paste0("FDR<", input$a_fdr_thresh))
-    selectInput('a_color_indv_sig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
+    selectInput('a_color_indv_sig', region, c('#41AB5D','red'), multiple=F, selectize=TRUE, selected = "#41AB5D")
   })
   
   output$a_color_theme_indv_insig <- renderUI({
@@ -141,7 +141,7 @@ shinyServer(function(input, output, session){
       need(input$colorscheme == "fdr", "")
     )
     region <- c(paste0("FDR≥", input$a_fdr_thresh))
-    selectInput('a_color_indv_insig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "royalblue2")
+    selectInput('a_color_indv_insig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "grey")
   })
   
   output$a_color_setting_text <- renderUI({
@@ -1088,16 +1088,18 @@ shinyServer(function(input, output, session){
   
   ## ggplot automatically generated and reactive color bars
   a_vp_colorbar <- reactive({
-    FDR <- seq(0, 1, 0.01)
-    limit <- rep("FDR", 101)
+    req(input$a_color_indv_sig, input$a_color_indv_insig)
+    
+    # generate matrix with colors
+    FDR <- seq(0, 1, 0.01); limit <- rep("FDR", 101)
     d <- data.frame(limit, FDR)
-      req(input$a_color_indv_sig, input$a_color_indv_insig)
-      d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
-        scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-        labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
-      bar
+    d$col <- ifelse(d$FDR < input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+    
+    # plot result
+    bar <- ggplot(d, aes(xmin = 0, xmax = 0.1, ymin = d$FDR-0.01, ymax = d$FDR)) + geom_rect(fill = d$col) +      
+      scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
+      labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
+    bar
   })
   
   a_vp_colorbar_dl <- reactive({
@@ -1117,7 +1119,7 @@ shinyServer(function(input, output, session){
   a_vp_gg <- function(){ # can tjhis function be removed
     d <- a_pulldown()
     d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
-    p <- plot_volcano_basic(d)
+    p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = a_color_indv_insig)
     p
   }
   
@@ -1322,10 +1324,7 @@ shinyServer(function(input, output, session){
     d <- a_pulldown()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
     d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
-    p <- plot_volcano_basic(d)
-    #p <- add_markers_basic_volcano(p)
-    #p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
-    #p <- add_layout_html_axes_volcano(p)
+    p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
     return(p)
   })
   
@@ -1333,7 +1332,6 @@ shinyServer(function(input, output, session){
     #browser()
     p <- a_vp()
     p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
-    #p <- p <- plot_overlay(p, as.bait('BCL2'))
     p <- add_markers_basic_volcano(p)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
     p <- add_layout_html_axes_volcano(p)
@@ -1569,7 +1567,7 @@ shinyServer(function(input, output, session){
     # handle all plots
     d <- a_pulldown()
     d = id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
-    p = plot_scatter_basic(d)
+    p = plot_scatter_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
     
     # handle individual plot
     p1 = p[[input$a_select_scatterplot]]$ggplot
