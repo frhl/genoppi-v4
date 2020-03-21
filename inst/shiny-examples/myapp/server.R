@@ -215,6 +215,24 @@ shinyServer(function(input, output, session){
   })
   
   
+  
+  ### snp labels
+  output$a_toggle_snp_label_ui <- renderUI({
+    actionButton("a_toggle_snp_label", label = "Toggle label")
+  })
+  
+  output$a_color_snp_sig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
+    selectInput('a_color_snp_sig', 'color SNP (significant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
+  })
+  
+  output$a_color_snp_insig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
+    selectInput('a_color_snp_insig', 'color SNP (insignificant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
+  })
+  ###
+  
+  
   ##
   available_replicates <- reactive({
     d <- a_pulldown()
@@ -245,7 +263,7 @@ shinyServer(function(input, output, session){
   output$a_SNP_file <- renderUI({
     # fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line (e.g. rs12493885)',
     
-    fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line (e.g. rs11172113)',
+    fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line',
               accept = c(
                 'text/csv',
                 'text/comma-separated-values',
@@ -991,8 +1009,6 @@ shinyServer(function(input, output, session){
     }
   })
   
-
-  
   #snp to gene using LD r^2>0.6±user defined extension
   a_snp <- reactive({
     req(input$a_file_SNP_rep)
@@ -1006,9 +1022,22 @@ shinyServer(function(input, output, session){
     mapping$alt_label = mapping$SNP
     mapping$col_significant = 'blue'
     mapping$col_other = 'grey'
+    mapping$dataset = 'SNP'
     return(mapping)
   })
   
+  # map inweb prorteins
+  a_inweb_mapping <- reactive({
+    req(input$a_bait_rep)
+    mapping = get_inweb_list(input$a_bait_rep)
+    if (!is.null(mapping)){
+      mapping = mapping[mapping$significant, ]
+      mapping$col_significant = 'yellow'
+      mapping$col_other = 'grey'
+      mapping$dataset = 'InWeb'
+      return(mapping)
+    } 
+  })
   
   ## this function is now redundant.
   SNP_to_gene <- eventReactive(input$a_make_plot, {#reactive({
@@ -1723,12 +1752,6 @@ shinyServer(function(input, output, session){
   })
   
   
-
-  a_found_snps = eventReactive(input$a_make_plot, {
-    req(a_pulldown())
-    
-    
-  })
   
   ### volcano plot for multiple overlays?
   ### seems to be only compiling stats
@@ -1839,60 +1862,61 @@ shinyServer(function(input, output, session){
     }
   })
   
-  a_multi_vp_colorbar_dl <- reactive({
-    FDR <- seq(0, 1, 0.01)
-    limit <- rep("FDR", 101)
-    d <- data.frame(limit, FDR)
-    if(input$colorscheme == "fdr"){
-      req(input$a_color_multi_sig, input$a_color_multi_insig)
-      d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-        scale_x_continuous(breaks = seq(0, 1, 0.1)) +
-        labs(x = "FDR") +
-        theme(axis.title.y=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
-      bar
-    } else if(input$colorscheme == "exac"){
-      d1 <- separate_to_groups_for_exac_bar(d)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-        labs(x = " pLI < 0.9          pLI >= 0.9       not in ExAC") +
-        theme(axis.title.y=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
-      bar
-    } else if(input$colorscheme == "cbf"){
-      d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-        scale_x_continuous(breaks = seq(0, 1, 0.1)) +
-        labs(x = "FDR") +
-        theme(axis.title.y=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
-      bar
-    }
-  })
+  #a_multi_vp_colorbar_dl <- reactive({
+  #  FDR <- seq(0, 1, 0.01)
+  #  limit <- rep("FDR", 101)
+  #  d <- data.frame(limit, FDR)
+  #  if(input$colorscheme == "fdr"){
+  #    req(input$a_color_multi_sig, input$a_color_multi_insig)
+  #    d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
+  #    mycol <- as.vector(d1$col)
+  #    bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
+  #      scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+  #      labs(x = "FDR") +
+  #      theme(axis.title.y=element_blank(),
+  #            axis.text.y=element_blank(),
+  #            axis.ticks.y=element_blank(),
+  #            panel.background=element_blank(),
+  #            axis.title = element_text(size = rel(1))) + coord_fixed()
+  #    bar
+  #  } else if(input$colorscheme == "exac"){
+  #    d1 <- separate_to_groups_for_exac_bar(d)
+  #    mycol <- as.vector(d1$col)
+  #    bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
+  #      labs(x = " pLI < 0.9          pLI >= 0.9       not in ExAC") +
+  #      theme(axis.title.y=element_blank(),
+  #            axis.text.y=element_blank(),
+  #            axis.ticks.y=element_blank(),
+  #            axis.text.x=element_blank(),
+  #            axis.ticks.x=element_blank(),
+  #            panel.background=element_blank(),
+  #            axis.title = element_text(size = rel(1))) + coord_fixed()
+  #    bar
+  #  } else if(input$colorscheme == "cbf"){
+  #    d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+  #    mycol <- as.vector(d1$col)
+  #    bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
+  #      scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+  #      labs(x = "FDR") +
+  #      theme(axis.title.y=element_blank(),
+  #            axis.text.y=element_blank(),
+  #            axis.ticks.y=element_blank(),
+  #            panel.background=element_blank(),
+  #            axis.title = element_text(size = rel(1))) + coord_fixed()
+  #    bar
+  #  }
+  #})
+  
   
   
   a_multi_vp_layer <- reactive({
     
-    # generate plot and pverlay stuff if available
+    # generate plot and overlay stuff if available
     p = a_vp()
     p = plot_overlay(p, as.bait(input$a_bait_search_rep))
-    p = plot_overlay(p, list(snps=a_snp_mapping()))
-    
-    #browser()
+    if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
+    if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
+
     # add add basic and special markers
     p <- add_markers_basic_volcano(p)
     p <- add_markers_overlay_volcano(p)

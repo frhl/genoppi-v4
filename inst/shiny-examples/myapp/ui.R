@@ -58,7 +58,13 @@ body <- dashboardBody(
                         tabPanel("Integrated Plots", value = "p2", 
                                  br(),
                                  fluidRow(
+                                   column(4, uiOutput("a_toggle_snp_label_ui")),
                                    column(4, uiOutput("a_SNP_file")),
+                                   column(2, uiOutput("a_color_snp_sig_ui")),
+                                   column(2, uiOutput("a_color_snp_insig_ui"))
+                                ),
+                                 fluidRow(
+                                #   column(4, uiOutput("a_SNP_file")),
                                    column(4, uiOutput("a_genes_file")),
                                    column(4, uiOutput("a_bait_layer"))
                                  ),
