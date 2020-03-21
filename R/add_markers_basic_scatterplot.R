@@ -26,12 +26,12 @@ add_markers_basic_scatterplot <- function(p, repA, repB){
 #' @param p a ggplot
 #' @note internal
 #' @family shiny
-add_layout_html_axes_scatterplot <- function(p, repA, repB){
+add_layout_html_axes_scatterplot <- function(p, repA, repB, title=''){
   
   stopifnot(!is.null(p$data))
   p <- p %>% layout(xaxis = list(title = repA, range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
                     yaxis = list(title = repB, range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
-                    title = '', titlefont = list(size=15))
+                    title = title, titlefont = list(size=15))
   p
 }
 

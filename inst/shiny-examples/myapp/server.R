@@ -41,9 +41,9 @@ shinyServer(function(input, output, session){
   
   output$a_logfc_direction_ui <- renderUI({
     radioButtons("a_logfc_direction", "LogFC direction",
-                 c("-" = "negative", 
+                 c("Neg" = "negative", 
                    "Both" = "both",
-                   "+" = "positive"),
+                   "Pos" = "positive"),
                  inline = T)
   })
   
@@ -63,12 +63,9 @@ shinyServer(function(input, output, session){
   
   output$PVal_thresh <- renderUI({
     #validate(need(input$a_significance_type == 'pvalue', ''))
-    sliderInput("a_pval_thresh", "p-value threshold",
+    sliderInput("a_pval_thresh", "P-value threshold",
                 min = 0, max = 1, value = 0.05, step = 0.001)
   })
-  
-  
-  
   
   # based on a_pulldown(), create slider for logFC
   output$logFC_thresh <- renderUI({
@@ -572,22 +569,34 @@ shinyServer(function(input, output, session){
     )
   })
   
-  observe({
+  observeEvent(input$basic,{
     if(input$basic == "p3" | input$basic == "p4" | input$basic == "p5"){
       shinyjs::hide("colorscheme")
       shinyjs::hide("file_color")
       shinyjs::hide("a_fdr_thresh")
       shinyjs::hide("a_pval_thresh")
       shinyjs::hide("a_logFC_thresh")
+      shinyjs::hide("a_logfc_direction_ui")
     }else {
-      shinyjs::show("colorscheme")
+      shinyjs::hide("colorscheme") # <---- note todo ... this is still here. should be removed!
       shinyjs::show("file_color")
-      shinyjs::show("a_fdr_thresh")
-      shinyjs::show("a_pval_thresh")
       shinyjs::show("a_logFC_thresh")
+      shinyjs::show("a_pval_thresh")
+      shinyjs::show("a_fdr_thresh")
+      shinyjs::show("a_logfc_direction_ui")
     }
   })
   
+  # show/hide the fdr/pvalue bar
+  observeEvent(input$a_significance_type,{
+    if (input$a_significance_type == 'fdr'){
+        shinyjs::hide("a_pval_thresh")
+        shinyjs::show("a_fdr_thresh")
+      } else {
+        shinyjs::show("a_pval_thresh")
+        shinyjs::hide("a_fdr_thresh")
+      }
+  })
   
   # loading the data and getting the pulldown
   a_in_pulldown <- reactive({
@@ -615,20 +624,16 @@ shinyServer(function(input, output, session){
     return(result)
   })
   
-
-  # ??? seems to be loading some color scheme?
-  #a_in_file_color <- reactive({
-  #  browser()
-  #  if(!is.null(input$file_color)){
-  #    color_file <- input$file_color
-  #    d <- fread(color_file$datapath, header = TRUE, 
-  #               sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
-  #    d <- na.omit(d)
-  #  }
-  #})
-  
-  ##
-  
+  # id the enriched proteins
+  a_pulldown_significant <- reactive({
+    d = a_pulldown()
+    if (input$a_significance_type == 'fdr'){
+      d1 = id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
+    } else {
+      d1 = id_enriched_proteins(d, fdr_cutoff = NULL, p_cutoff = input$a_pval_thresh, logfc_dir = input$a_logfc_direction)
+    }
+  d1
+  })
   
   a_snp <- reactive({
     snp <- input$a_file_SNP_rep
@@ -1108,8 +1113,7 @@ shinyServer(function(input, output, session){
   })
   
   a_vp_gg <- function(){ # can tjhis function be removed
-    d <- a_pulldown()
-    d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh)
+    d <- a_pulldown_significant()
     p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = a_color_indv_insig)
     p
   }
@@ -1312,15 +1316,13 @@ shinyServer(function(input, output, session){
   )
   
   a_vp <- reactive({
-    d <- a_pulldown()
+    d <- a_pulldown_significant()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
-    d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
     p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
     return(p)
   })
   
   a_vp_layerx <- reactive({
-    #browser()
     p <- a_vp()
     p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
     p <- add_markers_basic_volcano(p)
@@ -1524,8 +1526,7 @@ shinyServer(function(input, output, session){
   })
   
   a_vp_count <- reactive({
-    d <- a_pulldown()
-    d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
+    d <- a_pulldown_significant()
     count <- data.frame(paste0(sum(d$significant), " (total = ", nrow(d), ")"))
     row.names(count) <- c("Pull down")
     colnames(count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
@@ -1556,15 +1557,15 @@ shinyServer(function(input, output, session){
     rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
     
     # handle all plots
-    d <- a_pulldown()
-    d = id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
+    d <- a_pulldown_significant()
     p = plot_scatter_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
-    
+
     # handle individual plot
+    correlation = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1 = p[[input$a_select_scatterplot]]$ggplot
     p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep))
     p1 = add_markers_basic_scatterplot(p1, repA = rep[1], repB = rep[2])
-    p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2])
+    p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',correlation))
     p1
 
   })

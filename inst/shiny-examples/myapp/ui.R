@@ -567,12 +567,12 @@ sidebar <- dashboardSidebar(
                                uiOutput("a_bait_search"),
                                uiOutput("a_GOI_search"),
                                uiOutput("a_color_scheme"),
-                               uiOutput('a_logfc_direction_ui'),
                                uiOutput("a_color_style"),
                                uiOutput("a_file_color"),
                                uiOutput("a_significance_type_ui"),
                                uiOutput("FDR_thresh"),
                                uiOutput("PVal_thresh"),
+                               uiOutput('a_logfc_direction_ui'),
                                uiOutput("logFC_thresh")
               ),
               conditionalPanel("input.sidebarmenu === 'widgets'",
