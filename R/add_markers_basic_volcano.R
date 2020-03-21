@@ -1,7 +1,7 @@
-#' @title add hover markers
+#' @title add basic hover markers
 #' @description A function that takes a ggplot as input and 'plotlyfies' it so
-#' that it becomes interactive by adding markers.
-#' @param plt a ggplot
+#' that it becomes interactive by adding markers to all basic points.
+#' @param p a ggplot
 #' @note internal
 #' @family shiny
 
@@ -17,8 +17,32 @@ add_markers_basic_volcano <- function(p){
                     opacity = 0.9,
                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text", name = "pull down")
   p1$data <- p$data
+  p1$overlay <- p$overlay
   p1
 }
+
+#' @title add hover markers
+#' @description A function that takes a ggplot as input and 'plotlyfies' it so
+#' that it becomes interactive by adding markers to all special plots, e.g. 
+#' a genelist or snplist.
+#' @param p a ggplot
+#' @note internal
+#' @family shiny
+add_markers_overlay_volcano <- function(p){
+  
+  # modify base ggplot from an overlay
+  if (!is.null(p$overlay)) p <- modify_ggplot_from_overlay(p)
+  # modify base ggplot from an overlay
+  p1 <- add_markers(p, data = p$overlay, x = ~logFC, y= ~-log10(pvalue),
+                      marker = list(color = ifelse(p$overlay$significant, p$overlay$col_significant, p$overlay$col_other),
+                                    size = 12, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
+                      mode = "markers+text", hoverinfo = "text", legendgroup = "group3",
+                      text = ~paste(gene, sep = "<br>"), textposition = ~ifelse(logFC>0,"top right","top left"), textfont = list(size = 11),
+                      name = "SNP")
+  p1$data <- p$data
+  p1$overlay <- p$overlay
+}
+
 
 #' @title add hover lines
 #' @description A function that adds reactive dashed lines to a plotly object.

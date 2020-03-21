@@ -632,18 +632,21 @@ shinyServer(function(input, output, session){
     } else {
       d1 = id_enriched_proteins(d, fdr_cutoff = NULL, p_cutoff = input$a_pval_thresh, logfc_dir = input$a_logfc_direction)
     }
-  d1
+  return(d1)
   })
   
-  a_snp <- reactive({
-    snp <- input$a_file_SNP_rep
-    if(is.null(snp)){
-      return(NULL)
-    } else{
-      df <- read.csv(snp$datapath, header = FALSE)
-      df
-    }
-  })
+
+  
+  # read in the snps from a file
+  #a_snp <- reactive({
+  #  snp <- input$a_file_SNP_rep
+  #  if(is.null(snp)){
+  #    return(NULL)
+  #  } else{
+  #    df <- read.csv(snp$datapath, header = FALSE)
+  #    df
+  #  }
+  #})
   
   a_snp_vennd <- reactive({
     snp <- input$a_file_SNP_vennd
@@ -988,13 +991,35 @@ shinyServer(function(input, output, session){
     }
   })
   
-  # output$a_SNP_extend1 <- renderUI({
-  #   sliderInput("a_SNP_ext1", "Gene extension (±Kb)",
-  #               min = 0, max = 100, value = 50, step = 10)
-  # })
+
   
   #snp to gene using LD r^2>0.6±user defined extension
+  a_snp <- reactive({
+    req(input$a_file_SNP_rep)
+    dsnp = read.table(input$a_file_SNP_rep$datapath, header = F)
+    return(dsnp)
+  })
+  
+  # read in the snps from a file
+  a_snp_mapping <- reactive({
+    mapping = read_snp_list(infile = a_snp(), a_pulldown()$gene)
+    return(mapping)
+  })
+  
+  
+  ## this function is now redundant.
   SNP_to_gene <- eventReactive(input$a_make_plot, {#reactive({
+    
+    #snp_map = a_snp_mapping()
+    #if (!is.null(snp_map)){
+    #  
+    #}
+    
+    
+    #x = a_snp_mapping()
+    
+    
+    
     if(!is.null(a_snp())){
       withProgress(message = 'Finding genes in SNPs loci', 
                    detail = "Hold please", value = 0, {
@@ -1023,6 +1048,9 @@ shinyServer(function(input, output, session){
                    })
       snpList <- SNP_n_occur
     }
+    
+    #browser()
+    
   })
   
   # output$a_SNP_extend2 <- renderUI({
@@ -1319,12 +1347,12 @@ shinyServer(function(input, output, session){
     d <- a_pulldown_significant()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
     p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
+    p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
     return(p)
   })
   
   a_vp_layerx <- reactive({
     p <- a_vp()
-    p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
     p <- add_markers_basic_volcano(p)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
     p <- add_layout_html_axes_volcano(p)
@@ -1701,11 +1729,21 @@ shinyServer(function(input, output, session){
              title = cc, titlefont = list(size=12))
   })
   
+  
+
+  a_found_snps = eventReactive(input$a_make_plot, {
+    req(a_pulldown())
+    
+    
+  })
+  
+  ### volcano plot for multiple overlays?
+  ### seems to be only compiling stats
   a_multi_vp <- eventReactive(input$a_make_plot, {
     validate(
       need(!is.null(a_pulldown()), "")
     )
-    d <- a_pulldown()
+    d <- a_pulldown_significant()
     
     # InWeb, SNP to gene, and genes upload
     if(!is.null(a_bait_gene_layer()) & !is.null(a_snp()) & !is.null(a_upload_genes())){
@@ -1853,10 +1891,37 @@ shinyServer(function(input, output, session){
     }
   })
   
+  
+  a_multi_vp_layer_new <- reactive({
+    
+
+    
+    overlay_snps <- a_multi_vp()
+    overlay_snps$d_snp$col_significant = 'blue'
+    overlay_snps$d_snp$col_other = 'grey'
+    overlay_snps$d_snp$significant = TRUE
+    
+    browser()
+    
+    p = a_vp()
+    p = plot_overlay(p, overlay_snps)
+    
+    p <- add_markers_basic_volcano(p)
+    p <- add_markers_overlay_volcano(p)
+    
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
+    p <- add_layout_html_axes_volcano(p)
+    p
+    
+
+    
+  })
+  
   a_multi_vp_layer <- reactive({
     multi_vp <- a_multi_vp()
     d <- a_pulldown()
     p_col <- input$colorbrewer_theme_goi
+    #browser()
     if(input$colorscheme == "fdr"){
       req(input$a_color_multi_sig, input$a_color_multi_insig)
       data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
@@ -1868,65 +1933,66 @@ shinyServer(function(input, output, session){
                          text = ~paste(gene), hoverinfo = "text", name = "pull down")
       }
       p 
-    } else if(input$colorscheme == "exac"){
-      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
-      d$s[is.na(d$s)] <- 2
-      below_thresh <- subset(d, s < 0.9)
-      above_thresh <- subset(d, s >= 0.9)
-      no_exist <- subset(d, s == 2)
-      p <- plot_ly(colors = p_col, showlegend = T, width = 650, height = 550)
-      p <- add_markers(p, data = below_thresh, x = ~logFC, y = ~-log10(pvalue),
-                       marker = list(size = 8, line = list(width=0.1, color = 'black'), cmin = 0, cmax = 1, color = "#66c2a5"),
-                       opacity = 0.8, 
-                       text = ~paste(gene), hoverinfo = "text", name = paste0("pLI<0.9 (", nrow(below_thresh), ")"))
-      p <- add_markers(p, data = above_thresh, x = ~logFC, y = ~-log10(pvalue),
-                       marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#fc8d62"),
-                       opacity = 0.8, 
-                       text = ~paste(gene), hoverinfo = "text", name = paste0("pLI>=0.9 (", nrow(above_thresh), ")"))
-      p <- add_markers(p, data = no_exist, x = ~logFC, y = ~-log10(pvalue),
-                       marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#8da0cb"),
-                       opacity = 0.8, 
-                       text = ~paste(gene), hoverinfo = "text", name = paste0("not in ExAC (", nrow(no_exist), ")"))
-      p
-    } else if(input$colorscheme == "cbf"){
-      data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-      p <- plot_ly(colors = "Greys", showlegend = T, width = 650, height = 550)
-      for(i in nrow(data)){
-        p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
-                         marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), 
-                         opacity = 0.6, 
-                         text = ~paste(gene), hoverinfo = "text", name = "pull down")
-      }
-      p 
-    } else if(input$colorscheme == "user"){
-      validate(
-        need(!is.null(input$file_color), "Please upload file with gene and score")
-      )
-      d1 <- a_in_file_color()
-      col_theme <- input$colorbrewer_theme_integrated
-      if(input$colorscheme_style == "cont"){
-        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-      } else if(input$colorscheme_style == "disc"){
-        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-      }
-      p <- plot_ly(colors = col_theme, showlegend = T, width = 650, height = 550)
-      p <- add_markers(p, data = data1, x = ~logFC, y = ~-log10(pvalue),
-                       marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
-                       opacity = 0.8,
-                       text = ~paste(gene), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
-      for(i in nrow(data)){
-        p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
-                         marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
-                         opacity = 1,
-                         text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
-                         name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
-      }
-      p
-    }
+    } 
+    #else if(input$colorscheme == "exac"){
+    #  d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
+    #  d$s[is.na(d$s)] <- 2
+    #  below_thresh <- subset(d, s < 0.9)
+    #  above_thresh <- subset(d, s >= 0.9)
+    #  no_exist <- subset(d, s == 2)
+    #  p <- plot_ly(colors = p_col, showlegend = T, width = 650, height = 550)
+    #  p <- add_markers(p, data = below_thresh, x = ~logFC, y = ~-log10(pvalue),
+    #                   marker = list(size = 8, line = list(width=0.1, color = 'black'), cmin = 0, cmax = 1, color = "#66c2a5"),
+    #                   opacity = 0.8, 
+    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("pLI<0.9 (", nrow(below_thresh), ")"))
+    #  p <- add_markers(p, data = above_thresh, x = ~logFC, y = ~-log10(pvalue),
+    #                   marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#fc8d62"),
+    #                   opacity = 0.8, 
+    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("pLI>=0.9 (", nrow(above_thresh), ")"))
+    #  p <- add_markers(p, data = no_exist, x = ~logFC, y = ~-log10(pvalue),
+    #                   marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#8da0cb"),
+    #                   opacity = 0.8, 
+    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("not in ExAC (", nrow(no_exist), ")"))
+    #  p
+    #} else if(input$colorscheme == "cbf"){
+    #  data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+    #  p <- plot_ly(colors = "Greys", showlegend = T, width = 650, height = 550)
+    #  for(i in nrow(data)){
+    #    p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
+    #                     marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), 
+    #                     opacity = 0.6, 
+    #                     text = ~paste(gene), hoverinfo = "text", name = "pull down")
+    #  }
+    #  p 
+    #} else if(input$colorscheme == "user"){
+    #  validate(
+    #    need(!is.null(input$file_color), "Please upload file with gene and score")
+    #  )
+    #  d1 <- a_in_file_color()
+    #  col_theme <- input$colorbrewer_theme_integrated
+    #  if(input$colorscheme_style == "cont"){
+    #    df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
+    #    data <- df$df1
+    #    data1 <- df$no_exist
+    #  } else if(input$colorscheme_style == "disc"){
+    #    df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
+    #    data <- df$df1
+    #    data1 <- df$no_exist
+    #  }
+    #  p <- plot_ly(colors = col_theme, showlegend = T, width = 650, height = 550)
+    #  p <- add_markers(p, data = data1, x = ~logFC, y = ~-log10(pvalue),
+    #                   marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
+    #                   opacity = 0.8,
+    #                   text = ~paste(gene), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
+    #  for(i in nrow(data)){
+    #    p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
+    #                     marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
+    #                     opacity = 1,
+    #                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
+    #                     name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
+    #  }
+    #  p
+    #}
     p <- p %>%
       layout(xaxis = list(range=~c(min(d$logFC)-0.5, max(d$logFC)+0.5)),
              yaxis = list(range=~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5)))
@@ -1941,6 +2007,8 @@ shinyServer(function(input, output, session){
         }
         p <- vp_layer_inweb
       }
+      
+      ##
       if(!is.null(SNP_to_gene())){
         if(nrow(multi_vp$d_snp) != 0){
           snp_sgl <- subset(multi_vp$d_snp, Freq == 1)
@@ -1967,6 +2035,8 @@ shinyServer(function(input, output, session){
           p <- vp_layer_no_snp2gene
         }
       }
+      
+      ##
       if(!is.null(a_upload_genes())){
         df <- ldply(multi_vp$d_g2s, data.frame)
         if(nrow(df) != 0){

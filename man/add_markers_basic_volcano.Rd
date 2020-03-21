@@ -2,16 +2,16 @@
 % Please edit documentation in R/add_markers_basic_volcano.R
 \name{add_markers_basic_volcano}
 \alias{add_markers_basic_volcano}
-\title{add hover markers}
+\title{add basic hover markers}
 \usage{
 add_markers_basic_volcano(p)
 }
 \arguments{
-\item{plt}{a ggplot}
+\item{p}{a ggplot}
 }
 \description{
 A function that takes a ggplot as input and 'plotlyfies' it so
-that it becomes interactive by adding markers.
+that it becomes interactive by adding markers to all basic points.
 }
 \note{
 internal
@@ -21,6 +21,7 @@ Other shiny:
 \code{\link{add_hover_lines_volcano}()},
 \code{\link{add_layout_html_axes_scatterplot}()},
 \code{\link{add_layout_html_axes_volcano}()},
-\code{\link{add_markers_basic_scatterplot}()}
+\code{\link{add_markers_basic_scatterplot}()},
+\code{\link{add_markers_overlay_volcano}()}
 }
 \concept{shiny}

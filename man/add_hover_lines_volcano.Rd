@@ -24,6 +24,7 @@ Other shiny:
 \code{\link{add_layout_html_axes_scatterplot}()},
 \code{\link{add_layout_html_axes_volcano}()},
 \code{\link{add_markers_basic_scatterplot}()},
-\code{\link{add_markers_basic_volcano}()}
+\code{\link{add_markers_basic_volcano}()},
+\code{\link{add_markers_overlay_volcano}()}
 }
 \concept{shiny}
