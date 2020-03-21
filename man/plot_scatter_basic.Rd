@@ -4,7 +4,13 @@
 \alias{plot_scatter_basic}
 \title{Draw a scatter plot of replicates}
 \usage{
-plot_scatter_basic(df, bait, size_point = 3, size_text = 3)
+plot_scatter_basic(
+  df,
+  bait = NULL,
+  size_point = 3,
+  col_signficant = "#41AB5D",
+  col_other = "grey"
+)
 }
 \arguments{
 \item{df}{A data.frame containing at least gene, significant, replicate/triplicate columns.}
