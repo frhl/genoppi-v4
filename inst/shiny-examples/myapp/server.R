@@ -1102,18 +1102,9 @@ shinyServer(function(input, output, session){
     bar
   })
   
+  # dont know if this is needed?
   a_vp_colorbar_dl <- reactive({
-    FDR <- seq(0, 1, 0.01)
-    limit <- rep("FDR", 101)
-    d <- data.frame(limit, FDR)
-      req(input$a_color_indv_sig, input$a_color_indv_insig)
-      browser()
-      d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-        scale_x_continuous(breaks = seq(0, 1, 0.1)) +
-        labs(x = "FDR") + theme_genoppi_bar() + coord_fixed()
-      bar
+    a_vp_colorbar()
   })
   
   a_vp_gg <- function(){ # can tjhis function be removed
@@ -1533,10 +1524,10 @@ shinyServer(function(input, output, session){
   })
   
   a_vp_count <- reactive({
-    vp_data <- a_pulldown()
-    current_subset <- nrow(subset(vp_data, (FDR < input$a_fdr_thresh) & (pvalue < input$a_pval_thresh) & (logFC > input$a_logFC_thresh[1]) & (logFC < input$a_logFC_thresh[2])))
-    count <- data.frame(paste0(current_subset, " (total = ", nrow(vp_data), ")"))
-    row.names(count) <- c("pull down")
+    d <- a_pulldown()
+    d <- id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
+    count <- data.frame(paste0(sum(d$significant), " (total = ", nrow(d), ")"))
+    row.names(count) <- c("Pull down")
     colnames(count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
     count
   })
