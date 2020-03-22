@@ -1638,7 +1638,7 @@ shinyServer(function(input, output, session){
     # handle individual plot
     correlation = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1 = p[[input$a_select_scatterplot]]$ggplot
-    p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep), x='rep1', y='rep2')
+    p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep), x=rep[1], y=rep[2])
 
     # add markers 
     p1 = make_interactive(p1, x=rep[1], y=rep[2])

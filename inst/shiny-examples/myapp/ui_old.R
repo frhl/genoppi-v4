@@ -7,50 +7,53 @@ body <- dashboardBody(
             shinyjs::useShinyjs(),
             tabsetPanel(id = "basic", #width = 12,
                         tabPanel("Basic Plots", value = "p1",
-                                 column(width = 4,
-                                        box(
-                                          title = "Title 1", width = NULL, solidHeader = TRUE, status = "primary",
-                                          column(4, uiOutput("a_prot_fam_db")),
-                                          column(4, uiOutput("a_text_prot_fam_db")),
-                                          column(4, downloadButton("download_pf_cleaned_input", "Remove selected PF from input"))
-                                        ),
-                                        box(
-                                          title = "Title 2", width = NULL, solidHeader = TRUE, status = "primary",
-                                          column(3, uiOutput("a_color_setting_indv_text")),
-                                          column(3, uiOutput("a_color_theme_indv_sig")),
-                                          column(3, uiOutput("a_color_theme_indv_insig")),
-                                          column(3, uiOutput('a_select_scatterplot_ui'))
-                                        ),
-                                        box(
-                                          title = "Title 3", width = NULL, solidHeader = TRUE, status = "primary",
-                                          column(4, myDownloadButton("download_vp_gg", "Volcano")),
-                                          column(4, uiOutput("VP_count_text")),
-                                          column(4, tableOutput("VP_count"))
-                                        )
+                                 br(),
+                                 fluidRow(
+                                   column(3, uiOutput("a_prot_fam_db")),
+                                   column(2, uiOutput("a_text_prot_fam_db")),
+                                   #column(3, uiOutput("a_color_theme_pf")),
+                                   column(3, downloadButton("download_pf_cleaned_input", "Remove selected PF from input"))
                                  ),
-                                 column(width = 8,
-                                        box(
-                                          title = "Title 4", width = NULL, solidHeader = TRUE,
-                                          fluidRow(
-                                            column(1, plotOutput("FDR_colorbar", width = "50px")),
-                                            column(11, plotlyOutput("VolcanoPlot")) #, width = "550px", height = "550px"
-                                          ),
-                                          br(),
-                                          br(),
-                                          br(),
-                                          br(),
-                                          br(),
-                                          br(),
-                                          br(),
-                                          br(),
-                                          fluidRow(
-                                            column(1, ''),
-                                            column(11, plotlyOutput("ScatterPlot")) #, width = "550px", height = "550px"
-                                          )
-                                        )
+                                 fluidRow(
+                                   column(4, uiOutput("a_color_setting_indv_text"))
+                                 ),
+                                 fluidRow(
+                                   column(2, uiOutput("a_color_theme_indv_sig")),
+                                   column(2, uiOutput("a_color_theme_indv_insig")),
+                                   column(2, uiOutput('a_select_scatterplot_ui'))
+                                 ),
+                                 fluidRow(
+                                   #column(4, uiOutput("a_color_theme"))
+                                 ),
+                                 fluidRow(
+                                   column(1),
+                                   column(1, myDownloadButton("download_vp_gg", "Volcano")),
+                                   column(5),
+                                   column(3, uiOutput("VP_count_text"))
+                                 ),
+                                 br(),
+                                 fluidRow(
+                                   column(1, plotOutput("FDR_colorbar", width = "50px")),
+                                   column(6, plotlyOutput("VolcanoPlot")), #, width = "550px", height = "550px"
+                                   column(3, tableOutput("VP_count")),
+                                 ),
+                                 br(),
+                                 br(),
+                                 br(),
+                                 br(),
+                                 br(),
+                                 br(),
+                                 br(),
+                                 br(),
+                                 br(),
+                                 fluidRow(
+                                   column(1),
+                                   column(1, myDownloadButton("download_sp_gg", "Scatter")),
+                                 ),
+                                 fluidRow(
+                                   column(1),
+                                   column(8, plotlyOutput("ScatterPlot")) #, width = "550px", height = "550px"
                                  )
-                                 
-                                 
                         ),
                         tabPanel("Integrated Plots", value = "p2", 
                                  br(),
@@ -59,9 +62,9 @@ body <- dashboardBody(
                                    column(4, uiOutput("a_SNP_file")),
                                    column(2, uiOutput("a_color_snp_sig_ui")),
                                    column(2, uiOutput("a_color_snp_insig_ui"))
-                                ),
+                                 ),
                                  fluidRow(
-                                #   column(4, uiOutput("a_SNP_file")),
+                                   #   column(4, uiOutput("a_SNP_file")),
                                    column(4, uiOutput('a_gwas_catalogue_ui')),
                                    column(4, uiOutput("a_genes_file")),
                                    column(4, uiOutput("a_bait_layer"))
