@@ -214,6 +214,13 @@ shinyServer(function(input, output, session){
     textInput("a_goi_search_rep", "Search for gene (e.g. SHH)")
   })
   
+  output$a_gwas_catalogue_ui <- renderUI({
+    validate(
+      need(input$a_file_pulldown_r != '', ""),
+      need(input$colorscheme == "fdr", "")
+    )
+    selectInput('a_gwas_catalogue', 'GWAS Catalogue', c('',unique(as.character(gwas_table$DISEASE.TRAIT))), multiple=F, selectize=TRUE, selected = "grey")
+  })
   
   
   ### snp labels
@@ -1039,8 +1046,24 @@ shinyServer(function(input, output, session){
     } 
   })
   
+  # map gwas catalouge
+  a_gwas_catalogue_mapping <- reactive({
+    req(input$a_gwas_catalogue)
+    genes = a_pulldown()$gene
+    mapping = get_gwas_list(input$a_gwas_catalogue, genes)
+    if (!is.null(mapping)){
+      mapping[[1]]$col_significant = 'cyan'
+      mapping[[1]]$col_other = 'grey'
+      mapping[[1]]$dataset = 'GWAS Catalouge'
+      return(mapping)
+    }
+  })
+  
+  
   ## this function is now redundant.
   SNP_to_gene <- eventReactive(input$a_make_plot, {#reactive({
+    
+    stop('deprecated!')
     
     if(!is.null(a_snp())){
       withProgress(message = 'Finding genes in SNPs loci', 
@@ -1870,6 +1893,7 @@ shinyServer(function(input, output, session){
   # generate plot in ggformat
   a_integrated_plot_gg <- reactive({
     p = a_vp()
+    if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas_cat=a_gwas_catalogue_mapping()[[1]]), volcano = T)
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
     p

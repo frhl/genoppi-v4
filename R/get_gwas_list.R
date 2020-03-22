@@ -1,6 +1,6 @@
 #' @title Retreive GWAS catalog data for a given list of traits
 #' @description Create gene list data.frame from input traits
-#' @param traits vector of GWAS catalog traits
+#' @param traits vector of GWAS catalog traits. See \code{gwas_table$DISEASE.TRAIT}
 #' @param genes vector of gene names (genes detected in proteomic data)
 #' @return list of two data.frames. First data.frame contains gene and SNP columns (restricting to genes in input genes vector; genes and SNPs can appear multiple times). Second data.frame contains GWAS catalog info for the included SNPs.
 #' @export

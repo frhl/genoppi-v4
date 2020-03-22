@@ -65,6 +65,7 @@ body <- dashboardBody(
                                 ),
                                  fluidRow(
                                 #   column(4, uiOutput("a_SNP_file")),
+                                   column(4, uiOutput('a_gwas_catalogue_ui')),
                                    column(4, uiOutput("a_genes_file")),
                                    column(4, uiOutput("a_bait_layer"))
                                  ),
