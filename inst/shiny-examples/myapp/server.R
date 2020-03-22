@@ -1911,15 +1911,11 @@ shinyServer(function(input, output, session){
     
     # generate plot and overlay stuff if available
     p = a_vp()
-    p = plot_overlay(p, as.bait(input$a_bait_search_rep))
-    if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
+    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
 
-    # add add basic and special markers
-    p <- add_genoppi_markers(p, volcano = T)
-    p <- add_genoppi_markers_overlay(p, volcano = T)
-    
-    # add hovered lines to volcano plots
+    # convert into plotly graphics
+    p <- make_interactive(p)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
     p <- add_layout_html_axes_volcano(p)
     p
