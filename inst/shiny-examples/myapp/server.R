@@ -1375,38 +1375,33 @@ shinyServer(function(input, output, session){
   
   a_vp_layerx <- reactive({
     p <- a_vp()
-    p <- add_markers_basic_volcano(p)
+    p <- add_genoppi_markers(p, volcano = T)
+    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
     p <- add_layout_html_axes_volcano(p)
     return(p)
-    
-    #goi <- a_search_gene()
-    #orig_data <- a_pulldown()
-    #searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    #p1 <- search_volcano(p, searchgene)
-    #p1
   })
   
   
   
-  a_vp1 <- reactive({
-    browser()
-    d <- a_pulldown()
-    q <- a_vp_gg()
-    gg_p <- ggplotly(p = q, tooltip="text") #, tooltip = c("gene", "FDR")
-    gg_p <- gg_p %>%
-      layout(xaxis = list(title = "log<sub>2</sub>(Fold change)",
-                          yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)")))
-    
-  })
-  
-  a_vp1_plus_rep <- reactive({
-    q <- a_vp_plus_rep_gg_reg_label()
-    gg_p <- ggplotly(p = q, tooltip="text") #, tooltip = c("gene", "FDR")
-    gg_p <- gg_p %>%
-      layout(xaxis = list(title = "log<sub>2</sub>(Fold change)",
-                          yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)"))) 
-  })
+  #a_vp1 <- reactive({
+  #  browser()
+  #  d <- a_pulldown()
+  #  q <- a_vp_gg()
+  #  gg_p <- ggplotly(p = q, tooltip="text") #, tooltip = c("gene", "FDR")
+  #  gg_p <- gg_p %>%
+  #    layout(xaxis = list(title = "log<sub>2</sub>(Fold change)",
+  #                        yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)")))
+  #  
+  #})
+  #
+  #a_vp1_plus_rep <- reactive({
+  #  q <- a_vp_plus_rep_gg_reg_label()
+  #  gg_p <- ggplotly(p = q, tooltip="text") #, tooltip = c("gene", "FDR")
+  #  gg_p <- gg_p %>%
+  #    layout(xaxis = list(title = "log<sub>2</sub>(Fold change)",
+  #                        yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)"))) 
+  #})
   
   a_vp_plus_rep_gg_reg_label <- function(){
     validate(
@@ -1607,14 +1602,17 @@ shinyServer(function(input, output, session){
     rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
     
     # handle all plots
-    d <- a_pulldown_significant()
+    d = a_pulldown_significant()
     p = plot_scatter_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
 
     # handle individual plot
     correlation = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1 = p[[input$a_select_scatterplot]]$ggplot
     p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep))
-    p1 = add_markers_basic_scatterplot(p1, repA = rep[1], repB = rep[2])
+    
+    # add markers 
+    p1 = add_genoppi_markers(p1, x=rep[1], y=rep[2])
+    if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
     p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',correlation))
     p1
 
@@ -1918,8 +1916,8 @@ shinyServer(function(input, output, session){
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
 
     # add add basic and special markers
-    p <- add_markers_basic_volcano(p)
-    p <- add_markers_overlay_volcano(p)
+    p <- add_genoppi_markers(p, volcano = T)
+    p <- add_genoppi_markers_overlay(p, volcano = T)
     
     # add hovered lines to volcano plots
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
@@ -2869,11 +2867,7 @@ shinyServer(function(input, output, session){
       need(input$a_file_pulldown_r != '', "Upload file")
     )
     if(is.null(a_pf_db())){
-      if(is.null(a_search_gene())){
-        a_vp_layerx()
-      } else{
-        a_vp_plus_rep()
-      }
+      a_vp_layerx()
     } else if(!is.null(a_pf_db())){
       if(is.null(a_search_gene())){
         a_vp_pf_db()
