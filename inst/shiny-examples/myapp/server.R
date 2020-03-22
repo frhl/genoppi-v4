@@ -1905,7 +1905,7 @@ shinyServer(function(input, output, session){
     p <- make_interactive(p, volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    p <- add_layout_html_axes_volcano(p)
+    p <- add_layout_html_axes_volcano(p, 700, 700)
     p
   })
   
