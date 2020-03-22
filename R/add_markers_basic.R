@@ -8,6 +8,8 @@
 
 add_genoppi_markers <- function(p, x='logFC', y='pvalue', volcano = F){
 
+  stop('function is deprecated and will be removed soon.')
+  
   # function for mapping -log10
   yf <- function(x) if (volcano) return(-log10(x)) else return(x)
   
@@ -35,6 +37,8 @@ add_genoppi_markers <- function(p, x='logFC', y='pvalue', volcano = F){
 #' @param volcano boolean. Will apply -log10 to y-axis, i.e. \code{-log10(p$data$y)}.
 #' @export
 add_genoppi_markers_overlay <- function(p, x='logFC', y='pvalue', volcano = F){
+  
+  stop('function is deprecated and will be removed soon.')
   
   # function for mapping -log10
   yf <- function(x, volcano = volcano) if (volcano) return(-log10(x)) else return(x)
@@ -81,6 +85,13 @@ add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
   p
 }
 
+#' @title Make ggplot interactive using plotly
+#' @description Takes a ggplot and turns it into 
+#' an interactive plot.
+#' @param x string. The x-column to be used from \code{p$data} and \code{p$overlay}.
+#' @param y string. The y-column to be used from \code{p$data} and \code{p$overlay}.
+#' @param volcano boolean. If True, will convert y-axis to \code{y=-log10(y)}.
+#' @export
 
 make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
   
@@ -100,16 +111,17 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
   
   # plot overlayd items
   overlay = p$overlay
-  p1 <- add_markers(p1, data = overlay, 
-                    x = ~overlay[[x]], 
-                    y = ~yf(overlay[[y]]),
-                    marker = list(color = ifelse(overlay$significant, overlay$col_significant, overlay$col_other),
-                                  size = 8, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
-                    mode = "markers+text", hoverinfo = "text", legendgroup = "group3",
-                    text = ~paste(gene, sep = "<br>"), 
-                    textposition = ~ifelse(logFC>0,"top right","top left"), textfont = list(size = 11))
-  
-  p1$overlay <- p$overlay
+  if (nrow(overlay) > 0){
+    p1 <- add_markers(p1, data = overlay, 
+                      x = ~overlay[[x]], 
+                      y = ~yf(overlay[[y]]),
+                      marker = list(color = ifelse(overlay$significant, overlay$col_significant, overlay$col_other),
+                                    size = 8, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
+                      mode = "markers+text", hoverinfo = "text", legendgroup = "group3",
+                      text = ~paste(gene, sep = "<br>"), 
+                      textposition = ~ifelse(logFC>0,"top right","top left"), textfont = list(size = 11))
+    p1$overlay <- p$overlay
+  }
   p1$data <- p$data
   p1
 }

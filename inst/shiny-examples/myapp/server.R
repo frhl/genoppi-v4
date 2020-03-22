@@ -1243,12 +1243,12 @@ shinyServer(function(input, output, session){
     }
   )
   
-  a_sp_gg <- function(){
-    d <- a_pulldown()
+  #a_sp_gg <- function(){
+  #  d <- a_pulldown()
     #if(input$colorscheme == "fdr"){
-      req(input$a_color_indv_sig, input$a_color_indv_insig)
-      data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      p <- plot_scatter_qc_gg(data)
+  #    req(input$a_color_indv_sig, input$a_color_indv_insig)
+  #    data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+  #    p <- plot_scatter_qc_gg(data)
     #} else if(input$colorscheme == "exac"){
     #  d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
     #  d$s[is.na(d$s)] <- 2
@@ -1289,8 +1289,8 @@ shinyServer(function(input, output, session){
     #  }
     #  p
     #}
-    p
-  }
+  #  p
+  #}
   
   a_sp_plus_rep_gg <- function(){
     validate(
@@ -1596,6 +1596,12 @@ shinyServer(function(input, output, session){
     }
   })
   
+  
+  a_sp_gg <- reactive({
+    stop('error, deprecated')
+    
+  })
+  
   a_sp <- reactive({
     
     # what replicates are inputted
@@ -1610,11 +1616,9 @@ shinyServer(function(input, output, session){
     correlation = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1 = p[[input$a_select_scatterplot]]$ggplot
     p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep), x='rep1', y='rep2')
-    
+
     # add markers 
-    p1 = add_genoppi_markers(p1, x=rep[1], y=rep[2])
-    
-    #p1 = make_interactive(p1, x=rep[1], y=rep[2])
+    p1 = make_interactive(p1, x=rep[1], y=rep[2])
     if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
     p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',correlation))
     p1
@@ -1863,66 +1867,26 @@ shinyServer(function(input, output, session){
     }
   })
   
-  #a_multi_vp_colorbar_dl <- reactive({
-  #  FDR <- seq(0, 1, 0.01)
-  #  limit <- rep("FDR", 101)
-  #  d <- data.frame(limit, FDR)
-  #  if(input$colorscheme == "fdr"){
-  #    req(input$a_color_multi_sig, input$a_color_multi_insig)
-  #    d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
-  #    mycol <- as.vector(d1$col)
-  #    bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-  #      scale_x_continuous(breaks = seq(0, 1, 0.1)) +
-  #      labs(x = "FDR") +
-  #      theme(axis.title.y=element_blank(),
-  #            axis.text.y=element_blank(),
-  #            axis.ticks.y=element_blank(),
-  #            panel.background=element_blank(),
-  #            axis.title = element_text(size = rel(1))) + coord_fixed()
-  #    bar
-  #  } else if(input$colorscheme == "exac"){
-  #    d1 <- separate_to_groups_for_exac_bar(d)
-  #    mycol <- as.vector(d1$col)
-  #    bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-  #      labs(x = " pLI < 0.9          pLI >= 0.9       not in ExAC") +
-  #      theme(axis.title.y=element_blank(),
-  #            axis.text.y=element_blank(),
-  #            axis.ticks.y=element_blank(),
-  #            axis.text.x=element_blank(),
-  #            axis.ticks.x=element_blank(),
-  #            panel.background=element_blank(),
-  #            axis.title = element_text(size = rel(1))) + coord_fixed()
-  #    bar
-  #  } else if(input$colorscheme == "cbf"){
-  #    d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-  #    mycol <- as.vector(d1$col)
-  #    bar <- ggplot(d1, aes(xmin = d1$FDR-0.01, xmax = d1$FDR, ymin = 0, ymax = 0.1)) + geom_rect(fill = mycol) +
-  #      scale_x_continuous(breaks = seq(0, 1, 0.1)) +
-  #      labs(x = "FDR") +
-  #      theme(axis.title.y=element_blank(),
-  #            axis.text.y=element_blank(),
-  #            axis.ticks.y=element_blank(),
-  #            panel.background=element_blank(),
-  #            axis.title = element_text(size = rel(1))) + coord_fixed()
-  #    bar
-  #  }
-  #})
-  
-  
-  
-  a_multi_vp_layer <- reactive({
-    
-    # generate plot and overlay stuff if available
+  # generate plot in ggformat
+  a_integrated_plot_gg <- reactive({
     p = a_vp()
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
-
-    # convert into plotly graphics
+    p
+  })
+  
+  # convert into plotly graphics
+  a_integrated_plot <- reactive({
+    p <- a_integrated_plot_gg()
     p <- make_interactive(p, volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
+    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_layout_html_axes_volcano(p)
     p
-    
+  })
+  
+  a_multi_vp_layer <- reactive({
+    stop('a_multi_vp_layer is deprecated!!')
   })
   
 
@@ -2942,11 +2906,12 @@ shinyServer(function(input, output, session){
     validate(
       need(input$a_file_pulldown_r != '', "Upload file")
     )
-    if(is.null(a_search_gene())){
-      a_multi_vp_layer()
-    } else{
-      a_multi_vp_plus()
-    }
+    #if(is.null(a_search_gene())){
+      #a_multi_vp_layer()
+      a_integrated_plot()
+    #} else{
+    #  a_multi_vp_plus()
+    #}
   })
   
   output$Multi_VP_count <- renderTable({

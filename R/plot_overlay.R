@@ -40,9 +40,8 @@ plot_overlay <- function(p, reference, x='logFC', y='pvalue', volcano = F, point
   
   # check whether data is a scatterplot
   
-  
   # merge genelist into data.frame and check for duplicates
-  mymerge = merge(p$data[,c('gene', x, y,'FDR','significant')], reference, by = 'gene')
+  mymerge = merge(p$data[,c('gene', 'logFC', 'pvalue','FDR','significant', x, y)], reference, by = 'gene')
   
   # duplicates are merged my alt-text.
   #dup = unlist(lapply(mymerge$gene, function(x) sum(mymerge$gene == x))) > 1
