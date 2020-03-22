@@ -26,7 +26,7 @@
 
 
 
-plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
+plot_overlay <- function(p, reference, x='logFC', y='pvalue', volcano = F, point_expansion = 1.05, legend = T){
   
   # todo: give more informative errors..
   
@@ -38,27 +38,31 @@ plot_overlay <- function(p, reference, point_expansion = 1.05, legend = T){
   # convert list to data.frame
   reference = validate_reference(list_to_df(reference))
   
+  # check whether data is a scatterplot
+  
+  
   # merge genelist into data.frame and check for duplicates
-  mymerge = merge(p$data[,c('gene','logFC','pvalue','FDR','significant')], reference, by = 'gene')
+  mymerge = merge(p$data[,c('gene', x, y,'FDR','significant')], reference, by = 'gene')
   
   # duplicates are merged my alt-text.
-  dup = unlist(lapply(mymerge$gene, function(x) sum(mymerge$gene == x))) > 1
-  
+  #dup = unlist(lapply(mymerge$gene, function(x) sum(mymerge$gene == x))) > 1
   #min(which(dup == TRUE))
   #paste(mymerge[dup, ]$alt_label, collapse =', ')
-  
   #if (any(dup)) mymerge[dup, ]$alt_label <- paste0(mymerge[dup, ]$gene,' [', mymerge[dup, ]$dataset,']')
+  
+  # function for mapping -log10 when volcano = T
+  yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
   
   # add the new point
   p1 = p + geom_point(mymerge, 
-                 mapping=aes(x=logFC, y=-log10(pvalue)), 
+                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[x]])), 
                  size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
                  #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
                  color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
           
           # add black stroke to points
           geom_point(mymerge[mymerge$stroke, ],
-                 mapping=aes(x=logFC, y=-log10(pvalue)),
+                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[x]])),
                  size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
                  color = 'black',
                  shape = 1) +

@@ -84,12 +84,15 @@ add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
 
 make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
   
+  # function for mapping -log10 when volcano = T
+  yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
+  
   # deal with non-overlaid items
   data = p$data[p$data$gene %nin% p$overlay$gene, ]
   p1 <- plot_ly(showlegend = FALSE, width = 550, height = 550)
   p1 <- add_markers(p1, data = data, 
-                    x = ~data$logFC, 
-                    y = ~-log10(data$pvalue),
+                    x = ~data[[x]], 
+                    y = ~yf(data[[y]]),
                     marker = list(size = 7, cmin = 0, cmax = 1, color = data$color, line = list(width=0.2, color='black')),
                     opacity = 0.9, 
                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), 
@@ -98,8 +101,8 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
   # plot overlayd items
   overlay = p$overlay
   p1 <- add_markers(p1, data = overlay, 
-                    x = ~overlay$logFC, 
-                    y = ~-log10(overlay$pvalue),
+                    x = ~overlay[[x]], 
+                    y = ~yf(overlay[[y]]),
                     marker = list(color = ifelse(overlay$significant, overlay$col_significant, overlay$col_other),
                                   size = 8, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
                     mode = "markers+text", hoverinfo = "text", legendgroup = "group3",

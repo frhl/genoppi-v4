@@ -1369,13 +1369,14 @@ shinyServer(function(input, output, session){
     d <- a_pulldown_significant()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
     p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
-    p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
+    p <- plot_overlay(p, as.bait(input$a_bait_search_rep), volcano = T) # add bait
     return(p)
   })
   
   a_vp_layerx <- reactive({
     p <- a_vp()
-    p <- add_genoppi_markers(p, volcano = T)
+    #p <- add_genoppi_markers(p, volcano = T)
+    p <- make_interactive(p, volcano = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
     p <- add_layout_html_axes_volcano(p)
@@ -1608,10 +1609,12 @@ shinyServer(function(input, output, session){
     # handle individual plot
     correlation = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1 = p[[input$a_select_scatterplot]]$ggplot
-    p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep))
+    p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep), x='rep1', y='rep2')
     
     # add markers 
     p1 = add_genoppi_markers(p1, x=rep[1], y=rep[2])
+    
+    #p1 = make_interactive(p1, x=rep[1], y=rep[2])
     if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
     p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',correlation))
     p1
@@ -1911,11 +1914,11 @@ shinyServer(function(input, output, session){
     
     # generate plot and overlay stuff if available
     p = a_vp()
-    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
-    if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
+    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
+    if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
 
     # convert into plotly graphics
-    p <- make_interactive(p)
+    p <- make_interactive(p, volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
     p <- add_layout_html_axes_volcano(p)
     p
