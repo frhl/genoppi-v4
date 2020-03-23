@@ -55,14 +55,14 @@ plot_overlay <- function(p, reference, x='logFC', y='pvalue', volcano = F, point
   
   # add the new point
   p1 = p + geom_point(mymerge, 
-                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[x]])), 
+                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])), 
                  size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
                  #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
                  color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
           
           # add black stroke to points
           geom_point(mymerge[mymerge$stroke, ],
-                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[x]])),
+                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])),
                  size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
                  color = 'black',
                  shape = 1) +

@@ -269,12 +269,12 @@ shinyServer(function(input, output, session){
   
   output$a_color_snp_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
-    selectInput('a_color_snp_sig', 'color SNP (significant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
+    selectInput('a_color_snp_sig', 'color (significant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
   })
   
   output$a_color_snp_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
-    selectInput('a_color_snp_insig', 'color SNP (insignificant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
+    selectInput('a_color_snp_insig', 'color (insignificant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
   })
   ###
   

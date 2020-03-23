@@ -119,7 +119,7 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
     p1 <- add_markers(p1, data = overlay, 
                       x = ~overlay[[x]], 
                       y = ~yf(overlay[[y]]),
-                      marker = list(color = ifelse(overlay$significant, overlay$col_significant, overlay$col_other),
+                      marker = list(color = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other)),
                                     size = 8, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
                       mode = "markers+text", hoverinfo = "text", legendgroup = "group3",
                       text = ~paste(gene, sep = "<br>"), 
