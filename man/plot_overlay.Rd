@@ -4,7 +4,15 @@
 \alias{plot_overlay}
 \title{plot overlay}
 \usage{
-plot_overlay(p, reference, point_expansion = 1.05, legend = T)
+plot_overlay(
+  p,
+  reference,
+  x = "logFC",
+  y = "pvalue",
+  volcano = F,
+  point_expansion = 1.05,
+  legend = T
+)
 }
 \arguments{
 \item{p}{a plot object returned from ggplot.}

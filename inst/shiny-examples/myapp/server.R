@@ -1,9 +1,6 @@
 # shiny server
 
-# load genoppi if not attcahed
-if ('genoppi' %nin% .packages()) devtools::load_all('~/Toolbox/packages/genoppi/')
-# load aprils functions for now
-source("~/Projects/04_genoppi/Genoppi-master/functions.R")
+
 
 shinyServer(function(input, output, session){
   #supress warnings

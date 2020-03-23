@@ -7,7 +7,7 @@
 get_gwas_list(traits, genes)
 }
 \arguments{
-\item{traits}{vector of GWAS catalog traits}
+\item{traits}{vector of GWAS catalog traits. See \code{gwas_table$DISEASE.TRAIT}}
 
 \item{genes}{vector of gene names (genes detected in proteomic data)}
 }

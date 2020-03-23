@@ -37,5 +37,24 @@ catf <- function(msg, file = stderr()){
 #' @export
 as.bait <- function(bait) return(list(baitlist=data.frame(gene=bait, col_significant='red', col_other='orange')))
 
+#' @title findit
+#' @description find files and lines that contain 'what'
+#' @param what string to find
+#' @param directory string, directory
+#' @keywords internal
+#' @export
+findit <- function(what = 'name', directory = 'R'){
+  files = list.files(directory)
+  lst = lapply(files, function(x){
+    lines = readLines(file.path(directory, x))
+    lenlines = 1:length(lines)   
+    re = grepl(what, lines)
+    if (any(re)) return(lenlines[re]) else return(NULL)
+  })
+  names(lst) = files
+  lst = null_omit(lst)
+  return(lst)
+}
+
 
 

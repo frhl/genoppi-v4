@@ -13,5 +13,5 @@ get_gene_list <- function(filename, header=T, sep="\t"){
   if (!"significant" %in% colnames(geneDf)) { geneDf$significant <- TRUE }
   intersectN <- sum(geneDf$significant) < nrow(geneDf) # if geneDf contains significant=F entries
 
-  return(list(geneDf,intersectN))
+  return(list(data=geneDf,intersect=intersectN))
 }

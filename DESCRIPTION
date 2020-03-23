@@ -13,8 +13,7 @@ LazyData: true
 Depends:
     R (>= 3.6.1)
 Suggests:
-    devtools,
-    shinydashboard
+    devtools
 Imports:
     assertthat,
     stats,
@@ -28,12 +27,19 @@ Imports:
     ggrepel,
     limma,
     shiny,
-    data.table
+    shinyjs,
+    shinydashboard,
+    data.table,
+    plotly
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
-	'add_markers_basic_scatterplot.R'
-    'add_markers_basic_volcano.R'
+    'add_hover_lines_volcano.R'
+    'add_layout_html_axes.R'
+    'add_markers_basic.R'
+    'get_gwas_list.R'
+    'gwas_table_data.R'
+    'modify_ggplot_from_overlay.R'
     'check_input.R'
     'calc_mod_ttest.R'
     'enumerate_replicate_combinations.R'
