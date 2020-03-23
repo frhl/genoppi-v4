@@ -34,8 +34,13 @@ body <- dashboardBody(
                                         box(
                                           title = "Summary", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE,
                                           #column(4, myDownloadButton("download_vp_gg", "Volcano")),
-                                          column(6, uiOutput("VP_count_text")),
-                                          column(6, tableOutput("VP_count"))
+                                          fluidPage(
+                                            column(12, uiOutput("VP_count_text")),
+                                            br(),
+                                          ),
+                                          fluidPage(
+                                            column(12, tableOutput("VP_count"))
+                                          )
                                         )
                                  ),
                                  column(width = 8,

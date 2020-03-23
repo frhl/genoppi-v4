@@ -147,7 +147,7 @@ shinyServer(function(input, output, session){
   #})
   
   
-  # track significance threshols
+  # track significance threshols for FDR and P-value
   monitor_significance_tresholds <- reactive({
     sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', 'P-value')
     sig_value = ifelse(sig_type == 'FDR', input$a_fdr_thresh, input$a_pval_thresh)
@@ -155,6 +155,16 @@ shinyServer(function(input, output, session){
     region_l <- c(paste0(sig_type,"<", sig_value))
     region_ge <- c(paste0(sig_type,"≥", sig_value))
     return(list(sig=region_l, insig=region_ge, sig_type=sig_type, sig_value=sig_value))
+  })
+  
+  # track significance threshols for logFC
+  monitor_logfc_threshold <- reactive({
+    fc_dir = input$a_logfc_direction
+    fc = input$a_logFC_thresh
+    if (fc_dir == 'negative') fc_sig = paste("logFC&le;", -fc)
+    if (fc_dir == 'positive') fc_sig = paste("logFC&ge;", fc)
+    if (fc_dir == 'both') fc_sig = paste("|logFC|&ge;", fc)
+    return(list(sig=fc_sig))
   })
   
   
@@ -1681,7 +1691,7 @@ shinyServer(function(input, output, session){
   
   a_vp_count_text <- reactive({
     if(!is.null(a_vp_count())){
-      enriched <- c(paste0("FDR&le;", input$a_fdr_thresh, ", pvalue&le;", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "&le;logFC&le;", input$a_logFC_thresh[2]))
+      enriched <- paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse = ', ')
       enriched
     }
   })
