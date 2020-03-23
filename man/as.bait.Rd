@@ -12,3 +12,13 @@ as.bait(bait)
 \description{
 quickly format the bait so that it can be used by various overlay functions.
 }
+\seealso{
+Other misc: 
+\code{\link{\%nin\%}()},
+\code{\link{bold}()},
+\code{\link{catf}()},
+\code{\link{enumerate_replicate_combinations}()},
+\code{\link{lun}()},
+\code{\link{null_omit}()}
+}
+\concept{misc}

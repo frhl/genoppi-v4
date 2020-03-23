@@ -12,4 +12,13 @@ enumerate_replicate_combinations(len)
 \description{
 enumerates unique replicate comparisons
 }
+\seealso{
+Other misc: 
+\code{\link{\%nin\%}()},
+\code{\link{as.bait}()},
+\code{\link{bold}()},
+\code{\link{catf}()},
+\code{\link{lun}()},
+\code{\link{null_omit}()}
+}
 \concept{misc}

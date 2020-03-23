@@ -39,17 +39,9 @@ plot_overlay <- function(p, reference, x='logFC', y='pvalue', volcano = F, point
   # convert list to data.frame
   reference = validate_reference(list_to_df(reference))
   
-  # check whether data is a scatterplot
-  
   # merge genelist into data.frame and check for duplicates
   mymerge = merge(p$data[,c('gene', 'logFC', 'pvalue','FDR','significant', x, y)], reference, by = 'gene')
-  
-  # duplicates are merged my alt-text.
-  #dup = unlist(lapply(mymerge$gene, function(x) sum(mymerge$gene == x))) > 1
-  #min(which(dup == TRUE))
-  #paste(mymerge[dup, ]$alt_label, collapse =', ')
-  #if (any(dup)) mymerge[dup, ]$alt_label <- paste0(mymerge[dup, ]$gene,' [', mymerge[dup, ]$dataset,']')
-  
+
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
   
@@ -110,6 +102,7 @@ list_to_df <- function(lst){
     if ('col_significant' %nin% cnames) df$col_significant <- 'yellow'
     if ('col_other' %nin% cnames) df$col_other <- 'grey'
     if ('alt_label' %nin% cnames) df$alt_label <- NA
+    if ('symbol' %nin% cnames) df$symbol <- NA
     # size
     # labelsize
     return(df)

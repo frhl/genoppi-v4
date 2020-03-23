@@ -12,3 +12,13 @@ null_omit(lst)
 \description{
 remove NULLs in list
 }
+\seealso{
+Other misc: 
+\code{\link{\%nin\%}()},
+\code{\link{as.bait}()},
+\code{\link{bold}()},
+\code{\link{catf}()},
+\code{\link{enumerate_replicate_combinations}()},
+\code{\link{lun}()}
+}
+\concept{misc}

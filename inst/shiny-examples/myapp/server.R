@@ -1485,7 +1485,6 @@ shinyServer(function(input, output, session){
   
   a_vp_layerx <- reactive({
     p <- a_vp()
-    #p <- add_genoppi_markers(p, volcano = T)
     p <- make_interactive(p, volcano = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
@@ -1984,6 +1983,8 @@ shinyServer(function(input, output, session){
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
     if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()), volcano = T)}
+    #if (!is.null(input$a_file_genes_rep)) browser()
+    p$overlay <- collapse_labels(p$overlay)
     p
   })
   
@@ -2930,11 +2931,17 @@ shinyServer(function(input, output, session){
   })
   
   output$FDR_colorbar <- renderPlot({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
+    validate(need(input$a_file_pulldown_r != '', ""))
     a_vp_colorbar()
   })
+  
+  output$FDR_colorbar_integrated <- renderPlot({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    a_vp_colorbar()
+  })
+  
+  
+  
   
   # the actual volcano plot outputted to the user
   output$VolcanoPlot <- renderPlotly({

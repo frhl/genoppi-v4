@@ -14,3 +14,13 @@ x \%nin\% y
 \description{
 returns true for x not in y
 }
+\seealso{
+Other misc: 
+\code{\link{as.bait}()},
+\code{\link{bold}()},
+\code{\link{catf}()},
+\code{\link{enumerate_replicate_combinations}()},
+\code{\link{lun}()},
+\code{\link{null_omit}()}
+}
+\concept{misc}

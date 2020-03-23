@@ -88,7 +88,7 @@ body <- dashboardBody(
                                      )
                                   ),
                                    box(
-                                     title = "GWAS Catalouge", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                     title = "GWAS Catalogue", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                         column(12, uiOutput('a_gwas_catalogue_ui'))
                                      )
@@ -103,7 +103,7 @@ body <- dashboardBody(
                                       title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, height = '800px', solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                          fluidRow(
                                            #column(1, plotOutput("mulFDR_colorbar", width = "50px")),
-                                           #column(1, plotOutput("FDR_colorbar", width = "50px")),
+                                           column(1, br(), br(), br(), br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
                                            column(10, plotlyOutput("Multi_VolcanoPlot")),
                                            column(1, myDownloadButton("download_multi_vp_gg", "Volcano"))
                                          )

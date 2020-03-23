@@ -120,9 +120,15 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
                       x = ~overlay[[x]], 
                       y = ~yf(overlay[[y]]),
                       marker = list(color = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other)),
-                                    size = 8, line = list(width=0.4, color = "black"), opacity = 1), #, symbol = "square"
-                      mode = "markers+text", hoverinfo = "text", legendgroup = "group3",
-                      text = ~paste(gene, sep = "<br>"), 
+                                    size = 9, line = list(width=1.0, color = "black"), opacity = 1), #, symbol = "square"
+                      #mode = "markers",
+                      mode = "markers+text",
+                      hoverinfo = "text", 
+                      legendgroup = "group3",
+                      name = " ",
+                      text = ~gene, 
+                      #hovertemplate = ~paste(bold(gene), ifelse(!is.na(overlay$alt_label), alt_label, dataset), sep = "<br>"),
+                      hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3)), ifelse(!is.na(overlay$alt_label), alt_label, dataset), sep = "<br>"),
                       textposition = ~ifelse(logFC>0,"top right","top left"), textfont = list(size = 11))
     p1$overlay <- p$overlay
   }

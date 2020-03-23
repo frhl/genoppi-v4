@@ -37,6 +37,7 @@ Collate:
     'add_hover_lines_volcano.R'
     'add_layout_html_axes.R'
     'add_markers_basic.R'
+    'collapse_overlay.R'
     'get_gwas_list.R'
     'gwas_table_data.R'
     'modify_ggplot_from_overlay.R'

@@ -7,6 +7,7 @@ library(hash)
 library(plotly)
 library(data.table)
 library(ggrepel)
+library(plyr)
 
 # load genoppi if not attcahed
 if (!'genoppi' %in% .packages()) devtools::load_all('~/Toolbox/packages/genoppi/')
