@@ -8,6 +8,7 @@
 #' @param col_other the color of non-significnt proteins/rows.
 #' @param size_point the size of the points. 
 #' @export
+#' @import ggplot2
 #' @examples
 #' \dontrun{
 #' # artifical data 

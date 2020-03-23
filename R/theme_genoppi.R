@@ -1,6 +1,7 @@
 #' Genoppi GG theme
 #' @description Set's up the classic genoppi theme for ggplot2.
 #' @author April/Frederik
+#' @import ggplot2
 #' @export
 
 theme_genoppi <- function(){

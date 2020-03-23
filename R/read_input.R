@@ -4,6 +4,7 @@
 #' @param sep the field character seperator, see \code{?fread}
 #' @param header a logical value indicating whether the file contains the names of the variables as its first line
 #' @return list contaiing input data.frame and list of boolean variables indicating input format
+#' @importFrom data.table fread
 #' @export
 
 read_input <- function(filename, header = 'auto', sep = 'auto'){

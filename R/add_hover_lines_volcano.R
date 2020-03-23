@@ -3,6 +3,7 @@
 #' @param p a ggplot
 #' @param line_pvalue the pvalue threshold
 #' @param line_logfc the logfc threshold 
+#' @import plotly
 #' @note internal
 #' @family shiny
 add_hover_lines_volcano <- function(p, line_pvalue, line_logfc, logfc_direction = 'both'){

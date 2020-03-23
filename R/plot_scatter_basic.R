@@ -5,6 +5,7 @@
 #' @param size_point size of point.
 #' @param size_text size of the text label.
 #' @return a list of ggplot objects and replicate correlations
+#' @import ggplot2
 #' @export
 #' @examples 
 #' \dontrun{

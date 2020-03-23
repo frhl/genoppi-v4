@@ -3,6 +3,7 @@
 #' @param p a plot object returned from ggplot.
 #' @param reference a list of named data.frames.
 #' @param point_expansion percentage expansion of genelist points.
+#' @import ggplot2 ggrepel
 #' @export
 #' @examples
 #' \dontrun{

@@ -4,6 +4,7 @@
 #' @param x a string corresponding to column name in \code{p$data}. For plotting x axis.
 #' @param x a string corresponding to column name in \code{p$data}. For plottin y axis.
 #' @param volcano boolean. Will apply -log10 to y-axis, i.e. \code{-log10(p$data$y)}.
+#' @import plotly
 #' @export
 
 add_genoppi_markers <- function(p, x='logFC', y='pvalue', volcano = F){
@@ -35,6 +36,7 @@ add_genoppi_markers <- function(p, x='logFC', y='pvalue', volcano = F){
 #' @param x a string corresponding to column name in \code{p$overlay}. For plotting x axis.
 #' @param x a string corresponding to column name in \code{p$overlay}. For plottin y axis.
 #' @param volcano boolean. Will apply -log10 to y-axis, i.e. \code{-log10(p$data$y)}.
+#' @import plotly
 #' @export
 add_genoppi_markers_overlay <- function(p, x='logFC', y='pvalue', volcano = F){
   
@@ -67,6 +69,7 @@ add_genoppi_markers_overlay <- function(p, x='logFC', y='pvalue', volcano = F){
 #' @param p a ggplot
 #' @param genes a vector of genes
 #' @note internal
+#' @import plotly
 #' @family shiny
 
 add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
@@ -91,6 +94,7 @@ add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
 #' @param x string. The x-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param y string. The y-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param volcano boolean. If True, will convert y-axis to \code{y=-log10(y)}.
+#' @import plotly
 #' @export
 
 make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
