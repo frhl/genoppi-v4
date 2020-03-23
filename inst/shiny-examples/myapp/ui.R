@@ -11,20 +11,28 @@ body <- dashboardBody(
                                  br(),
                                  column(width = 4,
                                         box(
-                                          title = "Basic overlay", width = NULL, solidHeader = TRUE, status = "primary",
-                                          column(4, uiOutput("a_prot_fam_db")),
-                                          column(4, uiOutput("a_text_prot_fam_db")),
-                                          column(4, downloadButton("download_pf_cleaned_input", "Remove selected PF from input"))
+                                          title = "Basic overlay", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                          fluidPage(
+                                            column(12, uiOutput("a_prot_fam_db"))
+                                          ),
+                                          fluidPage(
+                                            column(4, uiOutput("a_text_prot_fam_db")),
+                                            column(8, downloadButton("download_pf_cleaned_input", "Remove selected PF from input"))
+                                          )
                                         ),
                                         box(
-                                          title = "Basic plot options", width = NULL, solidHeader = TRUE, status = "primary",
-                                          column(3, uiOutput("a_color_setting_indv_text")),
-                                          column(3, uiOutput("a_color_theme_indv_sig")),
-                                          column(3, uiOutput("a_color_theme_indv_insig")),
-                                          column(3, uiOutput('a_select_scatterplot_ui'))
+                                          title = "Basic plot options", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE,
+                                          fluidPage(
+                                            column(12, uiOutput('a_select_scatterplot_ui')) 
+                                          ),
+                                          fluidPage(
+                                            #column(3, uiOutput("a_color_setting_indv_text")),
+                                            column(6, uiOutput("a_color_theme_indv_sig")),
+                                            column(6, uiOutput("a_color_theme_indv_insig"))
+                                          )
                                         ),
                                         box(
-                                          title = "Summary", width = NULL, solidHeader = TRUE, status = "primary",
+                                          title = "Summary", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE,
                                           #column(4, myDownloadButton("download_vp_gg", "Volcano")),
                                           column(6, uiOutput("VP_count_text")),
                                           column(6, tableOutput("VP_count"))
@@ -32,14 +40,14 @@ body <- dashboardBody(
                                  ),
                                  column(width = 8,
                                         box(
-                                          title = tagList(shiny::icon("gear"), "Volcano plot"), width = NULL, solidHeader = TRUE, status = 'success',
+                                          title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(
                                             column(1, plotOutput("FDR_colorbar", width = "50px")),
                                             column(11, plotlyOutput("VolcanoPlot")) #, width = "550px", height = "550px"
                                           ),
                                         ),
                                         box(
-                                          title = "Scatter plot", width = NULL, solidHeader = TRUE, status = 'success',
+                                          title = tagList(shiny::icon('chart-bar'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(
                                             column(1, ''),
                                             column(11, plotlyOutput("ScatterPlot")) #, width = "550px", height = "550px"
@@ -52,61 +60,48 @@ body <- dashboardBody(
                         tabPanel("Integrated Plots", value = "p2", 
                                 br(),
                                  column(width = 4, 
-                                   box(
-                                     title = "Upload SNP file", width = NULL, solidHeader = TRUE, status = "primary",
-                                     column(6, uiOutput("a_SNP_file")),
-                                     column(3, uiOutput("a_color_snp_sig_ui")),
-                                     column(3, uiOutput("a_color_snp_insig_ui"))
-                                   ),
-                                   box(
-                                     title = "InWeb InBiomap", width = NULL, solidHeader = TRUE, status = "primary",
-                                     column(6, uiOutput("a_genes_file")),
-                                     column(6, uiOutput("a_bait_layer"))
+                                    box(
+                                     title = "InWeb InBiomap", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
+                                     fluidRow(
+                                      column(12, uiOutput("a_bait_layer"))
+                                        )
+                                      ),
+                                    box(
+                                     title = "Upload SNP file", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                     fluidRow(
+                                       column(12, uiOutput("a_SNP_file")),
+                                     ), 
+                                     fluidRow(
+                                       column(6, uiOutput("a_color_snp_sig_ui")),
+                                       column(6, uiOutput("a_color_snp_insig_ui"))
+                                     )
                                    ),
                                   box(
-                                     title = "fwag", width = NULL, solidHeader = TRUE, status = "primary",
-                                     column(4, uiOutput("a_text_label")),
-                                     column(4, uiOutput("a_plot_button")),
-                                     column(4, uiOutput("a_color_setting_text"))
+                                     title = "Upload genes", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                     fluidRow(
+                                        column(12, uiOutput("a_genes_file")),
+                                     )
                                   ),
                                    box(
-                                     title = "GWAS Catalouge", width = NULL, solidHeader = TRUE, status = "primary",
-                                     column(4, uiOutput('a_gwas_catalogue_ui'))
-                                     #column(2, uiOutput("a_color_theme_multi_sig")), 
-                                     #column(2, uiOutput("a_color_theme_multi_insig")),
-                                     #column(2, uiOutput("a_color_theme_integrated")),
-                                     #column(2, uiOutput("a_color_theme_snp")),
-                                     #column(2, uiOutput("a_color_theme_goi")),
-                                     #column(2, uiOutput("a_color_theme_inweb"))
+                                     title = "GWAS Catalouge", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                     fluidRow(
+                                        column(12, uiOutput('a_gwas_catalogue_ui'))
+                                     )
                                    ),
                                   box(
-                                    title = "Statistics", width = NULL, solidHeader = TRUE, status = "primary",
+                                    title = "Statistics", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                     column(12, tableOutput("Multi_VP_count"))
                                   ),
                                  ),
                                 column(width = 8,
                                     box(
-                                      title = tagList(shiny::icon("gear"), "Volcano plot"), width = NULL, height = '800px', solidHeader = TRUE, status = 'success',
+                                      title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, height = '800px', solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                          fluidRow(
                                            #column(1, plotOutput("mulFDR_colorbar", width = "50px")),
                                            column(10, plotlyOutput("Multi_VolcanoPlot")),
                                            column(1, myDownloadButton("download_multi_vp_gg", "Volcano"))
- 
-                                           #column(8, plotlyOutput("Multi_VolcanoPlot"))
                                          )
                                     )
-                                           
-                                   #fluidRow(
-                                  #   column(1, myDownloadButton("download_multi_vp_gg", "Volcano")), 
-                                  #   column(8),
-                                  #   column(3, uiOutput("Multi_VP_count_text"))
-                                  # ),
-                                  # br(),
-                                  # fluidRow(
-                                  #   column(1, plotOutput("multi_FDR_colorbar", width = "50px")),
-                                  #   column(8, plotlyOutput("Multi_VolcanoPlot")),
-                                  #   column(8, plotlyOutput("Multi_VolcanoPlot")),
-                                  # )
                                 )
                         ),
                         tabPanel("Venn Diagrams", value = "p3",

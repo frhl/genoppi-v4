@@ -67,8 +67,31 @@ shinyServer(function(input, output, session){
                 min = 0, max = 1, value = 0.05, step = 0.001)
   })
   
+  
+  
   # based on a_pulldown(), create slider for logFC
   output$logFC_thresh <- renderUI({
+    if(!is.null(input$a_file_pulldown_r)){
+      df <- a_pulldown()
+      if (input$a_logfc_direction == 'negative'){
+        limit <- abs(min(df$logFC))
+        limit <- round(limit+0.5, 1)
+      } else if (input$a_logfc_direction == 'positive'){
+        limit <- max(df$logFC)
+        limit <- round(limit+0.5, 1)
+      } else {
+        limit <- max(max(df$logFC), abs(min(df$logFC)))
+        limit <- round(limit+0.5, 1)
+      }
+      sliderInput("a_logFC_thresh", "logFC threshold",
+                  min = 0, max = limit, value = 0, step = 0.1)
+    }else
+      sliderInput("a_logFC_thresh", "logFC threshold",
+                  min = 0, max = 1, value = 0, step = 0.1)
+  })  
+  
+  # based on a_pulldown(), create slider for logFC
+  output$logFC_thresh_old <- renderUI({
     if(!is.null(input$a_file_pulldown_r)){
       df <- a_pulldown()
       min_logFC <- min(df$logFC)
@@ -81,7 +104,6 @@ shinyServer(function(input, output, session){
       sliderInput("a_logFC_thresh", "logFC threshold",
                   min = -1, max = 1, value = c(0, 1), step = 0.1)
   })  
-
   
   
   output$a_color_theme <- renderUI({
@@ -123,21 +145,33 @@ shinyServer(function(input, output, session){
     HTML("<b>Color selection for markers:</b>")
   })
   
+  
+  #a_significance_tresholds <- reactive({
+  #  sigtype = ifelse(input$a_significance_type == 'fdr', 'FDR', 'P-value')
+  #  
+  #})
+  
+  
+  # track significance threshols
+  monitor_significance_tresholds <- reactive({
+    sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', 'P-value')
+    sig_value = ifelse(sig_type == 'FDR', input$a_fdr_thresh, input$a_pval_thresh)
+    fc_sign = ifelse(input$a_logfc_direction, '<', '≥')
+    region_l <- c(paste0(sig_type,"<", sig_value))
+    region_ge <- c(paste0(sig_type,"≥", sig_value))
+    return(list(sig=region_l, insig=region_ge))
+  })
+  
+  
   output$a_color_theme_indv_sig <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$colorscheme == "fdr", "")
-    )
-    region <- c(paste0("FDR<", input$a_fdr_thresh))
+    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
+    region = monitor_significance_tresholds()$sig
     selectInput('a_color_indv_sig', region, c('#41AB5D','red'), multiple=F, selectize=TRUE, selected = "#41AB5D")
   })
   
   output$a_color_theme_indv_insig <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$colorscheme == "fdr", "")
-    )
-    region <- c(paste0("FDR≥", input$a_fdr_thresh))
+    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
+    region = monitor_significance_tresholds()$insig
     selectInput('a_color_indv_insig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "grey")
   })
   
@@ -653,9 +687,11 @@ shinyServer(function(input, output, session){
   a_pulldown_significant <- reactive({
     d = a_pulldown()
     if (input$a_significance_type == 'fdr'){
-      d1 = id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction)
+      d1 = id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction, 
+                                logfc_cutoff = input$a_logFC_thresh)
     } else {
-      d1 = id_enriched_proteins(d, fdr_cutoff = NULL, p_cutoff = input$a_pval_thresh, logfc_dir = input$a_logfc_direction)
+      d1 = id_enriched_proteins(d, fdr_cutoff = NULL, p_cutoff = input$a_pval_thresh, logfc_dir = input$a_logfc_direction, 
+                                logfc_cutoff = input$a_logFC_thresh)
     }
   return(d1)
   })
@@ -1401,7 +1437,7 @@ shinyServer(function(input, output, session){
     #p <- add_genoppi_markers(p, volcano = T)
     p <- make_interactive(p, volcano = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
     p <- add_layout_html_axes_volcano(p)
     return(p)
   })
@@ -1903,7 +1939,7 @@ shinyServer(function(input, output, session){
   a_integrated_plot <- reactive({
     p <- a_integrated_plot_gg()
     p <- make_interactive(p, volcano = T)
-    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh)
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_layout_html_axes_volcano(p, 700, 700)
     p
