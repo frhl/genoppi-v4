@@ -1,10 +1,8 @@
-#Created 9/10/16 by April Kim
-#Server file for Shiny app Genoppi
+# shiny server
 
-#devtools::load_all('~/Toolbox/packages/genoppi/')
-
-#protfams_genes_cols (error on package level)
-
+# load genoppi if not attcahed
+if ('genoppi' %nin% .packages()) devtools::load_all('~/Toolbox/packages/genoppi/')
+# load aprils functions for now
 source("~/Projects/04_genoppi/Genoppi-master/functions.R")
 
 shinyServer(function(input, output, session){
@@ -159,7 +157,7 @@ shinyServer(function(input, output, session){
     fc_sign = ifelse(input$a_logfc_direction, '<', '≥')
     region_l <- c(paste0(sig_type,"<", sig_value))
     region_ge <- c(paste0(sig_type,"≥", sig_value))
-    return(list(sig=region_l, insig=region_ge))
+    return(list(sig=region_l, insig=region_ge, sig_type=sig_type, sig_value=sig_value))
   })
   
   
@@ -719,6 +717,36 @@ shinyServer(function(input, output, session){
     }
   })
   
+  # function for handling uploaded genes
+  a_genes_upload <- reactive({
+    filepath = input$a_file_genes_rep$datapath
+    if (!is.null(filepath)){
+      genes = get_gene_list(filepath)
+      genes$data$dataset = 'genes upload'
+      genes$data$col_significant = 'brown'
+      genes$data$col_other = 'grey'
+      return(genes$data)
+    }
+  })
+  
+  #snp to gene using LD r^2>0.6±user defined extension
+  #a_snp <- reactive({
+  #  req(input$a_file_SNP_rep)
+  #  dsnp = read.table(input$a_file_SNP_rep$datapath, header = F)
+  #  return(dsnp)
+  #})
+  
+  # read in the snps from a file
+  #a_snp_mapping <- reactive({
+  #  mapping = read_snp_list(infile = a_snp(), a_pulldown()$gene)
+  #  mapping$alt_label = mapping$SNP
+  #  mapping$col_significant = 'blue'
+  #  mapping$col_other = 'grey'
+  #  mapping$dataset = 'SNP'
+  #  return(mapping)
+  #})
+  
+  
   a_upload_genes <- reactive({
     genes <- input$a_file_genes_rep
     if (is.null(genes)){
@@ -1203,17 +1231,33 @@ shinyServer(function(input, output, session){
   ## ggplot automatically generated and reactive color bars
   a_vp_colorbar <- reactive({
     req(input$a_color_indv_sig, input$a_color_indv_insig)
+    thresholds = monitor_significance_tresholds()
     
     # generate matrix with colors
-    FDR <- seq(0, 1, 0.01); limit <- rep("FDR", 101)
-    d <- data.frame(limit, FDR)
-    d$col <- ifelse(d$FDR < input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+    d <- data.frame(limit = rep('x', 101), value = seq(0, 1, 0.01))
+    if (thresholds$sig_type == 'FDR'){
+      d$col <- ifelse(d$value < input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+    } else {
+      d$col <- ifelse(d$value < input$a_pval_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+    }
+
+    # plot result
+    bar <- ggplot(d, aes(xmin = 0, xmax = 0.1, ymin = d$value-0.01, ymax = d$value)) + geom_rect(fill = d$col) +      
+      scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
+      labs(title = ifelse(thresholds$sig_type == 'P-value', '  P', 'FDR')) + theme_genoppi_bar() + coord_fixed()
+    bar
+    
+    
+    # generate matrix with colors
+    #FDR <- seq(0, 1, 0.01); limit <- rep("FDR", 101)
+    #d <- data.frame(limit, FDR)
+    #d$col <- ifelse(d$FDR < input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
     
     # plot result
-    bar <- ggplot(d, aes(xmin = 0, xmax = 0.1, ymin = d$FDR-0.01, ymax = d$FDR)) + geom_rect(fill = d$col) +      
-      scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-      labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
-    bar
+    #bar <- ggplot(d, aes(xmin = 0, xmax = 0.1, ymin = d$FDR-0.01, ymax = d$FDR)) + geom_rect(fill = d$col) +      
+    #  scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
+    #  labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
+    #bar
   })
   
   # dont know if this is needed?
@@ -1932,6 +1976,7 @@ shinyServer(function(input, output, session){
     if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas_cat=a_gwas_catalogue_mapping()[[1]]), volcano = T)
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
+    if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()), volcano = T)}
     p
   })
   

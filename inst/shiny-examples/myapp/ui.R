@@ -98,6 +98,7 @@ body <- dashboardBody(
                                       title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, height = '800px', solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                          fluidRow(
                                            #column(1, plotOutput("mulFDR_colorbar", width = "50px")),
+                                           #column(1, plotOutput("FDR_colorbar", width = "50px")),
                                            column(10, plotlyOutput("Multi_VolcanoPlot")),
                                            column(1, myDownloadButton("download_multi_vp_gg", "Volcano"))
                                          )
