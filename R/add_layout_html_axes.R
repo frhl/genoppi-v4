@@ -4,9 +4,11 @@
 #' @note internal
 #' @family shiny
 add_layout_html_axes_scatterplot <- function(p, repA, repB, title=''){
+  
+  toreplicate <- function(x) gsub('(R|r)ep','Replicate ', x)
   stopifnot(!is.null(p$data))
-  p <- p %>% layout(xaxis = list(title = repA, range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
-                    yaxis = list(title = repB, range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
+  p <- p %>% layout(xaxis = list(title = toreplicate(repA), range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
+                    yaxis = list(title = toreplicate(repB), range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
                     title = title, titlefont = list(size=15),
                     height = 400, width = 450)
   p

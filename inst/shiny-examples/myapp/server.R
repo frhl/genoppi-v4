@@ -39,6 +39,7 @@ shinyServer(function(input, output, session){
                  c("Neg" = "negative", 
                    "Both" = "both",
                    "Pos" = "positive"),
+                 selected = 'positive',
                  inline = T)
   })
   
@@ -191,7 +192,7 @@ shinyServer(function(input, output, session){
   output$a_color_snp_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
-    colourpicker::colourInput('a_color_snp_sig', label, value = 'blue', showColour = 'background', 
+    colourpicker::colourInput('a_color_snp_sig', label, value = 'blue', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -199,7 +200,7 @@ shinyServer(function(input, output, session){
   output$a_color_snp_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
-    colourpicker::colourInput('a_color_snp_insig', label, value = '#808080', showColour = 'background', 
+    colourpicker::colourInput('a_color_snp_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -213,7 +214,7 @@ shinyServer(function(input, output, session){
   output$a_color_genes_upload_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
-    colourpicker::colourInput('a_color_genes_upload_sig', label, value = 'blue', showColour = 'background', 
+    colourpicker::colourInput('a_color_genes_upload_sig', label, value = 'blue', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -221,7 +222,7 @@ shinyServer(function(input, output, session){
   output$a_color_genes_upload_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
-    colourpicker::colourInput('a_color_genes_upload_insig', label, value = '#808080', showColour = 'background', 
+    colourpicker::colourInput('a_color_genes_upload_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -235,7 +236,7 @@ shinyServer(function(input, output, session){
   output$a_color_inweb_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
-    colourpicker::colourInput('a_color_inweb_sig', label, value = 'yellow', showColour = 'background', 
+    colourpicker::colourInput('a_color_inweb_sig', label, value = 'yellow', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -243,7 +244,7 @@ shinyServer(function(input, output, session){
   output$a_color_inweb_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
-    colourpicker::colourInput('a_color_inweb_insig', label, value = '#808080', showColour = 'background', 
+    colourpicker::colourInput('a_color_inweb_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -257,7 +258,7 @@ shinyServer(function(input, output, session){
   output$a_color_gwas_cat_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
-    colourpicker::colourInput('a_color_gwas_cat_sig', label, value = 'cyan', showColour = 'background', 
+    colourpicker::colourInput('a_color_gwas_cat_sig', label, value = 'cyan', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -265,7 +266,7 @@ shinyServer(function(input, output, session){
   output$a_color_gwas_cat_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
-    colourpicker::colourInput('a_color_gwas_cat_insig', label, value = '#808080', showColour = 'background', 
+    colourpicker::colourInput('a_color_gwas_cat_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
@@ -1783,16 +1784,22 @@ shinyServer(function(input, output, session){
     p1
   })
   
-  a_vp_count <- reactive({
+  #a_vp_count <- reactive({
+  #  d <- a_pulldown_significant()
+  #  count <- data.frame(paste0(sum(d$significant), " (total = ", nrow(d), ")"))
+  #  row.names(count) <- c("Pull down")
+  #  colnames(count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
+  #  count
+  #})
+  
+  a_verbatim_count <- reactive({
     d <- a_pulldown_significant()
-    count <- data.frame(paste0(sum(d$significant), " (total = ", nrow(d), ")"))
-    row.names(count) <- c("Pull down")
-    colnames(count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
-    count
+    HTML(paste(bold(sum(d$significant)), 'proteins out of', bold(nrow(d)), 'proteins enriched.'))
   })
   
+  
   a_vp_count_text <- reactive({
-    if(!is.null(a_vp_count())){
+    if(!is.null(a_verbatim_count())){
       enriched <- paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse = ', ')
       enriched
     }
@@ -3061,11 +3068,16 @@ shinyServer(function(input, output, session){
     }
   })
   
-  # Print counts to the table
-  output$VP_count <- renderTable({
+  output$a_verbatim_count_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', " "))
-    a_vp_count()
-  }, rownames = T, bordered = T, colnames = F)
+    a_verbatim_count()
+  })
+  
+  # Print counts to the table
+  #output$VP_count <- renderTable({
+  #  validate(need(input$a_file_pulldown_r != '', " "))
+  #  a_vp_count()
+  #}, rownames = T, bordered = T, colnames = F)
   
   output$VP_count_text <- renderUI({
     validate(need(input$a_file_pulldown_r != '', " "))

@@ -113,9 +113,10 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), 
                     hoverinfo = "text", name = "pull down")
   
-  # plot overlayd items
+  # add dynamic text when hovering over item
   overlay = p$overlay
   if (nrow(overlay) > 0){
+    if ('SNP' %in% overlay$dataset) browser()
     p1 <- add_markers(p1, data = overlay, 
                       x = ~overlay[[x]], 
                       y = ~yf(overlay[[y]]),
@@ -126,13 +127,28 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
                                     size = 9, 
                                     line = list(width=1.0, color = "black"), 
                                     opacity = 1),
-                      mode = "markers+text",
+                      mode = "marker+text",
                       hoverinfo = "text", 
                       legendgroup = "group3",
                       name = " ",
                       text = ~gene, 
                       hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3)), ifelse(!is.na(overlay$alt_label), alt_label, dataset), sep = "<br>"),
-                      textposition = ~ifelse(logFC>0,"top right","top left"), textfont = list(size = 11))
+                      textposition = ~ifelse(logFC>0,"top right","top left"))
+                      #textfont = ifelse(overlay$label, list(size = 11), list(size=1)))
+    
+    # add annotations
+    overlay_label <- overlay[overlay$label, ]
+    if (nrow(overlay_label) > 0){
+      p1 <- add_annotations(p1,
+                            x = overlay_label[[x]],
+                            y = yf(overlay_label[[y]]),
+                            xref = "x",
+                            yref = "y",
+                            text = overlay_label$gene,
+                            xanchor = ifelse(overlay_label$logFC < 0, 'right', 'left'),
+                            yanchor = 'bottom',
+                            showarrow = F)
+    }
     p1$overlay <- p$overlay
   }
   p1$data <- p$data
