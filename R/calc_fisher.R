@@ -1,40 +1,51 @@
 #' @title Perform Fisher's exact test
-#' @description Use one-tailed Fisher's exact test to calcualte overlap enrichment between proteomic data and another dataset (e.g. InWeb, gene list, etc.)
+#' @description Use one-tailed Fisher's exact test to calcualte overlap enrichment between proteomic data and other datasets (e.g. InWeb, gene lists, etc.)
 #' @param df data.frame containing proteomic data, with gene and significant columns
-#' @param listName name of data to overlap 
-#' @param listDf data.frame containing data to overlap, with gene and significant columns
-#' @param intersectN boolean variable indicating if total population should be intersect of the two datasets
+#' @param listDf data.frame containing data to overlap, with listName, gene and significant columns
+#' @param intersectDf data.frame contaning listName and intersectN columnsl intersectN = vector of boolean variables indicating if total population should be intersect of the two datasets
 #' @param bait name of bait protein
-#' @return list of data.frame and list. Data.frame contains list_name, overlap_count, dfOnly_count, listOnly_count, neither_count, pvalue. List contains genes names corresponding to each group (overlap_genes, dfOnly_genes, listOnly_genes, neither_genes).
+#' @return list of data.frame and list. Data.frame contains list_name, overlap_count, dfOnly_count, listOnly_count, neither_count, pvalue. List of lists (for each listName) contains genes names corresponding to each group (overlap_genes, dfOnly_genes, listOnly_genes, neither_genes).
 #' @export
 
-calc_fisher <- function(df, listName, listDf, intersectN, bait=NULL){
+calc_fisher <- function(df, listDf, intersectDf, bait=NULL){
 
-  # total population = intersect of all genes in proteomic data  + list data
-  if (intersectN==T) { population <- unique(df$gene[df$gene %in% listDf$gene]) }
-  # total population = all genes in proteomic data
-  else { population <- unique(df$gene) }
+  outDf <- NULL
+  outList <- list()
 
-  # remove bait if bait is provided
-  if (!is.null(bait)) { population <- population[population != bait] }
+  # perform separate enrichment test for each listName in listDf
+  for (l in unique(listDf$listName)) {
+    currentDf <- listDf[listDf$listName==l, ]
 
-  # enriched proteins/genes in proteomic data
-  sigDf <- unique(df$gene[df$significant & df$gene %in% population])
-  # genes in list
-  sigList <- unique(listDf$gene[listDf$significant & listDf$gene %in% population])
+    # total population = intersect of all genes in proteomic data  + list data
+    if (intersectDf$intersectN[intersectDf$listName==l]){
+      population <- unique(df$gene[df$gene %in% currentDf$gene])
+    # total population = all genes in proteomic data
+    } else { population <- unique(df$gene) }
 
-  overlap <- intersect(sigDf,sigList)
-  dfOnly <- setdiff(sigDf,sigList)
-  listOnly <- setdiff(sigList,sigDf)
-  neither <- setdiff(setdiff(population,sigDf),sigList)
+      # remove bait if bait is provided
+      if (!is.null(bait)) { population <- population[population != bait] }
 
-  # Fisher's exact test (one-tailed)
-  fisherP <- fisher.test(matrix(c(length(overlap),length(dfOnly),
-    length(listOnly),length(neither)),nrow=2),alternative="greater")$p
+      # enriched proteins/genes in proteomic data
+      sigDf <- unique(df$gene[df$significant & df$gene %in% population])
+      # genes in list
+      sigList <- unique(currentDf$gene[currentDf$significant & currentDf$gene %in% population])
 
-  outDf <- data.frame(list_name=listName, overlap_count=length(overlap), dfOnly_count=length(dfOnly),
-	listOnly_count=length(listOnly), neither_count=length(neither), pvalue=fisherP)
-  outList <- list(overlap_genes=overlap, dfOnly_genes=dfOnly, listOnly_genes=listOnly, neither_genes=neither)
+      overlap <- intersect(sigDf,sigList)
+      dfOnly <- setdiff(sigDf,sigList)
+      listOnly <- setdiff(sigList,sigDf)
+      neither <- setdiff(setdiff(population,sigDf),sigList)
+
+      # Fisher's exact test (one-tailed)
+      fisherP <- fisher.test(matrix(c(length(overlap),length(dfOnly),
+        length(listOnly),length(neither)),nrow=2),alternative="greater")$p
+
+      # add results to outDf (overlap counts and p-value) and outList (gene names coresponding to overalp counts)
+      outDf <- rbind(outDf, data.frame(list_name=l, overlap_count=length(overlap), dfOnly_count=length(dfOnly),
+	listOnly_count=length(listOnly), neither_count=length(neither), pvalue=fisherP))
+      
+      outList[[l]] <- list(overlap_genes=overlap, dfOnly_genes=dfOnly, listOnly_genes=listOnly, neither_genes=neither)
+
+  }
  
   return(list(outDf,outList))
 

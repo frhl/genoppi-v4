@@ -30,7 +30,8 @@ Imports:
     shinyjs,
     shinydashboard,
     data.table,
-    plotly
+    plotly,
+    tidyr
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
@@ -38,7 +39,7 @@ Collate:
     'add_layout_html_axes.R'
     'add_markers_basic.R'
     'collapse_overlay.R'
-    'get_gwas_list.R'
+    'get_gwas_lists.R'
     'gwas_table_data.R'
     'modify_ggplot_from_overlay.R'
     'check_input.R'
@@ -50,10 +51,10 @@ Collate:
     'plot_scatter_basic.R'
     'plot_overlay.R'
     'get_inweb_list.R'
-    'get_gene_list.R'
+    'get_gene_lists.R'
     'calc_fisher.R'
     'calc_hyper.R'
-    'get_snp_list.R'
+    'get_snp_lists.R'
     'inweb_hash_data.R'
     'genes_snps_data.R'
     'launch_genoppi.R'

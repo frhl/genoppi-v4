@@ -2,28 +2,29 @@ context('calc_fisher')
 library(testthat)
 
 # read in test data
-df <- read.table("data/test.BCL2vsIgG.GPiN.txt",sep="\t",header=T)
+df <- read.table("data/test.BCL2vsIgG.GPiN.txt",header=T,sep="\t")
 statsDf <- calc_mod_ttest(df)
 sigDf <- id_enriched_proteins(statsDf)
 
 # InWeb df
-inwebDf <- get_inweb_list("BCL2") 
+inwebDf <- data.frame(listName="InWeb", get_inweb_list("BCL2"))
+inwebInterDf <- data.frame(listName="InWeb",intersectN=T)
 
 # gene list df
-geneInput <- get_gene_list("data/test.ALSgenes.txt")
+geneInput <- get_gene_lists("data/test.ALSgenes.txt")
 geneDf <- geneInput[[1]]
-intersectN <- geneInput[[2]]
+intersectDf <- geneInput[[2]]
 
 test_that('calc_fisher can return correct overlap results',{
 
   # InWeb
-  result <- calc_fisher(sigDf,"InWeb",inwebDf,T,"BCL2")
+  result <- calc_fisher(sigDf,inwebDf,inwebInterDf,"BCL2")
   expect_equal(format(result[[1]]$pvalue,digits=3),"0.908")
-  expect_equal(result[[2]]$overlap_genes,"LARP1")
+  expect_equal(result[[2]][["InWeb"]]$overlap_genes,"LARP1")
 
   # gene list
-  result <- calc_fisher(sigDf,"ALS",geneDf,intersectN,"BCL2")
+  result <- calc_fisher(sigDf,geneDf,intersectDf,"BCL2")
   expect_equal(format(result[[1]]$pvalue,digits=3),"0.00513")
-  expect_identical(sort(result[[2]]$overlap_genes),c("ATXN2","FUS","PFN1","TAF15"))
+  expect_identical(sort(result[[2]][["ALS"]]$overlap_genes),c("ATXN2","FUS","PFN1","TAF15"))
 
 })

@@ -4,22 +4,20 @@
 \alias{calc_hyper}
 \title{Perform hypergeometric test}
 \usage{
-calc_hyper(df, listName, listDf, intersectN, bait = NULL)
+calc_hyper(df, listDf, intersectDf, bait = NULL)
 }
 \arguments{
 \item{df}{data.frame containing proteomic data, with gene and significant columns}
 
-\item{listName}{name of data to overlap}
+\item{listDf}{data.frame containing data to overlap, with listName, gene and significant columns}
 
-\item{listDf}{data.frame containing data to overlap, with gene and significant columns}
-
-\item{intersectN}{boolean variable indicating if total population should be intersect of the two datasets}
+\item{intersectDf}{data.frame contaning listName and intersectN columns intersectN = vector of boolean variables indicating if total population should be intersect of the two datasets}
 
 \item{bait}{name of bait protein}
 }
 \value{
-list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), pvalue. List contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes).
+list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), pvalue. List of lists (for each listName) contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes).
 }
 \description{
-Use one-tailed hypergeometric test to calcualte overlap enrichment between proteomic data and another dataset (e.g. InWeb, gene list, etc.)
+Use one-tailed hypergeometric test to calcualte overlap enrichment between proteomic data and other datasets (e.g. InWeb, gene lists, etc.)
 }
