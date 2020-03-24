@@ -11,20 +11,18 @@ library(plyr)
 library(VennDiagram)
 
 # load genoppi if not attcahed
-if (!'genoppi' %in% .packages()) devtools::load_all('~/Toolbox/packages/genoppi/')
+if (!'genoppi' %in% .packages()) devtools::load_all()
 # load aprils functions for now
-source("~/Projects/04_genoppi/Genoppi-master/functions.R")
-
+#source("~/Projects/04_genoppi/Genoppi-master/functions.R")
+source('aprils_functions.R')
 
 ## modules // these are Aprils.. for now we load.
-
 #load("data/InWeb_combined_Oct2018.RData")
 #load("data/proteinfam_loc_May2019.RData")
 #load("data/snp_to_gene.RData")
-human_genome <- read.table("~/Projects/04_genoppi/Genoppi-master/data/ensembl_homo_sapiens_genes.txt", header = T)
+#human_genome <- read.table("~/Projects/04_genoppi/Genoppi-master/data/ensembl_homo_sapiens_genes.txt", header = T)
 #exac <- read.table("data/constrained_cleaned_exac_with_pHI_Aug26.txt", header = T, sep = "\t")
 #inweb_combined <- read.table("data/inweb_pooled.txt")
-
 
 # relative main directory
 main = '../../..'

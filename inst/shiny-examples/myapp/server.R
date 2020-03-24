@@ -1,7 +1,4 @@
 # shiny server
-
-
-
 shinyServer(function(input, output, session){
   #supress warnings
   storeWarn<- getOption("warn")
@@ -441,7 +438,6 @@ shinyServer(function(input, output, session){
   })
   
   output$a_genes_file <- renderUI({
-    # fileInput('a_file_genes_rep', 'File containing at least 2 genes with header, one HGNC symbol per line (e.g. TINMAN)',
     fileInput('a_file_genes_rep', 'File containing at least 2 genes with header, one HGNC symbol per line (e.g. TINMAN)',
               accept = c(
                 'text/csv',
@@ -836,7 +832,7 @@ shinyServer(function(input, output, session){
   a_genes_upload <- reactive({
     filepath = input$a_file_genes_rep$datapath
     if (!is.null(filepath)){
-      genes = get_gene_list(filepath)
+      genes = get_gene_lists(filepath)
       genes$data$dataset = 'genes upload'
       genes$data$col_significant = input$a_color_genes_upload_sig
       genes$data$col_other = input$a_color_genes_upload_insig
@@ -1206,13 +1202,15 @@ shinyServer(function(input, output, session){
   
   # read in the snps from a file
   a_snp_mapping <- reactive({
-    mapping = read_snp_list(infile = a_snp(), a_pulldown()$gene)
+    snps = data.frame(listName='SNP',SNP=a_snp())
+    colnames(snps) <- c('listName', 'SNP')
+    mapping = get_snp_lists(infile = snps, a_pulldown()$gene)
     mapping$alt_label = mapping$SNP
     mapping$col_significant = input$a_color_snp_sig
     mapping$col_other = input$a_color_snp_insig
     mapping$symbol = input$a_symbol_snp
     mapping$label = input$a_label_snp
-    mapping$dataset = 'SNP'
+    mapping$dataset = snps$listName # it is a bit silly that we use different names for the same thing
     return(mapping)
   })
   
@@ -1246,13 +1244,14 @@ shinyServer(function(input, output, session){
   a_gwas_catalogue_mapping <- reactive({
     req(input$a_gwas_catalogue)
     genes = a_pulldown()$gene
-    mapping = get_gwas_list(input$a_gwas_catalogue, genes)
+    #mapping = get_gwas_lists('Height', genes)
+    mapping = get_gwas_lists(input$a_gwas_catalogue, genes)
     if (!is.null(mapping)){
       mapping[[1]]$col_significant = input$a_color_gwas_cat_sig
       mapping[[1]]$col_other = input$a_color_gwas_cat_insig
       mapping[[1]]$symbol = input$a_symbol_gwas_cat
       mapping[[1]]$label = input$a_label_gwas_cat
-      mapping[[1]]$dataset = 'GWAS Catalogue'
+      mapping[[1]]$dataset = mapping[[1]]$trait
       mapping[[1]]$alt_label = mapping[[1]]$SNP
       return(mapping)
     }
