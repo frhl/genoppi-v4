@@ -161,73 +161,170 @@ shinyServer(function(input, output, session){
   monitor_logfc_threshold <- reactive({
     fc_dir = input$a_logfc_direction
     fc = input$a_logFC_thresh
-    if (fc_dir == 'negative') fc_sig = paste("logFC&le;", -fc)
-    if (fc_dir == 'positive') fc_sig = paste("logFC&ge;", fc)
-    if (fc_dir == 'both') fc_sig = paste("|logFC|&ge;", fc)
-    return(list(sig=fc_sig))
+    if (fc_dir == 'negative') {fc_sig = paste("logFC&lt;", -fc); fc_insig =  paste("logFC&ge;", -fc)}
+    if (fc_dir == 'positive') {fc_sig = paste("logFC&ge;", fc); fc_insig =  paste("logFC&lt;", fc)}
+    if (fc_dir == 'both') {fc_sig = paste("|logFC|&ge;", fc); fc_insig = paste("|logFC|&lt;", fc) }
+    return(list(sig=fc_sig, insig=fc_insig))
   })
   
+
+  #----------------------------------------------------------
+  # sliders for selecting color and symbols of plots
   
+  # basic plot
   output$a_color_theme_indv_sig <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
-    region = monitor_significance_tresholds()$sig
-    selectInput('a_color_indv_sig', region, c('#41AB5D','red'), multiple=F, selectize=TRUE, selected = "#41AB5D")
+    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    colourpicker::colourInput('a_color_indv_sig', label, value = '#41AB5D', showColour = 'text', 
+                  palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
+    
+  # basic plot
   output$a_color_theme_indv_insig <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
-    region = monitor_significance_tresholds()$insig
-    selectInput('a_color_indv_insig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "grey")
+    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    colourpicker::colourInput('a_color_indv_insig', label, value = '#808080', showColour = 'text', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
   })
   
-  output$a_color_setting_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    HTML("<b>Color selection for markers:</b>")
+  # intgrated plot, snp
+  output$a_color_snp_sig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    colourpicker::colourInput('a_color_snp_sig', label, value = 'blue', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
   })
   
-  output$a_color_theme_multi_sig <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$colorscheme == "fdr", "")
-    )
-    region <- c(paste0("FDR<", input$a_fdr_thresh))
-    selectInput('a_color_multi_sig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
+  # intgrated plot, snp
+  output$a_color_snp_insig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    colourpicker::colourInput('a_color_snp_insig', label, value = '#808080', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
   })
   
-  output$a_color_theme_multi_insig <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$colorscheme == "fdr", "")
-    )
-    region <- c(paste0("FDR≥", input$a_fdr_thresh))
-    selectInput('a_color_multi_insig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "royalblue2")
+  # integarted plot, snp
+  output$a_symbol_snp_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    selectInput('a_symbol_snp', 'Symbol', choices = allowed_plotly_symbols)
   })
   
-  output$a_color_theme_goi <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""), 
-      need(!is.null(input$a_file_genes_rep) && input$a_file_genes_rep != "", "")
-    )
-    selectInput("colorbrewer_theme_goi", "Genes of interest", 
-                c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
-                  "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
-                  "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"),
-                selected = "Set2")
+  # intgrated plot, genes upload
+  output$a_color_genes_upload_sig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    colourpicker::colourInput('a_color_genes_upload_sig', label, value = 'blue', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
   })
   
-  output$a_color_theme_snp <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(!is.null(input$a_file_SNP_rep) && input$a_file_SNP_rep != "", "")
-    )
-    selectInput("colorbrewer_theme_snp", "SNPs", 
-                c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
-                  "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
-                  "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"),
-                selected = "PuOr")
+  # intgrated plot, genes upload
+  output$a_color_genes_upload_insig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    colourpicker::colourInput('a_color_genes_upload_insig', label, value = '#808080', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
   })
+  
+  # integrated plot, genes uplaod
+  output$a_symbol_genes_upload_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    selectInput('a_symbol_genes_upload', 'Symbol', choices = allowed_plotly_symbols)
+  })
+  
+  # intgrated plot, inweb
+  output$a_color_inweb_sig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    colourpicker::colourInput('a_color_inweb_sig', label, value = 'yellow', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
+  })
+  
+  # intgrated plot, inweb
+  output$a_color_inweb_insig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    colourpicker::colourInput('a_color_inweb_insig', label, value = '#808080', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
+  })
+  
+  # integrated plot, inweb
+  output$a_symbol_inweb_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    selectInput('a_symbol_inweb', 'Symbol', choices = allowed_plotly_symbols)
+  })
+  
+  # intgrated plot, gwas catalogue
+  output$a_color_gwas_cat_sig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    colourpicker::colourInput('a_color_gwas_cat_sig', label, value = 'cyan', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
+  })
+  
+  # intgrated plot, gwas catalogue
+  output$a_color_gwas_cat_insig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    colourpicker::colourInput('a_color_gwas_cat_insig', label, value = '#808080', showColour = 'background', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
+  })
+  
+  # integrated plot, gwas catalogue
+  output$a_symbol_gwas_cat_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    selectInput('a_symbol_gwas_cat', 'Symbol', choices = allowed_plotly_symbols)
+  })
+
+  
+  
+  #output$a_color_setting_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  HTML("<b>Color selection for markers:</b>")
+  #})
+  
+  # output$a_color_theme_multi_sig <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$colorscheme == "fdr", "")
+  #  )
+  #  region <- c(paste0("FDR<", input$a_fdr_thresh))
+  #  selectInput('a_color_multi_sig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
+  #})
+  
+  #output$a_color_theme_multi_insig <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$colorscheme == "fdr", "")
+  #  )
+  #  region <- c(paste0("FDR≥", input$a_fdr_thresh))
+  #  selectInput('a_color_multi_insig', region, marker_cols$V1, multiple=F, selectize=TRUE, selected = "royalblue2")
+  #})
+  
+  #output$a_color_theme_goi <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""), 
+  #    need(!is.null(input$a_file_genes_rep) && input$a_file_genes_rep != "", "")
+  #  )
+  #  selectInput("colorbrewer_theme_goi", "Genes of interest", 
+  #              c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
+  #                "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
+  #                "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"),
+  #              selected = "Set2")
+  #})
+  
+  #output$a_color_theme_snp <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(!is.null(input$a_file_SNP_rep) && input$a_file_SNP_rep != "", "")
+  #  )
+  #  selectInput("colorbrewer_theme_snp", "SNPs", 
+  #              c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
+  #                "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
+  #                "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"),
+  #              selected = "PuOr")
+  #})
   
   output$a_color_theme_inweb <- renderUI({
     validate(
@@ -258,24 +355,18 @@ shinyServer(function(input, output, session){
       need(input$a_file_pulldown_r != '', ""),
       need(input$colorscheme == "fdr", "")
     )
-    selectInput('a_gwas_catalogue', 'GWAS Catalogue', c('',unique(as.character(gwas_table$DISEASE.TRAIT))), multiple=F, selectize=TRUE, selected = "grey")
+    selectInput('a_gwas_catalogue', 'GWAS Catalogue', c('',unique(as.character(gwas_table$DISEASE.TRAIT))), multiple=T, selectize=TRUE, selected = "grey")
   })
   
   
   ### snp labels
-  output$a_toggle_snp_label_ui <- renderUI({
-    actionButton("a_toggle_snp_label", label = "Toggle label")
-  })
+  #output$a_toggle_snp_label_ui <- renderUI({
+  #  actionButton("a_toggle_snp_label", label = "Toggle label")
+  #})
   
-  output$a_color_snp_sig_ui <- renderUI({
-    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
-    selectInput('a_color_snp_sig', 'color (significant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
-  })
+
   
-  output$a_color_snp_insig_ui <- renderUI({
-    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
-    selectInput('a_color_snp_insig', 'color (insignificant)', marker_cols$V1, multiple=F, selectize=TRUE, selected = "seagreen3")
-  })
+
   ###
   
   
@@ -730,8 +821,9 @@ shinyServer(function(input, output, session){
     if (!is.null(filepath)){
       genes = get_gene_list(filepath)
       genes$data$dataset = 'genes upload'
-      genes$data$col_significant = 'brown'
-      genes$data$col_other = 'grey'
+      genes$data$col_significant = input$a_color_genes_upload_sig
+      genes$data$col_other = input$a_color_genes_upload_insig
+      genes$data$symbol = input$a_symbol_genes_upload
       return(genes$data)
     }
   })
@@ -1098,8 +1190,9 @@ shinyServer(function(input, output, session){
   a_snp_mapping <- reactive({
     mapping = read_snp_list(infile = a_snp(), a_pulldown()$gene)
     mapping$alt_label = mapping$SNP
-    mapping$col_significant = 'blue'
-    mapping$col_other = 'grey'
+    mapping$col_significant = input$a_color_snp_sig
+    mapping$col_other = input$a_color_snp_insig
+    mapping$symbol = input$a_symbol_snp
     mapping$dataset = 'SNP'
     return(mapping)
   })
@@ -1110,8 +1203,9 @@ shinyServer(function(input, output, session){
     mapping = get_inweb_list(input$a_bait_rep)
     if (!is.null(mapping)){
       mapping = mapping[mapping$significant, ]
-      mapping$col_significant = 'yellow'
-      mapping$col_other = 'grey'
+      mapping$col_significant = input$a_color_inweb_sig
+      mapping$col_other = input$a_color_inweb_insig
+      mapping$symbol = input$a_symbol_inweb
       mapping$dataset = 'InWeb'
       return(mapping)
     } 
@@ -1123,12 +1217,15 @@ shinyServer(function(input, output, session){
     genes = a_pulldown()$gene
     mapping = get_gwas_list(input$a_gwas_catalogue, genes)
     if (!is.null(mapping)){
-      mapping[[1]]$col_significant = 'cyan'
-      mapping[[1]]$col_other = 'grey'
-      mapping[[1]]$dataset = 'GWAS Catalouge'
+      mapping[[1]]$col_significant = input$a_color_gwas_cat_sig
+      mapping[[1]]$col_other = input$a_color_gwas_cat_insig
+      mapping[[1]]$symbol = input$a_symbol_gwas_cat
+      mapping[[1]]$dataset = 'GWAS Catalogue'
+      mapping[[1]]$alt_label = mapping[[1]]$SNP
       return(mapping)
     }
   })
+  
   
   
   ## this function is now redundant.
@@ -1207,6 +1304,12 @@ shinyServer(function(input, output, session){
       return(NULL)
     }
   })
+  
+  #a_protein_family <- function(x){
+  #  pf_db <- input$a_pfam_db
+  #  
+  #}
+  
   
   a_pf_db <- reactive({
     if(!is.null(input$a_pfam_db)){
@@ -1708,7 +1811,6 @@ shinyServer(function(input, output, session){
   
   a_sp_gg <- reactive({
     stop('error, deprecated')
-    
   })
   
   a_sp <- reactive({
@@ -2959,17 +3061,14 @@ shinyServer(function(input, output, session){
     }
   })
   
+  # Print counts to the table
   output$VP_count <- renderTable({
-    validate(
-      need(input$a_file_pulldown_r != '', " ")
-    )
+    validate(need(input$a_file_pulldown_r != '', " "))
     a_vp_count()
   }, rownames = T, bordered = T, colnames = F)
   
   output$VP_count_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', " ")
-    )
+    validate(need(input$a_file_pulldown_r != '', " "))
     output <- a_vp_count_text()
     HTML(output)
   })

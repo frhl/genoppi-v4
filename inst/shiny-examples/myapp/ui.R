@@ -21,7 +21,7 @@ body <- dashboardBody(
                                           )
                                         ),
                                         box(
-                                          title = "Basic plot options", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE,
+                                          title = "Basic plot options", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
                                           fluidPage(
                                             column(12, uiOutput('a_select_scatterplot_ui')) 
                                           ),
@@ -32,7 +32,7 @@ body <- dashboardBody(
                                           )
                                         ),
                                         box(
-                                          title = "Summary", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE,
+                                          title = "Summary", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                           #column(4, myDownloadButton("download_vp_gg", "Volcano")),
                                           fluidPage(
                                             column(12, uiOutput("VP_count_text")),
@@ -52,7 +52,7 @@ body <- dashboardBody(
                                           ),
                                         ),
                                         box(
-                                          title = tagList(shiny::icon('chart-bar'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                          title = tagList(shiny::icon('chart-bar'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE, collapsed = TRUE,
                                           fluidRow(
                                             column(1, ''),
                                             column(11, plotlyOutput("ScatterPlot")) #, width = "550px", height = "550px"
@@ -69,34 +69,73 @@ body <- dashboardBody(
                                      title = "InWeb InBiomap", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
                                      fluidRow(
                                       column(12, uiOutput("a_bait_layer"))
-                                        )
+                                     )
+                                     #fluidRow(
+                                    #   column(4, uiOutput("a_color_inweb_sig_ui")),
+                                    #   column(4, uiOutput("a_color_inweb_insig_ui")),
+                                    #   column(4, uiOutput("a_symbol_inweb_ui"))
+                                    # )
                                       ),
                                     box(
                                      title = "Upload SNP file", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                        column(12, uiOutput("a_SNP_file")),
-                                     ), 
-                                     fluidRow(
-                                       column(6, uiOutput("a_color_snp_sig_ui")),
-                                       column(6, uiOutput("a_color_snp_insig_ui"))
                                      )
+                                     #fluidRow(
+                                    #   column(4, uiOutput("a_color_snp_sig_ui")),
+                                    #   column(4, uiOutput("a_color_snp_insig_ui")),
+                                    #   column(4, uiOutput("a_symbol_snp_ui"))
+                                    # )
                                    ),
                                   box(
                                      title = "Upload genes", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                         column(12, uiOutput("a_genes_file")),
                                      )
+                                     #fluidRow(
+                                    #   column(4, uiOutput("a_color_genes_upload_sig_ui")),
+                                    #   column(4, uiOutput("a_color_genes_upload_insig_ui")),
+                                    #   column(4, uiOutput("a_symbol_genes_upload_ui"))
+                                    # )
                                   ),
                                    box(
                                      title = "GWAS Catalogue", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                         column(12, uiOutput('a_gwas_catalogue_ui'))
                                      )
-                                   ),
+                                     #fluidRow(
+                                    #   column(4, uiOutput("a_color_gwas_cat_sig_ui")),
+                                    #   column(4, uiOutput("a_color_gwas_cat_insig_ui")),
+                                    #   column(4, uiOutput("a_symbol_gwas_cat_ui"))
+                                    # )
+                                  ),
                                   box(
                                     title = "Statistics", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                     column(12, tableOutput("Multi_VP_count"))
                                   ),
+                                  box(
+                                    title = "Settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+                                    fluidRow(
+                                      column(4, uiOutput("a_color_inweb_sig_ui")),
+                                      column(4, uiOutput("a_color_inweb_insig_ui")),
+                                      column(4, uiOutput("a_symbol_inweb_ui"))
+                                    ),
+                                    fluidRow(
+                                      column(4, uiOutput("a_color_snp_sig_ui")),
+                                      column(4, uiOutput("a_color_snp_insig_ui")),
+                                      column(4, uiOutput("a_symbol_snp_ui"))
+                                    ),
+                                    fluidRow(
+                                      column(4, uiOutput("a_color_genes_upload_sig_ui")),
+                                      column(4, uiOutput("a_color_genes_upload_insig_ui")),
+                                      column(4, uiOutput("a_symbol_genes_upload_ui"))
+                                    ),
+                                    fluidRow(
+                                      column(4, uiOutput("a_color_gwas_cat_sig_ui")),
+                                      column(4, uiOutput("a_color_gwas_cat_insig_ui")),
+                                      column(4, uiOutput("a_symbol_gwas_cat_ui"))
+                                    )
+                                  )
                                  ),
                                 column(width = 8,
                                     box(

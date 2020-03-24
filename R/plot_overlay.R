@@ -89,20 +89,20 @@ list_to_df <- function(lst){
   # check that the same columns are present in each data.frame
   expected_cols = unique(unlist(lapply(lst, function(x) colnames(x))))
   invalid_col = lapply(lst, function(x) any(expected_cols %nin% colnames(x)))
-  if (any(unlist(invalid_col))) stop('listed data.frames must have same column names.')
+  if (any(unlist(invalid_col))) stop('all data.frames in list must have same column names.')
   # add columns to each data.frame
   tmp_lst = lapply(1:length(lst), function(i) {
     df = lst[[i]]
     stopifnot(is.data.frame(df))
     cnames = colnames(df)
     if ('dataset' %nin% cnames) df$dataset <- names(lst)[i]
-    if ('shape' %nin% cnames) df$shape <- 21
+    if ('shape' %nin% cnames) df$shape <- 1 # ggplot2 specific
     if ('label' %nin% cnames) df$label <- TRUE
     if ('stroke' %nin% cnames) df$stroke <- TRUE
     if ('col_significant' %nin% cnames) df$col_significant <- 'yellow'
     if ('col_other' %nin% cnames) df$col_other <- 'grey'
     if ('alt_label' %nin% cnames) df$alt_label <- NA
-    if ('symbol' %nin% cnames) df$symbol <- NA
+    if ('symbol' %nin% cnames) df$symbol <- 'circle' # plotly specific
     # size
     # labelsize
     return(df)
@@ -122,7 +122,7 @@ list_to_df <- function(lst){
 #' @note internal
 validate_reference <- function(df, valid = c('gene','col_significant','col_other',
                                              'shape','dataset','stroke','alt_label',
-                                            'label','size')){
+                                            'label','size', 'symbol')){
   
   bool = colnames(df) %in% valid
   cols = colnames(df)[!bool]
