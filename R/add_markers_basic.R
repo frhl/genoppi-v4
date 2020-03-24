@@ -116,7 +116,6 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F){
   # add dynamic text when hovering over item
   overlay = p$overlay
   if (nrow(overlay) > 0){
-    if ('SNP' %in% overlay$dataset) browser()
     p1 <- add_markers(p1, data = overlay, 
                       x = ~overlay[[x]], 
                       y = ~yf(overlay[[y]]),

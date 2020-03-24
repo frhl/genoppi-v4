@@ -188,6 +188,7 @@ shinyServer(function(input, output, session){
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
+  
   # intgrated plot, snp
   output$a_color_snp_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
@@ -195,7 +196,6 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_snp_sig', label, value = 'blue', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   # intgrated plot, snp
   output$a_color_snp_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
@@ -203,12 +203,17 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_snp_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
-  # integarted plot, snp
+  # integrated plot, snp
   output$a_symbol_snp_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     selectInput('a_symbol_snp', 'Symbol', choices = allowed_plotly_symbols)
   })
+  # integrated plot, snp
+  output$a_label_snp_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    checkboxInput("a_label_snp", label = "Toggle labels", value = TRUE)
+  })
+  
   
   # intgrated plot, genes upload
   output$a_color_genes_upload_sig_ui <- renderUI({
@@ -217,7 +222,6 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_genes_upload_sig', label, value = 'blue', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   # intgrated plot, genes upload
   output$a_color_genes_upload_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
@@ -225,12 +229,17 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_genes_upload_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   # integrated plot, genes uplaod
   output$a_symbol_genes_upload_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     selectInput('a_symbol_genes_upload', 'Symbol', choices = allowed_plotly_symbols)
   })
+  # integrated plot, genes upload
+  output$a_label_genes_upload_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    checkboxInput("a_label_genes_upload", label = "Toggle labels", value = TRUE)
+  })
+  
   
   # intgrated plot, inweb
   output$a_color_inweb_sig_ui <- renderUI({
@@ -239,7 +248,6 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_inweb_sig', label, value = 'yellow', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   # intgrated plot, inweb
   output$a_color_inweb_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
@@ -247,12 +255,17 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_inweb_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   # integrated plot, inweb
   output$a_symbol_inweb_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     selectInput('a_symbol_inweb', 'Symbol', choices = allowed_plotly_symbols)
   })
+  # integrated plot, genes upload
+  output$a_label_inweb_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    checkboxInput("a_label_inweb", label = "Toggle labels", value = TRUE)
+  })
+  
   
   # intgrated plot, gwas catalogue
   output$a_color_gwas_cat_sig_ui <- renderUI({
@@ -261,7 +274,6 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_gwas_cat_sig', label, value = 'cyan', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   # intgrated plot, gwas catalogue
   output$a_color_gwas_cat_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
@@ -269,13 +281,17 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_gwas_cat_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   # integrated plot, gwas catalogue
   output$a_symbol_gwas_cat_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     selectInput('a_symbol_gwas_cat', 'Symbol', choices = allowed_plotly_symbols)
   })
-
+  # integrated plot, genes upload
+  output$a_label_gwas_cat_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    checkboxInput("a_label_gwas_cat", label = "Toggle labels", value = TRUE)
+  })
+  
   
   
   #output$a_color_setting_text <- renderUI({
@@ -825,6 +841,7 @@ shinyServer(function(input, output, session){
       genes$data$col_significant = input$a_color_genes_upload_sig
       genes$data$col_other = input$a_color_genes_upload_insig
       genes$data$symbol = input$a_symbol_genes_upload
+      genes$data$label = input$a_label_genes_upload
       return(genes$data)
     }
   })
@@ -847,15 +864,15 @@ shinyServer(function(input, output, session){
   #})
   
   
-  a_upload_genes <- reactive({
-    genes <- input$a_file_genes_rep
-    if (is.null(genes)){
-      return(NULL)
-    } else{
-      df <- fread(genes$datapath, header = T, fill = T,
-                  sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
-    }
-  })
+  #a_upload_genes <- reactive({
+  #  genes <- input$a_file_genes_rep
+  #  if (is.null(genes)){
+  #    return(NULL)
+  #  } else{
+  #    df <- fread(genes$datapath, header = T, fill = T,
+  #                sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
+  #  }
+  #})
   
   a_genes_uploaded <- reactive({
     if(!is.null(a_upload_genes())){
@@ -883,21 +900,21 @@ shinyServer(function(input, output, session){
     }
   })
   
-  output$a_goi_num_inputs <- renderUI({
-    validate(
-      need(!is.null(a_genes_uploaded_vennd()), "")
-    )
-    d <- a_pulldown()
-    gene_interest <- a_genes_uploaded_vennd()
-    d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
-    choices <- names(d_g2s)
-    choices <- append(choices, "total")
-    list_count <- length(d_g2s)
-    if(list_count>0){
-      selectInput("a_goi_num_inputs", "GOI list",
-                  choices = choices, multiple = F)
-    }
-  })
+  #output$a_goi_num_inputs <- renderUI({
+  #  validate(
+  #    need(!is.null(a_genes_uploaded_vennd()), "")
+  #  )
+  #  d <- a_pulldown()
+  #  gene_interest <- a_genes_uploaded_vennd()
+  #  d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
+  #  choices <- names(d_g2s)
+  #  choices <- append(choices, "total")
+  #  list_count <- length(d_g2s)
+  #  if(list_count>0){
+  #    selectInput("a_goi_num_inputs", "GOI list",
+  #                choices = choices, multiple = F)
+  #  }
+  #})
   
   #population_bait -- pull down overlap inweb
   population_bait <- reactive({
@@ -1194,6 +1211,7 @@ shinyServer(function(input, output, session){
     mapping$col_significant = input$a_color_snp_sig
     mapping$col_other = input$a_color_snp_insig
     mapping$symbol = input$a_symbol_snp
+    mapping$label = input$a_label_snp
     mapping$dataset = 'SNP'
     return(mapping)
   })
@@ -1207,6 +1225,7 @@ shinyServer(function(input, output, session){
       mapping$col_significant = input$a_color_inweb_sig
       mapping$col_other = input$a_color_inweb_insig
       mapping$symbol = input$a_symbol_inweb
+      mapping$label = input$a_label_inweb
       mapping$dataset = 'InWeb'
       return(mapping)
     } 
@@ -1221,6 +1240,7 @@ shinyServer(function(input, output, session){
       mapping[[1]]$col_significant = input$a_color_gwas_cat_sig
       mapping[[1]]$col_other = input$a_color_gwas_cat_insig
       mapping[[1]]$symbol = input$a_symbol_gwas_cat
+      mapping[[1]]$label = input$a_label_gwas_cat
       mapping[[1]]$dataset = 'GWAS Catalogue'
       mapping[[1]]$alt_label = mapping[[1]]$SNP
       return(mapping)
@@ -1263,8 +1283,7 @@ shinyServer(function(input, output, session){
       snpList <- SNP_n_occur
     }
     
-    #browser()
-    
+
   })
   
   # output$a_SNP_extend2 <- renderUI({
@@ -2092,7 +2111,6 @@ shinyServer(function(input, output, session){
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
     if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()), volcano = T)}
-    #if (!is.null(input$a_file_genes_rep)) browser()
     p$overlay <- collapse_labels(p$overlay)
     p
   })
@@ -2106,6 +2124,38 @@ shinyServer(function(input, output, session){
     p <- add_layout_html_axes_volcano(p, 700, 700)
     p
   })
+  
+  # download integrated plot
+  #a_integrated_plot_download <- downloadHandler(
+  #  filename = function() {
+  #    paste("ggplot", ".png", sep = "")
+  #    },
+  #  content = function(file) {
+  #    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+  #    ggsave(file, a_integrated_plot_gg())
+  #    }
+  #)
+  
+  plotInput <- function(){a_integrated_plot_gg()}
+  
+  output$a_integrated_plot_download = downloadHandler(
+    filename = 'test.png',
+    content = function(file) {
+      device <- function(..., width, height) {
+        grDevices::png(..., width = width, height = height,
+                       res = 300, units = "in")
+      }
+      ggsave(file, plot =  plotInput(), device = device)
+    })
+  
+  #filename = function() {
+  #  paste("input-pf-removed", ".txt", sep = "")
+  #},
+  #content = function(file) {
+  #  write.table(a_pf_cleanup(), file, sep = "\t", col.names = T, row.names = F, quote = F)
+  #}
+  
+  
   
   a_multi_vp_layer <- reactive({
     stop('a_multi_vp_layer is deprecated!!')

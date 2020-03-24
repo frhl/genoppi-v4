@@ -68,46 +68,50 @@ body <- dashboardBody(
                                     box(
                                      title = "InWeb InBiomap", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
                                      fluidRow(
-                                      column(12, uiOutput("a_bait_layer"))
-                                     )
-                                     #fluidRow(
+                                       column(12, uiOutput("a_bait_layer"))
+                                     ),
+                                     fluidRow(
+                                       column(6, uiOutput("a_label_inweb_ui"))
                                     #   column(4, uiOutput("a_color_inweb_sig_ui")),
                                     #   column(4, uiOutput("a_color_inweb_insig_ui")),
                                     #   column(4, uiOutput("a_symbol_inweb_ui"))
-                                    # )
+                                      )
                                     ),
                                     box(
                                       title = "GWAS Catalogue", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                       fluidRow(
                                         column(12, uiOutput('a_gwas_catalogue_ui'))
-                                      )
-                                      #fluidRow(
+                                      ),
+                                      fluidRow(
+                                        column(6, uiOutput("a_label_gwas_cat_ui"))
                                       #   column(4, uiOutput("a_color_gwas_cat_sig_ui")),
                                       #   column(4, uiOutput("a_color_gwas_cat_insig_ui")),
                                       #   column(4, uiOutput("a_symbol_gwas_cat_ui"))
-                                      # )
+                                       )
                                     ),
                                     box(
                                      title = "Upload SNP file", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
-                                       column(12, uiOutput("a_SNP_file")),
-                                     )
-                                     #fluidRow(
+                                       column(10, uiOutput("a_SNP_file")),
+                                     ),
+                                     fluidRow(
+                                       column(6, uiOutput("a_label_snp_ui"))
                                     #   column(4, uiOutput("a_color_snp_sig_ui")),
                                     #   column(4, uiOutput("a_color_snp_insig_ui")),
                                     #   column(4, uiOutput("a_symbol_snp_ui"))
-                                    # )
+                                     )
                                    ),
                                   box(
                                      title = "Upload genes", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                         column(12, uiOutput("a_genes_file")),
-                                     )
-                                     #fluidRow(
+                                     ),
+                                     fluidRow(
+                                       column(6, uiOutput("a_label_genes_upload_ui"))
                                     #   column(4, uiOutput("a_color_genes_upload_sig_ui")),
                                     #   column(4, uiOutput("a_color_genes_upload_insig_ui")),
                                     #   column(4, uiOutput("a_symbol_genes_upload_ui"))
-                                    # )
+                                    )
                                   ),
                                   box(
                                     title = "Statistics", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
@@ -144,11 +148,12 @@ body <- dashboardBody(
                                 column(width = 8,
                                     box(
                                       title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, height = '800px', solidHeader = TRUE, status = 'success', collapsible = TRUE,
-                                         fluidRow(
-                                           #column(1, plotOutput("mulFDR_colorbar", width = "50px")),
+                                          fluidRow(
+                                            column(12, downloadButton("a_integrated_plot_download"))
+                                          ),
+                                          fluidRow(
                                            column(1, br(), br(), br(), br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
-                                           column(10, plotlyOutput("Multi_VolcanoPlot")),
-                                           column(1, myDownloadButton("download_multi_vp_gg", "Volcano"))
+                                           column(11, plotlyOutput("Multi_VolcanoPlot")),
                                          )
                                     )
                                 )

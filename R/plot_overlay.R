@@ -29,9 +29,6 @@
 
 plot_overlay <- function(p, reference, x='logFC', y='pvalue', volcano = F, point_expansion = 1.05, legend = T){
   
-  # todo: give more informative errors..
-  
-  
   # check data of p format of reference
   stopifnot(!is.null(p$data))
   stopifnot(is.list(reference) & !is.data.frame(reference))
@@ -57,16 +54,18 @@ plot_overlay <- function(p, reference, x='logFC', y='pvalue', volcano = F, point
                  mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])),
                  size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
                  color = 'black',
-                 shape = 1) +
+                 shape = 1)
           
-          # add text/labels to points
-          geom_text_repel(mymerge[mymerge$label,], 
-                 mapping=aes(label=ifelse(is.na(mymerge$alt_label), 
-                                          as.character(mymerge$gene), 
-                                          as.character(mymerge$alt_label))), 
+  # add text/labels to points
+  mymerge_labels = mymerge[mymerge$label,]
+  p1 =  p1 + geom_text_repel(mymerge_labels, 
+                 mapping=aes(label=ifelse(is.na(mymerge_labels$alt_label), 
+                            as.character(mymerge_labels$gene), 
+                            paste(as.character(mymerge_labels$gene),
+                                 as.character(mymerge_labels$alt_label), sep = ','))), 
                  arrow=arrow(length=unit(0.1, 'npc')),
                  box.padding=unit(0.15, "lines"), point.padding=unit(0.2, "lines"), 
-                 size=ifelse('label_size' %in% colnames(mymerge), mymerge$labelsize, 3), 
+                 size=ifelse('label_size' %in% colnames(mymerge_labels), mymerge_labels$labelsize, 3), 
                  color="black")
   
   # save overlay and modify plotting data.frame
