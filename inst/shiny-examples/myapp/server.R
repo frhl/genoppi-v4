@@ -1216,6 +1216,17 @@ shinyServer(function(input, output, session){
     return(mapping)
   })
   
+  # download snp mapping
+  input_snp_mapping <- reactive({as.data.frame(a_snp_mapping()[,c(1,2)])}) 
+  a_snp_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("snp-gene-mapping-", Sys.Date(), ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(x=input_snp_mapping(), file)
+    }
+  )
+  
   # map inweb prorteins
   a_inweb_mapping <- reactive({
     req(input$a_bait_rep)
@@ -1330,33 +1341,33 @@ shinyServer(function(input, output, session){
   #  
   #}
   
-  
+  ## there is a dependency on this somewhere..do not remove for now.
   a_pf_db <- reactive({
     if(!is.null(input$a_pfam_db)){
       pf_db <- input$a_pfam_db
     }
   })
   
-  a_pf_db_search <- reactive({
-    pf_db <- a_pf_db()
-    selected_pf <- prot_fam[grep(paste(pf_db,collapse='|'), names(prot_fam))]
-    selected_pf <- lapply(selected_pf, function(x) x[!is.na(x)])
-    selected_pf
-  })
+  #a_pf_db_search <- reactive({
+  #  pf_db <- a_pf_db()
+  #  selected_pf <- prot_fam[grep(paste(pf_db,collapse='|'), names(prot_fam))]
+  #  selected_pf <- lapply(selected_pf, function(x) x[!is.na(x)])
+  #  selected_pf
+  #})
   
-  a_pf_cleanup <- reactive({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(!is.null(a_pf_db()), "")
-    )
-    d <- a_orig_pulldown()
-    d_col <- colnames(d)
-    if("rep1" %in% d_col & "rep2" %in% d_col){
-      prot_remove <- unique(unlist(a_pf_db_search()))
-      prot_cleaned <- subset(d, gene %!in% prot_remove)
-      prot_cleaned
-    }
-  })
+  #a_pf_cleanup <- reactive({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(!is.null(a_pf_db()), "")
+  #  )
+  #  d <- a_orig_pulldown()
+  #  d_col <- colnames(d)
+  #  if("rep1" %in% d_col & "rep2" %in% d_col){
+  #    prot_remove <- unique(unlist(a_pf_db_search()))
+  #    prot_cleaned <- subset(d, gene %!in% prot_remove)
+  #    prot_cleaned
+  #  }
+  #})
   
   ## ggplot automatically generated and reactive color bars
   a_vp_colorbar <- reactive({
@@ -1376,62 +1387,67 @@ shinyServer(function(input, output, session){
       scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
       labs(title = ifelse(thresholds$sig_type == 'P-value', '  P', 'FDR')) + theme_genoppi_bar() + coord_fixed()
     bar
-    
-    
-    # generate matrix with colors
-    #FDR <- seq(0, 1, 0.01); limit <- rep("FDR", 101)
-    #d <- data.frame(limit, FDR)
-    #d$col <- ifelse(d$FDR < input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-    
-    # plot result
-    #bar <- ggplot(d, aes(xmin = 0, xmax = 0.1, ymin = d$FDR-0.01, ymax = d$FDR)) + geom_rect(fill = d$col) +      
-    #  scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-    #  labs(title = "FDR") + theme_genoppi_bar() + coord_fixed()
-    #bar
   })
   
   # dont know if this is needed?
-  a_vp_colorbar_dl <- reactive({
-    a_vp_colorbar()
+  #a_vp_colorbar_dl <- reactive({
+  #  a_vp_colorbar()
+  #})
+  
+  #a_vp <- function(){ # can tjhis function be removed
+  #  d <- a_pulldown_significant()
+  #  p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = a_color_indv_insig)
+  #  p
+  #}
+  
+  a_vp_gg <- reactive({
+    d <- a_pulldown_significant()
+    req(input$a_color_indv_sig, input$a_color_indv_insig)
+    p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
+    p <- plot_overlay(p, as.bait(input$a_bait_search_rep), volcano = T) # add bait
+    return(p)
   })
   
-  a_vp_gg <- function(){ # can tjhis function be removed
-    d <- a_pulldown_significant()
-    p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = a_color_indv_insig)
-    p
-  }
-  
-  a_vp_plus_rep_gg <- function(){
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    browser()
+  a_vp_layerx <- reactive({
     p <- a_vp_gg()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_volcano_gg(p, searchgene)
-    p1
-  }
+    p <- make_interactive(p, volcano = T)
+    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
+    p <- add_layout_html_axes_volcano(p)
+    return(p)
+  })
   
-  a_vp_pf_db_gg <- function(){
-    validate(
-      need(!is.null(a_pulldown()), ""),
-      need(!is.null(a_pf_db()), "")
-    )
-    p <- a_vp_gg()
-    a_pf_db <- a_pf_db_vp()
-    pf_col <- input$colorbrewer_theme_pf
-    label <- input$a_marker_text_prot_fam_db
-    
-    #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
-      df <- ldply(a_pf_db$d_g2s, data.frame)
-      if(nrow(df) != 0){
-        vp_layer_genes <- vp_layer_for_uploaded_genes_gg(p, df, pf_col, label)
-        p1 <- vp_layer_genes
-      } else{
-        p1 <- p
-      }
+  #a_vp_plus_rep_gg <- function(){
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  browser()
+  #  p <- a_vp_gg()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_volcano_gg(p, searchgene)
+  #  p1
+  #}
+  
+  #a_vp_pf_db_gg <- function(){
+  #  validate(
+  #    need(!is.null(a_pulldown()), ""),
+  #    need(!is.null(a_pf_db()), "")
+  #  )
+  #  p <- a_vp_gg()
+  #  a_pf_db <- a_pf_db_vp()
+  #  pf_col <- input$colorbrewer_theme_pf
+  #  label <- input$a_marker_text_prot_fam_db
+  #  
+  #  #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+  #    df <- ldply(a_pf_db$d_g2s, data.frame)
+  #    if(nrow(df) != 0){
+  #      vp_layer_genes <- vp_layer_for_uploaded_genes_gg(p, df, pf_col, label)
+  #      p1 <- vp_layer_genes
+  #    } else{
+  #      p1 <- p
+  #    }
     #}
     #else if(input$colorscheme == "cbf"){
     #  df <- ldply(a_pf_db$d_g2s, data.frame)
@@ -1442,39 +1458,39 @@ shinyServer(function(input, output, session){
     #    p1 <- p
     #  }
     #}
-    p1
-  }
+  #  p1
+  #}
   
-  a_vp_pf_db_plus_gg <- function(){
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_vp_pf_db_gg()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_volcano_gg(p, searchgene)
-    p1
-  }
+  #a_vp_pf_db_plus_gg <- function(){
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_vp_pf_db_gg()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_volcano_gg(p, searchgene)
+  #  p1
+  #}
   
-  output$download_vp_gg <- downloadHandler(
-    filename = function() { paste("vp_gg", '.png', sep='') },
-    content = function(file) {
-      if(is.null(a_pf_db())){
-        if(is.null(a_search_gene())){
-          ggsave(file, plot = a_vp_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
-        } else {
-          ggsave(file, plot = a_vp_plus_rep_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
-        }
-      } else if(!is.null(a_pf_db())){
-        if(is.null(a_search_gene())){
-          ggsave(file, plot = a_vp_pf_db_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
-        } else{
-          ggsave(file, plot = a_vp_pf_db_plus_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
-        }
-      }
-    }
-  )
+  #output$download_vp_gg <- downloadHandler(
+  #  filename = function() { paste("vp_gg", '.png', sep='') },
+  #  content = function(file) {
+  #    if(is.null(a_pf_db())){
+  #      if(is.null(a_search_gene())){
+  #        ggsave(file, plot = a_vp_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
+  #      } else {
+  #        ggsave(file, plot = a_vp_plus_rep_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
+  #      }
+  #    } else if(!is.null(a_pf_db())){
+  #      if(is.null(a_search_gene())){
+  #        ggsave(file, plot = a_vp_pf_db_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
+  #      } else{
+  #        ggsave(file, plot = a_vp_pf_db_plus_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
+  #      }
+  #    }
+  #  }
+  #)
   
   #a_sp_gg <- function(){
   #  d <- a_pulldown()
@@ -1525,36 +1541,36 @@ shinyServer(function(input, output, session){
   #  p
   #}
   
-  a_sp_plus_rep_gg <- function(){
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_sp_gg()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_scatter_gg(p, searchgene)
-    p1
-  }
+  #a_sp_plus_rep_gg <- function(){
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_sp_gg()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_scatter_gg(p, searchgene)
+  #  p1
+  #}
   
-  a_sp_pf_db_gg <- function(){
-    validate(
-      need(!is.null(a_pulldown()), ""),
-      need(!is.null(a_pf_db()), "")
-    )
-    p <- a_sp_gg()
-    a_pf_db <- a_pf_db_vp()
-    pf_col <- input$colorbrewer_theme_pf
-    label <- input$a_marker_text_prot_fam_db
-    
-    #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
-      df <- ldply(a_pf_db$d_g2s, data.frame)
-      if(nrow(df) != 0){
-        sp_layer_genes <- sp_layer_for_uploaded_genes_gg(p, df, pf_col, label)
-        p1 <- sp_layer_genes
-      } else{
-        p1 <- p
-      }
+  #a_sp_pf_db_gg <- function(){
+  #  validate(
+  #    need(!is.null(a_pulldown()), ""),
+  #    need(!is.null(a_pf_db()), "")
+  #  )
+  #  p <- a_sp_gg()
+  #  a_pf_db <- a_pf_db_vp()
+  #  pf_col <- input$colorbrewer_theme_pf
+  #  label <- input$a_marker_text_prot_fam_db
+  #  
+  #  #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+  #    df <- ldply(a_pf_db$d_g2s, data.frame)
+  #    if(nrow(df) != 0){
+  #      sp_layer_genes <- sp_layer_for_uploaded_genes_gg(p, df, pf_col, label)
+  #      p1 <- sp_layer_genes
+  #    } else{
+  #      p1 <- p
+  #    }
     #} else if(input$colorscheme == "cbf"){
     #  df <- ldply(a_pf_db$d_g2s, data.frame)
     #  if(nrow(df) != 0){
@@ -1564,57 +1580,39 @@ shinyServer(function(input, output, session){
     #    p1 <- p
     #  }
     #}
-    p1
-  }
+  #  p1
+  #}
   
-  a_sp_pf_db_plus_gg <- function(){
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_sp_pf_db_gg()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_scatter_gg(p, searchgene)
-    p1
-  }
+  #a_sp_pf_db_plus_gg <- function(){
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_sp_pf_db_gg()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_scatter_gg(p, searchgene)
+  #  p1
+  #}
   
-  output$download_sp_gg <- downloadHandler(
-    filename = function() { paste("sp_gg", '.png', sep='') },
-    content = function(file) {
-      if(is.null(a_pf_db())){
-        if(is.null(a_search_gene())){
-          ggsave(file, plot = a_sp_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
-        } else {
-          ggsave(file, plot = a_sp_plus_rep_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
-        }
-      } else if(!is.null(a_pf_db())){
-        if(is.null(a_search_gene())){
-          ggsave(file, plot = a_sp_pf_db_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
-        } else{
-          ggsave(file, plot = a_sp_pf_db_plus_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
-        }
-      }
-    }
-  )
-  
-  a_vp <- reactive({
-    d <- a_pulldown_significant()
-    req(input$a_color_indv_sig, input$a_color_indv_insig)
-    p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
-    p <- plot_overlay(p, as.bait(input$a_bait_search_rep), volcano = T) # add bait
-    return(p)
-  })
-  
-  a_vp_layerx <- reactive({
-    p <- a_vp()
-    p <- make_interactive(p, volcano = T)
-    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
-    p <- add_layout_html_axes_volcano(p)
-    return(p)
-  })
-  
+  #output$download_sp_gg <- downloadHandler(
+  #  filename = function() { paste("sp_gg", '.png', sep='') },
+  #  content = function(file) {
+  #    if(is.null(a_pf_db())){
+  #      if(is.null(a_search_gene())){
+  #        ggsave(file, plot = a_sp_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
+  #      } else {
+  #        ggsave(file, plot = a_sp_plus_rep_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
+  #      }
+  #    } else if(!is.null(a_pf_db())){
+  #      if(is.null(a_search_gene())){
+  #        ggsave(file, plot = a_sp_pf_db_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
+  #      } else{
+  #        ggsave(file, plot = a_sp_pf_db_plus_gg(), device = "png", width = 5, height = 4, units = "in", dpi = 300)
+  #      }
+  #    }
+  #  }
+  #)
   
   
   #a_vp1 <- reactive({
@@ -1636,63 +1634,63 @@ shinyServer(function(input, output, session){
   #                        yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)"))) 
   #})
   
-  a_vp_plus_rep_gg_reg_label <- function(){
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_vp_gg()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_volcano_gg_reg_label(p, searchgene)
-    p1
-  }
+  #a_vp_plus_rep_gg_reg_label <- function(){
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_vp_gg()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_volcano_gg_reg_label(p, searchgene)
+  #  p1
+  #}
   
-  a_vp_plus_rep <- reactive({
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_vp_layerx()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_volcano(p, searchgene)
-    p1
-  })
+  #a_vp_plus_rep <- reactive({
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_vp_layerx()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_volcano(p, searchgene)
+  #  p1
+  #})
   
 
   
-  a_pf_db_vp <- reactive({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    if(!is.null(a_pf_db_search())){
-      d <- a_pulldown()
-      gene_interest <- a_pf_db_search()
-      d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )
-      list(d_g2s=d_g2s)
-    }
-  })
+  #a_pf_db_vp <- reactive({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  if(!is.null(a_pf_db_search())){
+  #    d <- a_pulldown()
+  #    gene_interest <- a_pf_db_search()
+  #    d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )
+  #    list(d_g2s=d_g2s)
+  #  }
+  #})
   
-  a_vp_pf_db <- reactive({
-    validate(
-      need(!is.null(a_pulldown()), ""),
-      need(!is.null(a_pf_db()), "")
-    )
-    d <- a_pulldown()
-    a_pf_db <- a_pf_db_vp()
-    pf_col <- input$colorbrewer_theme_pf
-    #if(input$colorscheme == "fdr"){
-      req(input$a_color_indv_sig, input$a_color_indv_insig)
-      data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      p <- plot_ly(colors = pf_col, showlegend = T, width = 650, height = 550)
-      for(i in nrow(data)){
-        p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
-                         marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), 
-                         opacity = 0.8, 
-                         text = ~paste(gene), hoverinfo = "text", name = "pull down")
-      }
-      p 
+  #a_vp_pf_db <- reactive({
+  #  validate(
+  #    need(!is.null(a_pulldown()), ""),
+  #    need(!is.null(a_pf_db()), "")
+  #  )
+  #  d <- a_pulldown()
+  #  a_pf_db <- a_pf_db_vp()
+  #  pf_col <- input$colorbrewer_theme_pf
+  #  #if(input$colorscheme == "fdr"){
+  #    req(input$a_color_indv_sig, input$a_color_indv_insig)
+  #    data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+  #    p <- plot_ly(colors = pf_col, showlegend = T, width = 650, height = 550)
+  #    for(i in nrow(data)){
+  #      p <- add_markers(p, data = data, x = ~logFC, y = ~-log10(pvalue),
+  #                       marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), 
+  #                       opacity = 0.8, 
+  #                       text = ~paste(gene), hoverinfo = "text", name = "pull down")
+  #    }
+  #    p 
     #} else if(input$colorscheme == "exac"){
     #  d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
     #  d$s[is.na(d$s)] <- 2
@@ -1751,23 +1749,23 @@ shinyServer(function(input, output, session){
     #  }
     #  p
     #}
-    p <- p %>%
-      layout(xaxis = list(range=~c(min(d$logFC)-0.5, max(d$logFC)+0.5)),
-             yaxis = list(range=~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5)))
-    
-    #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
-      df <- ldply(a_pf_db$d_g2s, data.frame)
-      if(nrow(df) != 0){
-        if(input$a_marker_text_prot_fam_db == "yes_label"){
-          vp_layer_genes <- vp_layer_for_uploaded_genes(p, df)
-        } else if(input$a_marker_text_prot_fam_db == "no_label"){
-          vp_layer_genes <- vp_layer_for_uploaded_genes_no_text(p, df)
-        }
-        p <- vp_layer_genes
-      } else{
-        vp_layer_no_genes <- vp_layer_for_uploaded_genes_none(p, d)
-        p <- vp_layer_no_genes
-      }
+    #p <- p %>%
+    #  layout(xaxis = list(range=~c(min(d$logFC)-0.5, max(d$logFC)+0.5)),
+    #         yaxis = list(range=~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5)))
+  #  
+  #  #if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+  #    df <- ldply(a_pf_db$d_g2s, data.frame)
+  #    if(nrow(df) != 0){
+  #      if(input$a_marker_text_prot_fam_db == "yes_label"){
+  #        vp_layer_genes <- vp_layer_for_uploaded_genes(p, df)
+  #      } else if(input$a_marker_text_prot_fam_db == "no_label"){
+  #        vp_layer_genes <- vp_layer_for_uploaded_genes_no_text(p, df)
+  #      }
+  #      p <- vp_layer_genes
+  #    } else{
+  #      vp_layer_no_genes <- vp_layer_for_uploaded_genes_none(p, d)
+  #      p <- vp_layer_no_genes
+  #    }
     #} else if(input$colorscheme == "cbf"){
     #  df <- ldply(a_pf_db$d_g2s, data.frame)
     #  if(nrow(df) != 0){
@@ -1782,26 +1780,26 @@ shinyServer(function(input, output, session){
     #    p <- vp_layer_no_genes
     #  }
     #}
-    p <- p %>%
-      add_lines(x = ~c(min(d$logFC)-0.5, max(d$logFC)+0.5), y = ~-log10(input$a_pval_thresh), line = list(dash = "dash", width = 0.5, color = "#2b333e"), 
-                name = '', hoverinfo = "text", text = paste0("pvalue = ", input$a_pval_thresh), showlegend = F) %>%
-      add_lines(x = input$a_logFC_thresh[1], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"), 
-                name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[1]), showlegend = F) %>%
-      add_lines(x = input$a_logFC_thresh[2], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"), 
-                name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[2]), showlegend = F)
-  })
+    #p <- p %>%
+    #  add_lines(x = ~c(min(d$logFC)-0.5, max(d$logFC)+0.5), y = ~-log10(input$a_pval_thresh), line = list(dash = "dash", width = 0.5, color = "#2b333e"), 
+    #            name = '', hoverinfo = "text", text = paste0("pvalue = ", input$a_pval_thresh), showlegend = F) %>%
+    #  add_lines(x = input$a_logFC_thresh[1], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"), 
+    #            name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[1]), showlegend = F) %>%
+    #  add_lines(x = input$a_logFC_thresh[2], y = ~c(min(-log10(d$pvalue)-0.5), max(-log10(d$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"), 
+    #            name = '', hoverinfo = "text", text = paste0("logFC = ", input$a_logFC_thresh[2]), showlegend = F)
+  #})
   
-  a_vp_pf_db_plus_rep <- reactive({
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_vp_pf_db()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_volcano(p, searchgene)
-    p1
-  })
+  #a_vp_pf_db_plus_rep <- reactive({
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_vp_pf_db()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_volcano(p, searchgene)
+  #  p1
+  #})
   
   #a_vp_count <- reactive({
   #  d <- a_pulldown_significant()
@@ -1824,20 +1822,20 @@ shinyServer(function(input, output, session){
     }
   })
   
-  a_sp_cor <- reactive({
-    input_file <- a_pulldown()
-    if ("rep1" %in% colnames(input_file) & "rep2" %in% colnames(input_file)){
-      cor <- signif(cor(input_file$rep1, input_file$rep2), 4)
-      cor <- paste0("correlation coefficient: ", cor)
-    } else if ("logFC" %in% colnames(input_file) & "FDR" %in% colnames(input_file) & "pvalue" %in% colnames(input_file)){
-      return(NULL)
-    }
-  })
+  #a_sp_cor <- reactive({
+  #  input_file <- a_pulldown()
+  #  if ("rep1" %in% colnames(input_file) & "rep2" %in% colnames(input_file)){
+  #    cor <- signif(cor(input_file$rep1, input_file$rep2), 4)
+  #    cor <- paste0("correlation coefficient: ", cor)
+  #  } else if ("logFC" %in% colnames(input_file) & "FDR" %in% colnames(input_file) & "pvalue" %in% colnames(input_file)){
+  #    return(NULL)
+  #  }
+  #})
   
   
-  a_sp_gg <- reactive({
-    stop('error, deprecated')
-  })
+  #a_sp_gg <- reactive({
+  #  stop('error, deprecated')
+  #})
   
   a_sp <- reactive({
     
@@ -1862,251 +1860,251 @@ shinyServer(function(input, output, session){
 
   })
   
-  a_sp_plus <- reactive({
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_sp()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_scatter(p, searchgene)
-    p1
-  })
+  #a_sp_plus <- reactive({
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_sp()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  p1 <- search_scatter(p, searchgene)
+  #  p1
+  #})
   
-  a_sp_pf_db <- reactive({
-    validate(
-      need(!is.null(a_pulldown()), ""),
-      need(!is.null(a_pf_db()), "")
-    )
-    d <- a_pulldown()
-    a_pf_db <- a_pf_db_vp()
-    cc <- a_sp_cor()
-    pf_col <- input$colorbrewer_theme_pf
-    if(input$colorscheme == "fdr"){
-      req(input$a_color_indv_sig, input$a_color_indv_insig)
-      data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
-      p <- plot_ly(colors = pf_col, showlegend = F, width = 550, height = 550) 
-      p <- add_lines(p, data = d, x = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))), y = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))),
-                     line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
-      for(i in nrow(data)){
-        p <- add_markers(p, data = data, x = ~rep1, y = ~rep2, 
-                         marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), #line = list(width=0.1, color = "black"),
-                         opacity = 0.8, 
-                         text = ~paste(gene), hoverinfo = "text", name = "pull down")
-      }
-    } else if(input$colorscheme == "exac"){
-      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
-      d$s[is.na(d$s)] <- 2
-      below_thresh <- subset(d, s < 0.9)
-      above_thresh <- subset(d, s >= 0.9)
-      no_exist <- subset(d, s == 2)
-      p <- plot_ly(colors = pf_col, showlegend = F, width = 550, height = 550) 
-      p <- add_lines(p, data = d, x = ~c((min(rep1, rep2)), (max(rep1, rep2))), y = ~c((min(rep1, rep2)), (max(rep1, rep2))),
-                     line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
-      p <- add_markers(p, data = below_thresh, x = ~rep1, y = ~rep2, 
-                       marker = list(size = 8, line = list(width=0.1, color = 'black'), cmin = 0, cmax = 1, color = "#66c2a5"),
-                       opacity = 0.7, 
-                       text = ~paste(gene), hoverinfo = "text") #, name = paste0("pLI<0.9 (", nrow(below_thresh), ")")
-      p <- add_markers(p, data = above_thresh, x = ~rep1, y = ~rep2, 
-                       marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#fc8d62"),
-                       opacity = 0.7, 
-                       text = ~paste(gene), hoverinfo = "text") #, name = paste0("pLI>=0.9 (", nrow(above_thresh), ")")
-      p <- add_markers(p, data = no_exist, x = ~rep1, y = ~rep2, 
-                       marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#8da0cb"),
-                       opacity = 0.7, 
-                       text = ~paste(gene), hoverinfo = "text") #, name = paste0("not in ExAC (", nrow(no_exist), ")")
-      p
-    } else if(input$colorscheme == "cbf"){
-      data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-      p <- plot_ly(colors = "Greys", showlegend = F, width = 550, height = 550) 
-      p <- add_lines(p, data = d, x = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))), y = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))),
-                     line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
-      for(i in nrow(data)){
-        p <- add_markers(p, data = data, x = ~rep1, y = ~rep2, 
-                         marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), #line = list(width=0.1, color = "black"), 
-                         opacity = 0.6, 
-                         text = ~paste(gene), hoverinfo = "text", name = "pull down")
-      }
-    } else if(input$colorscheme == "user"){
-      validate(
-        need(!is.null(input$file_color), "Please upload file with gene and score")
-      )
-      d1 <- a_in_file_color()
-      col_theme <- input$colorbrewer_theme
-      if(input$colorscheme_style == "cont"){
-        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-      } else if(input$colorscheme_style == "disc"){
-        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-      }
-      p <- plot_ly(colors = pf_col, showlegend = FALSE, width = 550, height = 550) 
-      p <- add_lines(p, data = d, x = ~c((min(rep1, rep2)), (max(rep1, rep2))), y = ~c((min(rep1, rep2)), (max(rep1, rep2))),
-                     text = "x=y", hoverinfo = "text",
-                     line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
-      p <- add_markers(p, data = data1, x = ~rep1, y = ~rep2,
-                       marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
-                       opacity = 0.8,
-                       text = ~paste(gene), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
-      for(i in nrow(data)){
-        p <- add_markers(p, data = data, x = ~rep1, y = ~rep2,
-                         marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
-                         opacity = 1,
-                         text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
-                         name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
-      }
-      p
-    }
-    if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
-      df <- ldply(a_pf_db$d_g2s, data.frame)
-      if(nrow(df) != 0){
-        if(input$a_marker_text_prot_fam_db == "yes_label"){
-          sp_layer_genes <- sp_layer_for_uploaded_genes(p, df)
-        } else if(input$a_marker_text_prot_fam_db == "no_label"){
-          sp_layer_genes <- sp_layer_for_uploaded_genes_no_text(p, df)
-        }
-        p <- sp_layer_genes
-      } else{
-        sp_layer_no_genes <- sp_layer_for_uploaded_genes_none(p, d)
-        p <- sp_layer_no_genes
-      }
-    } else if(input$colorscheme == "cbf"){
-      df <- ldply(a_pf_db$d_g2s, data.frame)
-      if(nrow(df) != 0){
-        if(input$a_marker_text_prot_fam_db == "yes_label"){
-          sp_layer_genes <- sp_layer_for_uploaded_genes_cbf(p, df)
-        } else if(input$a_marker_text_prot_fam_db == "no_label"){
-          sp_layer_genes <- sp_layer_for_uploaded_genes_cbf_no_text(p, df)
-        }
-        p <- sp_layer_genes
-      } else{
-        sp_layer_no_genes <- sp_layer_for_uploaded_genes_none_cbf(p, d)
-        p <- sp_layer_no_genes
-      }
-    }
-    p <- p %>%
-      layout(xaxis = list(title = "rep1", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
-             yaxis = list(title = "rep2", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
-             title = cc, titlefont = list(size=12))
-  })
+  #a_sp_pf_db <- reactive({
+  #  validate(
+  #    need(!is.null(a_pulldown()), ""),
+  #    need(!is.null(a_pf_db()), "")
+  #  )
+  #  d <- a_pulldown()
+  #  a_pf_db <- a_pf_db_vp()
+  #  cc <- a_sp_cor()
+  #  pf_col <- input$colorbrewer_theme_pf
+  #  if(input$colorscheme == "fdr"){
+  #    req(input$a_color_indv_sig, input$a_color_indv_insig)
+  #    data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_indv_sig, input$a_color_indv_insig)
+  #    p <- plot_ly(colors = pf_col, showlegend = F, width = 550, height = 550) 
+  #    p <- add_lines(p, data = d, x = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))), y = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))),
+  #                   line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
+  #    for(i in nrow(data)){
+  #      p <- add_markers(p, data = data, x = ~rep1, y = ~rep2, 
+  #                       marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), #line = list(width=0.1, color = "black"),
+  #                       opacity = 0.8, 
+  #                       text = ~paste(gene), hoverinfo = "text", name = "pull down")
+  #    }
+  #  } else if(input$colorscheme == "exac"){
+  #    d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
+  #    d$s[is.na(d$s)] <- 2
+  #    below_thresh <- subset(d, s < 0.9)
+  #    above_thresh <- subset(d, s >= 0.9)
+  #    no_exist <- subset(d, s == 2)
+  #    p <- plot_ly(colors = pf_col, showlegend = F, width = 550, height = 550) 
+  #    p <- add_lines(p, data = d, x = ~c((min(rep1, rep2)), (max(rep1, rep2))), y = ~c((min(rep1, rep2)), (max(rep1, rep2))),
+  #                   line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
+  #    p <- add_markers(p, data = below_thresh, x = ~rep1, y = ~rep2, 
+  #                     marker = list(size = 8, line = list(width=0.1, color = 'black'), cmin = 0, cmax = 1, color = "#66c2a5"),
+  #                     opacity = 0.7, 
+  #                     text = ~paste(gene), hoverinfo = "text") #, name = paste0("pLI<0.9 (", nrow(below_thresh), ")")
+  #    p <- add_markers(p, data = above_thresh, x = ~rep1, y = ~rep2, 
+  #                     marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#fc8d62"),
+  #                     opacity = 0.7, 
+  #                     text = ~paste(gene), hoverinfo = "text") #, name = paste0("pLI>=0.9 (", nrow(above_thresh), ")")
+  #    p <- add_markers(p, data = no_exist, x = ~rep1, y = ~rep2, 
+  #                     marker = list(size = 8, line = list(width=0.1, color = "black"), cmin = 0, cmax = 1, color = "#8da0cb"),
+  #                     opacity = 0.7, 
+  #                     text = ~paste(gene), hoverinfo = "text") #, name = paste0("not in ExAC (", nrow(no_exist), ")")
+  #    p
+  #  } else if(input$colorscheme == "cbf"){
+  #    data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+  #    p <- plot_ly(colors = "Greys", showlegend = F, width = 550, height = 550) 
+  #    p <- add_lines(p, data = d, x = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))), y = ~c(ceiling(min(rep1, rep2)), floor(max(rep1, rep2))),
+  #                   line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
+  #    for(i in nrow(data)){
+  #      p <- add_markers(p, data = data, x = ~rep1, y = ~rep2, 
+  #                       marker = list(size = 6, cmin = 0, cmax = 1, color = ~col), #line = list(width=0.1, color = "black"), 
+  #                       opacity = 0.6, 
+  #                       text = ~paste(gene), hoverinfo = "text", name = "pull down")
+  #    }
+  #  } else if(input$colorscheme == "user"){
+  #    validate(
+  #      need(!is.null(input$file_color), "Please upload file with gene and score")
+  #    )
+  #    d1 <- a_in_file_color()
+  #    col_theme <- input$colorbrewer_theme
+  #    if(input$colorscheme_style == "cont"){
+  #      df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
+  #      data <- df$df1
+  #      data1 <- df$no_exist
+  #    } else if(input$colorscheme_style == "disc"){
+  #      df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
+  #      data <- df$df1
+  #      data1 <- df$no_exist
+  #    }
+  #    p <- plot_ly(colors = pf_col, showlegend = FALSE, width = 550, height = 550) 
+  #    p <- add_lines(p, data = d, x = ~c((min(rep1, rep2)), (max(rep1, rep2))), y = ~c((min(rep1, rep2)), (max(rep1, rep2))),
+  #                   text = "x=y", hoverinfo = "text",
+  #                   line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
+  #    p <- add_markers(p, data = data1, x = ~rep1, y = ~rep2,
+  #                     marker = list(size = 7, line = list(width=0.1, color = "grey89"), cmin = 0, cmax = 1, color = "#f7f7f7"),
+  #                     opacity = 0.8,
+  #                     text = ~paste(gene), hoverinfo = "text", name = paste0("Not in user data (", nrow(df$no_exist), ")"))
+  #    for(i in nrow(data)){
+  #      p <- add_markers(p, data = data, x = ~rep1, y = ~rep2,
+  #                       marker = list(size = 7, cmin = 0, cmax = 1, color = ~col, line = list(width=0.2, color = "grey89")),
+  #                       opacity = 1,
+  #                       text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), hoverinfo = "text",
+  #                       name = paste0("Found in user data (", nrow(data), ")")) #, name = "pull down"
+  #    }
+  #    p
+  #  }
+  #  if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+  ##    df <- ldply(a_pf_db$d_g2s, data.frame)
+  #    if(nrow(df) != 0){
+  #      if(input$a_marker_text_prot_fam_db == "yes_label"){
+  #        sp_layer_genes <- sp_layer_for_uploaded_genes(p, df)
+  #      } else if(input$a_marker_text_prot_fam_db == "no_label"){
+  #        sp_layer_genes <- sp_layer_for_uploaded_genes_no_text(p, df)
+  #      }
+  #      p <- sp_layer_genes
+  #    } else{
+  #      sp_layer_no_genes <- sp_layer_for_uploaded_genes_none(p, d)
+  #      p <- sp_layer_no_genes
+  #    }
+  #  } else if(input$colorscheme == "cbf"){
+  #    df <- ldply(a_pf_db$d_g2s, data.frame)
+  #    if(nrow(df) != 0){
+  #      if(input$a_marker_text_prot_fam_db == "yes_label"){
+  #        sp_layer_genes <- sp_layer_for_uploaded_genes_cbf(p, df)
+  #      } else if(input$a_marker_text_prot_fam_db == "no_label"){
+  #        sp_layer_genes <- sp_layer_for_uploaded_genes_cbf_no_text(p, df)
+  #      }
+  #      p <- sp_layer_genes
+  #    } else{
+  #      sp_layer_no_genes <- sp_layer_for_uploaded_genes_none_cbf(p, d)
+  #      p <- sp_layer_no_genes
+  #    }
+  #  }
+  #  p <- p %>%
+  #    layout(xaxis = list(title = "rep1", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
+  #           yaxis = list(title = "rep2", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
+  #           title = cc, titlefont = list(size=12))
+  #})
   
   
   
   ### volcano plot for multiple overlays?
   ### seems to be only compiling stats
-  a_multi_vp <- eventReactive(input$a_make_plot, {
-    validate(
-      need(!is.null(a_pulldown()), "")
-    )
-    d <- a_pulldown_significant()
-    
-    # InWeb, SNP to gene, and genes upload
-    if(!is.null(a_bait_gene_layer()) & !is.null(a_snp()) & !is.null(a_upload_genes())){
-      inwebFile <- sample()
-      gene_interest <- a_genes_uploaded()
-      snp_interest <- SNP_to_gene()
-      bait <- a_bait_gene_layer()
-      d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
-      d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
-      d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
-      list(d_in=d_in, d_snp=d_snp, d_g2s=d_g2s)
-    } else if(!is.null(a_bait_gene_layer()) & is.null(a_snp()) & is.null(a_upload_genes())){
-      # InWeb only 
-      inwebFile <- sample()
-      bait <- a_bait_gene_layer()
-      d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
-      list(d_in=d_in)
-    } else if(is.null(a_bait_gene_layer()) & is.null(a_snp()) & is.null(a_upload_genes())){
-      # None
-    } else if(!is.null(a_bait_gene_layer()) & is.null(a_snp()) & !is.null(a_upload_genes())){
-      # InWeb, and genes upload
-      inwebFile <- sample()
-      gene_interest <- a_genes_uploaded()
-      bait <- a_bait_gene_layer()
-      d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
-      d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
-      list(d_in=d_in, d_g2s=d_g2s)
-    } else if(is.null(a_bait_gene_layer()) & !is.null(a_snp()) & !is.null(a_upload_genes())){
-      # SNP to gene, and genes upload
-      gene_interest <- a_genes_uploaded()
-      snp_interest <- SNP_to_gene()
-      d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
-      d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )
-      list(d_snp=d_snp, d_g2s=d_g2s)
-    } else if(is.null(a_bait_gene_layer()) & is.null(a_snp()) & !is.null(a_upload_genes())){
-      # Genes upload only
-      gene_interest <- a_genes_uploaded()
-      d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
-      list(d_g2s=d_g2s)
-    } else if(is.null(a_bait_gene_layer()) & !is.null(a_snp()) & is.null(a_upload_genes())){
-      # SNP to gene only
-      snp_interest <- SNP_to_gene()
-      d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
-      list(d_snp=d_snp)
-    } else if(!is.null(a_bait_gene_layer()) & !is.null(a_snp()) & is.null(a_upload_genes())){
-      # InWeb, and SNP to gene
-      inwebFile <- sample()
-      snp_interest <- SNP_to_gene()
-      bait <- a_bait_gene_layer()
-      d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
-      d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
-      list(d_in=d_in, d_snp=d_snp)
-    }
-  })
+  #a_multi_vp <- eventReactive(input$a_make_plot, {
+  #  validate(
+  #    need(!is.null(a_pulldown()), "")
+  #  )
+  #  d <- a_pulldown_significant()
+  #  
+  #  # InWeb, SNP to gene, and genes upload
+  #  if(!is.null(a_bait_gene_layer()) & !is.null(a_snp()) & !is.null(a_upload_genes())){
+  #    inwebFile <- sample()
+  #    gene_interest <- a_genes_uploaded()
+  #    snp_interest <- SNP_to_gene()
+  #    bait <- a_bait_gene_layer()
+  #    d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
+  #    d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
+  #    d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
+  #    list(d_in=d_in, d_snp=d_snp, d_g2s=d_g2s)
+  #  } else if(!is.null(a_bait_gene_layer()) & is.null(a_snp()) & is.null(a_upload_genes())){
+  #    # InWeb only 
+  #    inwebFile <- sample()
+  #    bait <- a_bait_gene_layer()
+  #    d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
+  #    list(d_in=d_in)
+  #  } else if(is.null(a_bait_gene_layer()) & is.null(a_snp()) & is.null(a_upload_genes())){
+  #    # None
+  #  } else if(!is.null(a_bait_gene_layer()) & is.null(a_snp()) & !is.null(a_upload_genes())){
+  #    # InWeb, and genes upload
+  #    inwebFile <- sample()
+  #    gene_interest <- a_genes_uploaded()
+  #    bait <- a_bait_gene_layer()
+  #    d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
+  #    d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
+  #    list(d_in=d_in, d_g2s=d_g2s)
+  #  } else if(is.null(a_bait_gene_layer()) & !is.null(a_snp()) & !is.null(a_upload_genes())){
+  #    # SNP to gene, and genes upload
+  #    gene_interest <- a_genes_uploaded()
+  #    snp_interest <- SNP_to_gene()
+  #    d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
+  #    d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )
+  #    list(d_snp=d_snp, d_g2s=d_g2s)
+  #  } else if(is.null(a_bait_gene_layer()) & is.null(a_snp()) & !is.null(a_upload_genes())){
+  #    # Genes upload only
+  #    gene_interest <- a_genes_uploaded()
+  #    d_g2s <- lapply(gene_interest, function(x) subset(d, gene %in% x) )  
+  #    list(d_g2s=d_g2s)
+  #  } else if(is.null(a_bait_gene_layer()) & !is.null(a_snp()) & is.null(a_upload_genes())){
+  #    # SNP to gene only
+  #    snp_interest <- SNP_to_gene()
+  #    d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
+  #    list(d_snp=d_snp)
+  #  } else if(!is.null(a_bait_gene_layer()) & !is.null(a_snp()) & is.null(a_upload_genes())){
+  #    # InWeb, and SNP to gene
+  #    inwebFile <- sample()
+  #    snp_interest <- SNP_to_gene()
+  #    bait <- a_bait_gene_layer()
+  #    d_in <- subset(d, gene %in% inwebFile$gene & gene != bait)
+  #    d_snp <- merge(d, snp_interest, by.x = 'gene', by.y = 'gene')
+  #    list(d_in=d_in, d_snp=d_snp)
+  #  }
+  #})
   
-  a_multi_vp_colorbar <- reactive({
+  #a_multi_vp_colorbar <- reactive({
     #wait until multi_vp is created
-    multi_vp <- a_multi_vp()
-    FDR <- seq(0, 1, 0.01)
-    limit <- rep("FDR", 101)
-    d <- data.frame(limit, FDR)
-    if(input$colorscheme == "fdr"){
-      req(input$a_color_multi_sig, input$a_color_multi_insig)
-      d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
-        scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-        labs(title = "FDR") +
-        theme(axis.title.x=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              plot.title = element_text(size = rel(1))) + coord_fixed()
-      bar
-    } else if(input$colorscheme == "exac"){
-      d1 <- separate_to_groups_for_exac_bar(d)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +
-        labs(y = " pLI < 0.9     pLI >= 0.9    not in ExAC") +
-        theme(axis.title.x=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks.y=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              axis.title = element_text(size = rel(1))) + coord_fixed()
-      bar
-    } else if(input$colorscheme == "cbf"){
-      d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-      mycol <- as.vector(d1$col)
-      bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
-        scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
-        labs(title = "FDR") +
-        theme(axis.title.x=element_blank(),
-              axis.text.x=element_blank(),
-              axis.ticks.x=element_blank(),
-              panel.background=element_blank(),
-              plot.title = element_text(size = rel(1))) + coord_fixed()
-      bar
-    }
-  })
+  #  multi_vp <- a_multi_vp()
+  #  FDR <- seq(0, 1, 0.01)
+  #  limit <- rep("FDR", 101)
+  #  d <- data.frame(limit, FDR)
+  #  if(input$colorscheme == "fdr"){
+  #    req(input$a_color_multi_sig, input$a_color_multi_insig)
+  #    d1 <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
+  #    mycol <- as.vector(d1$col)
+  #    bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
+  #      scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
+  #      labs(title = "FDR") +
+  #      theme(axis.title.x=element_blank(),
+  #            axis.text.x=element_blank(),
+  #            axis.ticks.x=element_blank(),
+  #            panel.background=element_blank(),
+  #            plot.title = element_text(size = rel(1))) + coord_fixed()
+  #    bar
+  #  } else if(input$colorscheme == "exac"){
+  #    d1 <- separate_to_groups_for_exac_bar(d)
+  #    mycol <- as.vector(d1$col)
+  #    bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +
+  #      labs(y = " pLI < 0.9     pLI >= 0.9    not in ExAC") +
+  #      theme(axis.title.x=element_blank(),
+  #            axis.text.y=element_blank(),
+  #            axis.ticks.y=element_blank(),
+  #            axis.text.x=element_blank(),
+  #            axis.ticks.x=element_blank(),
+  #            panel.background=element_blank(),
+  #            axis.title = element_text(size = rel(1))) + coord_fixed()
+  #    bar
+  #  } else if(input$colorscheme == "cbf"){
+  #    d1 <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+  #    mycol <- as.vector(d1$col)
+  #    bar <- ggplot(d1, aes(xmin = 0, xmax = 0.1, ymin = d1$FDR-0.01, ymax = d1$FDR)) + geom_rect(fill = mycol) +      
+  #      scale_y_continuous(trans = "reverse", breaks = seq(0, 1, 0.1)) +
+  #      labs(title = "FDR") +
+  #      theme(axis.title.x=element_blank(),
+  #            axis.text.x=element_blank(),
+  #            axis.ticks.x=element_blank(),
+  #            panel.background=element_blank(),
+  #            plot.title = element_text(size = rel(1))) + coord_fixed()
+  #    bar
+  #  }
+  #})
   
   # generate plot in ggformat
   a_integrated_plot_gg <- reactive({
-    p = a_vp()
+    p = a_vp_gg()
     if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas_cat=a_gwas_catalogue_mapping()[[1]]), volcano = T)
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
@@ -2125,35 +2123,19 @@ shinyServer(function(input, output, session){
     p
   })
   
-  # download integrated plot
-  #a_integrated_plot_download <- downloadHandler(
-  #  filename = function() {
-  #    paste("ggplot", ".png", sep = "")
-  #    },
-  #  content = function(file) {
-  #    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
-  #    ggsave(file, a_integrated_plot_gg())
-  #    }
-  #)
-  
-  plotInput <- function(){a_integrated_plot_gg()}
-  
+  # download integrated plot graphics.
+  input_integrated_plot_gg <- function(){a_integrated_plot_gg()}
   output$a_integrated_plot_download = downloadHandler(
-    filename = 'test.png',
+    filename = 'integrated_plot.png',
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = width, height = height,
                        res = 300, units = "in")
       }
-      ggsave(file, plot =  plotInput(), device = device)
+      ggsave(file, plot =  input_integrated_plot_gg(), device = device)
     })
   
-  #filename = function() {
-  #  paste("input-pf-removed", ".txt", sep = "")
-  #},
-  #content = function(file) {
-  #  write.table(a_pf_cleanup(), file, sep = "\t", col.names = T, row.names = F, quote = F)
-  #}
+
   
   
   

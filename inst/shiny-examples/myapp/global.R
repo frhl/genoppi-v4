@@ -39,7 +39,7 @@ prot_fam <- read.table(file.path(main, "inst/extdata/protFams_genes_cols.txt"), 
 prot_fam_t <- data.frame(t(prot_fam))
 
 
-myDownloadButton <- function(outputId, label = "Download"){
+myDownloadButton <- function(outputId, label = "Download", img = icon("camera")){
   tags$a(id = outputId, class = "btn btn-default shiny-download-link", href = "", 
-         target = "_blank", download = NA, icon("camera"), label)
+         target = "_blank", download = NA, img, label)
 }

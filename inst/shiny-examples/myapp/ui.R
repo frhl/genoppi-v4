@@ -33,7 +33,6 @@ body <- dashboardBody(
                                         ),
                                         box(
                                           title = "Summary", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
-                                          #column(4, myDownloadButton("download_vp_gg", "Volcano")),
                                           fluidRow(
                                             column(12, uiOutput("VP_count_text")),
                                             br(),
@@ -92,10 +91,11 @@ body <- dashboardBody(
                                     box(
                                      title = "Upload SNP file", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
-                                       column(10, uiOutput("a_SNP_file")),
+                                       column(12, uiOutput("a_SNP_file")),
                                      ),
                                      fluidRow(
-                                       column(6, uiOutput("a_label_snp_ui"))
+                                       column(8, uiOutput("a_label_snp_ui")),
+                                       column(4, myDownloadButton("a_snp_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
                                     #   column(4, uiOutput("a_color_snp_sig_ui")),
                                     #   column(4, uiOutput("a_color_snp_insig_ui")),
                                     #   column(4, uiOutput("a_symbol_snp_ui"))
@@ -149,7 +149,7 @@ body <- dashboardBody(
                                     box(
                                       title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, height = '800px', solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(
-                                            column(12, downloadButton("a_integrated_plot_download"))
+                                            column(12, myDownloadButton("a_integrated_plot_download",'Download volcano'))
                                           ),
                                           fluidRow(
                                            column(1, br(), br(), br(), br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
