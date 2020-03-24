@@ -1204,13 +1204,13 @@ shinyServer(function(input, output, session){
   a_snp_mapping <- reactive({
     snps = data.frame(listName='SNP',SNP=a_snp())
     colnames(snps) <- c('listName', 'SNP')
-    mapping = get_snp_lists(infile = snps, a_pulldown()$gene)
+    mapping = get_snp_lists(infile = snps, a_pulldown()$gene) # edit
     mapping$alt_label = mapping$SNP
     mapping$col_significant = input$a_color_snp_sig
     mapping$col_other = input$a_color_snp_insig
     mapping$symbol = input$a_symbol_snp
     mapping$label = input$a_label_snp
-    mapping$dataset = snps$listName # it is a bit silly that we use different names for the same thing
+    mapping$dataset = snps$listName 
     return(mapping)
   })
   
