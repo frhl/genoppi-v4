@@ -14,7 +14,7 @@ read_input(filename, header = "auto", sep = "auto")
 \item{sep}{the field character seperator, see \code{?fread}}
 }
 \value{
-list contaiing input data.frame and list of boolean variables indicating input format
+list contaiing input data.table and list of boolean variables indicating input format
 }
 \description{
 Read in input file and store as data.frame. Call check_input() to check data format.

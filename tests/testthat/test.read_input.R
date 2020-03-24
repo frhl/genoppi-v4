@@ -1,8 +1,9 @@
 context('read_input')
 library(testthat)
+library(data.table)
 
 # make artificial data
-df1 = data.frame(gene = letters, rep1=rnorm(26), rep2=rnorm(26), rep3=rnorm(26))
+df1 = data.table(gene=letters, rep1=rnorm(26), rep2=rnorm(26), rep3=rnorm(26))
 write.table(df1,"data/test.df1.txt",quote=F,sep="\t",row.names=F)
 
 test_that('read_input can return input data.frame and data format',{
