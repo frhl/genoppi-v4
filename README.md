@@ -14,3 +14,6 @@ library(devtools)
 1. devtools::document()
 2. devtools::check()
 ```
+
+devtools::load_all()
+launch_genoppi()
