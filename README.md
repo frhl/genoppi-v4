@@ -15,5 +15,5 @@ library(devtools)
 2. devtools::check()
 ```
 
-devtools::load_all()
-launch_genoppi()
+1. devtools::load_all()
+2. launch_genoppi()
