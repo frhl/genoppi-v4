@@ -1196,21 +1196,21 @@ shinyServer(function(input, output, session){
   #snp to gene using LD r^2>0.6±user defined extension
   a_snp <- reactive({
     req(input$a_file_SNP_rep)
-    dsnp = read.table(input$a_file_SNP_rep$datapath, header = F)
+    dsnp = read.table(input$a_file_SNP_rep$datapath, header=T)
     return(dsnp)
   })
   
   # read in the snps from a file
   a_snp_mapping <- reactive({
-    snps = data.frame(listName='SNP',SNP=a_snp())
-    colnames(snps) <- c('listName', 'SNP')
-    mapping = get_snp_lists(infile = snps, a_pulldown()$gene) # edit
+    #snps = data.frame(listName='SNP',SNP=a_snp())
+    #colnames(snps) <- c('listName', 'SNP')
+    mapping = get_snp_lists(infile = a_snp(), a_pulldown()$gene) # edit
     mapping$alt_label = mapping$SNP
     mapping$col_significant = input$a_color_snp_sig
     mapping$col_other = input$a_color_snp_insig
     mapping$symbol = input$a_symbol_snp
     mapping$label = input$a_label_snp
-    mapping$dataset = snps$listName 
+    mapping$dataset = mapping$listName 
     return(mapping)
   })
   
