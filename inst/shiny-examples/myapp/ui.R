@@ -32,7 +32,7 @@ body <- dashboardBody(
                                           )
                                         ),
                                         box(
-                                          title = "Summary", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                          title = "Summary", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
                                           fluidRow(
                                             column(12, uiOutput("VP_count_text")),
                                             br(),
@@ -71,10 +71,14 @@ body <- dashboardBody(
                                      ),
                                      fluidRow(
                                        column(6, uiOutput("a_label_inweb_ui"))
-                                    #   column(4, uiOutput("a_color_inweb_sig_ui")),
-                                    #   column(4, uiOutput("a_color_inweb_insig_ui")),
-                                    #   column(4, uiOutput("a_symbol_inweb_ui"))
-                                      )
+                                     ),
+                                     fluidRow(
+                                       column(12, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")) 
+                                     ),
+                                     fluidRow(
+                                       br(),
+                                       column(12, uiOutput("a_inweb_venn_verbatim_ui"))
+                                     ),
                                     ),
                                     box(
                                       title = "GWAS Catalogue", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
@@ -82,23 +86,20 @@ body <- dashboardBody(
                                         column(12, uiOutput('a_gwas_catalogue_ui'))
                                       ),
                                       fluidRow(
-                                        column(6, uiOutput("a_label_gwas_cat_ui"))
-                                      #   column(4, uiOutput("a_color_gwas_cat_sig_ui")),
-                                      #   column(4, uiOutput("a_color_gwas_cat_insig_ui")),
-                                      #   column(4, uiOutput("a_symbol_gwas_cat_ui"))
-                                       )
+                                        column(8, uiOutput("a_label_gwas_cat_ui")),
+                                        column(4, myDownloadButton("a_gwas_catalogue_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                       ),
+                                      
                                     ),
                                     box(
                                      title = "Upload SNP file", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
-                                       column(12, uiOutput("a_SNP_file")),
+                                       column(12, uiOutput("a_SNP_file"))
+                                       #column(2, uiOutput("a_reset_snp_ui"))
                                      ),
                                      fluidRow(
                                        column(8, uiOutput("a_label_snp_ui")),
                                        column(4, myDownloadButton("a_snp_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
-                                    #   column(4, uiOutput("a_color_snp_sig_ui")),
-                                    #   column(4, uiOutput("a_color_snp_insig_ui")),
-                                    #   column(4, uiOutput("a_symbol_snp_ui"))
                                      )
                                    ),
                                   box(
@@ -108,14 +109,15 @@ body <- dashboardBody(
                                      ),
                                      fluidRow(
                                        column(6, uiOutput("a_label_genes_upload_ui"))
-                                    #   column(4, uiOutput("a_color_genes_upload_sig_ui")),
-                                    #   column(4, uiOutput("a_color_genes_upload_insig_ui")),
-                                    #   column(4, uiOutput("a_symbol_genes_upload_ui"))
-                                    )
+                                     ),
+                                     fluidRow(
+                                       column(12, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px"))
+                                     )
                                   ),
                                   box(
                                     title = "Statistics", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
-                                    column(12, tableOutput("Multi_VP_count"))
+                                    #column(12, tableOutput("Multi_VP_count")),
+                                    #plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")
                                   ),
                                   box(
                                     title = "Settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
@@ -160,63 +162,87 @@ body <- dashboardBody(
                         ),
                         tabPanel("Venn Diagrams", value = "p3",
                                  br(),
-                                 fluidRow(
-                                   column(4, uiOutput("a_SNP_file_vennd")),
-                                   column(4, uiOutput("a_genes_file_vennd")),
-                                   column(4, uiOutput("a_bait_venndiagram"))
-                                 ),
-                                 fluidRow(
-                                   column(4)
-                                 ),
-                                 fluidRow(
-                                   column(8, uiOutput("a_VD_sig_text"))
-                                 ),
-                                 br(),
-                                 fluidRow(
-                                   column(4, uiOutput("a_FDR_slider")),
-                                   column(4, uiOutput("a_pvalue_slider")),
-                                   column(4, uiOutput("a_logFC_slider"))
-                                 ),
-                                 fluidRow(
-                                   column(4, uiOutput("a_vennd_button1", width = "50px")),
-                                   column(4, uiOutput("a_vennd_button2", width = "50px")),
-                                   column(4, uiOutput("a_vennd_button3", width = "50px"))
-                                 ),
-                                 br(),
-                                 fluidRow(
-                                   column(4, downloadButton("download_venn_diagram_SNP_genes", "Genes in venn diagram regions")),
-                                   column(4, downloadButton("download_venn_diagram_GOI_genes", "Genes in venn diagram regions")),
-                                   column(4, downloadButton("download_venn_diagram_inweb_genes", "Genes in venn diagram regions"))
-                                 ),
-                                 br(),
-                                 fluidRow(
-                                   column(4),
-                                   column(4, uiOutput("a_goi_num_inputs"))
-                                 ),
-                                 fluidRow(
-                                   column(4, plotOutput("Venn_Diagram_SNP", width = "220px", height = "220px")),
-                                   column(4, plotOutput("Venn_Diagram_GOI", width = "220px", height = "220px")),
-                                   column(4, plotOutput("Venn_Diagram_bait", width = "220px", height = "220px"))
-                                 ),
-                                 fluidRow(
-                                   column(4, uiOutput("a_vd_SNP_text")),
-                                   column(4, uiOutput("a_vd_GOI_text")),
-                                   column(4, uiOutput("a_vd_text"))
-                                 ),
-                                 br(),
-                                 fluidRow(
-                                   column(4, plotOutput("Venn_Diagram_SNP_SGL", width = "220px", height = "220px"))
-                                 ),
-                                 fluidRow(
-                                   column(4, uiOutput("a_vd_SNP_SGL_text"))
-                                 ),
-                                 br(),
-                                 fluidRow(
-                                   column(4, plotOutput("Venn_Diagram_SNP_MGL", width = "220px", height = "220px"))
-                                 ),
-                                 fluidRow(
-                                   column(4, uiOutput("a_vd_SNP_MGL_text"))
-                                 )
+                                 column(6,
+                                    box(
+                                      title = tagList("Upload SNP file"), width = 12, solidHeader = TRUE, status = 'warning', collapsible = TRUE,
+                                      fluidRow(
+                                        column(12, 'blalblabla')
+                                      )
+                                   ), 
+                                     box(
+                                       title = tagList("Statistics"), width = 12, solidHeader = FALSE, status = 'warning', collapsible = TRUE,
+                                       fluidRow(
+                                         column(12,
+                                            'something venn'
+                                         )
+                                       )
+                                    ), 
+                                     box(
+                                       title = tagList("Venn Diagram"), width = 12, solidHeader = FALSE, status = 'warning', collapsible = TRUE,
+                                       fluidRow(
+                                         column(12, 'blalblabla3')
+                                      )
+                                   ) 
+                                  )
+                        
+                                 #         br(),
+                        #         fluidRow(
+                        #           column(4, uiOutput("a_SNP_file_vennd")),
+                        #           column(4, uiOutput("a_genes_file_vennd")),
+                        #           column(4, uiOutput("a_bait_venndiagram"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(4)
+                        #         ),
+                        #         fluidRow(
+                        #           column(8, uiOutput("a_VD_sig_text"))
+                        #         ),
+                        #         br(),
+                        #         fluidRow(
+                        #           column(4, uiOutput("a_FDR_slider")),
+                        #           column(4, uiOutput("a_pvalue_slider")),
+                        #           column(4, uiOutput("a_logFC_slider"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(4, uiOutput("a_vennd_button1", width = "50px")),
+                        #           column(4, uiOutput("a_vennd_button2", width = "50px")),
+                        #           column(4, uiOutput("a_vennd_button3", width = "50px"))
+                        #         ),
+                        #         br(),
+                        #         fluidRow(
+                        #           column(4, downloadButton("download_venn_diagram_SNP_genes", "Genes in venn diagram regions")),
+                        #           column(4, downloadButton("download_venn_diagram_GOI_genes", "Genes in venn diagram regions")),
+                        #           column(4, downloadButton("download_venn_diagram_inweb_genes", "Genes in venn diagram regions"))
+                        #         ),
+                        #         br(),
+                        #         fluidRow(
+                        #           column(4),
+                        #           column(4, uiOutput("a_goi_num_inputs"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(4, plotOutput("Venn_Diagram_SNP", width = "220px", height = "220px")),
+                        #           column(4, plotOutput("Venn_Diagram_GOI", width = "220px", height = "220px")),
+                        #           column(4, plotOutput("Venn_Diagram_bait", width = "220px", height = "220px"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(4, uiOutput("a_vd_SNP_text")),
+                        #           column(4, uiOutput("a_vd_GOI_text")),
+                        #           column(4, uiOutput("a_vd_text"))
+                        #         ),
+                        #         br(),
+                        #         fluidRow(
+                        #           column(4, plotOutput("Venn_Diagram_SNP_SGL", width = "220px", height = "220px"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(4, uiOutput("a_vd_SNP_SGL_text"))
+                        #         ),
+                        #         br(),
+                        #         fluidRow(
+                        #           column(4, plotOutput("Venn_Diagram_SNP_MGL", width = "220px", height = "220px"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(4, uiOutput("a_vd_SNP_MGL_text"))
+                        #         )
                         ),
                         tabPanel("Protein Family", value = "p4",
                                  br(),

@@ -27,3 +27,17 @@ test_that('get_snp_lists can return correct data.frame',{
   expect_true(is.null(result2))
 
 })
+
+
+test_that('single column snp produces an error',{
+  
+  # only one column gives an error
+  expect_error(get_snp_lists(as.vector(snpDf[,2]), genes))
+  
+  # incorrectly named collumsn give an errpr
+  snpDf_copy <- snpDf
+  colnames(snpDf_copy) <- c('bla', 'SNP')
+  expect_error(get_snp_lists(snpDf_copy, genes))
+  
+})
+

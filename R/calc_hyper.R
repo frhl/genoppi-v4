@@ -47,6 +47,6 @@ calc_hyper <- function(df, listDf, intersectDf, bait=NULL){
 
   }
  
-  return(list(outDf,outList))
+  return(list(statistics=outDf,genes=outList))
 
 }

@@ -211,6 +211,11 @@ shinyServer(function(input, output, session){
     checkboxInput("a_label_snp", label = "Toggle labels", value = TRUE)
   })
   
+  # integrated plot, snp,
+  output$a_reset_snp_ui <- renderUI({
+    actionButton('a_reset_snp','clear')
+  })
+  
   
   # intgrated plot, genes upload
   output$a_color_genes_upload_sig_ui <- renderUI({
@@ -413,7 +418,7 @@ shinyServer(function(input, output, session){
   
   output$a_SNP_file <- renderUI({
     # fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line (e.g. rs12493885)',
-    
+    #input$a_reset_snp
     fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line',
               accept = c(
                 'text/csv',
@@ -1196,15 +1201,13 @@ shinyServer(function(input, output, session){
   #snp to gene using LD r^2>0.6±user defined extension
   a_snp <- reactive({
     req(input$a_file_SNP_rep)
-    dsnp = read.table(input$a_file_SNP_rep$datapath, header=T)
+    dsnp = data.table::fread(input$a_file_SNP_rep$datapath, header=T)
     return(dsnp)
   })
   
   # read in the snps from a file
   a_snp_mapping <- reactive({
-    #snps = data.frame(listName='SNP',SNP=a_snp())
-    #colnames(snps) <- c('listName', 'SNP')
-    mapping = get_snp_lists(infile = a_snp(), a_pulldown()$gene) # edit
+    mapping = get_snp_lists(infile = a_snp(), a_pulldown()$gene)
     mapping$alt_label = mapping$SNP
     mapping$col_significant = input$a_color_snp_sig
     mapping$col_other = input$a_color_snp_insig
@@ -1214,29 +1217,18 @@ shinyServer(function(input, output, session){
     return(mapping)
   })
   
-  # download snp mapping
-  input_snp_mapping <- reactive({as.data.frame(a_snp_mapping()[,c(1,2)])}) 
-  a_snp_mapping_download <- downloadHandler(
-    filename = function() {
-      paste("snp-gene-mapping-", Sys.Date(), ".csv", sep="")
-    },
-    content = function(file) {
-      write.csv(x=input_snp_mapping(), file)
-    }
-  )
-  
   # map inweb prorteins
   a_inweb_mapping <- reactive({
     req(input$a_bait_rep)
     mapping = get_inweb_list(input$a_bait_rep)
     if (!is.null(mapping)){
-      mapping = mapping[mapping$significant, ]
-      mapping$col_significant = input$a_color_inweb_sig
-      mapping$col_other = input$a_color_inweb_insig
-      mapping$symbol = input$a_symbol_inweb
-      mapping$label = input$a_label_inweb
-      mapping$dataset = 'InWeb'
-      return(mapping)
+        mapping = mapping[mapping$significant, ]
+        mapping$col_significant = input$a_color_inweb_sig
+        mapping$col_other = input$a_color_inweb_insig
+        mapping$symbol = input$a_symbol_inweb
+        mapping$label = input$a_label_inweb
+        mapping$dataset = 'InWeb'
+        return(mapping)
     } 
   })
   
@@ -1244,7 +1236,6 @@ shinyServer(function(input, output, session){
   a_gwas_catalogue_mapping <- reactive({
     req(input$a_gwas_catalogue)
     genes = a_pulldown()$gene
-    #mapping = get_gwas_lists('Height', genes)
     mapping = get_gwas_lists(input$a_gwas_catalogue, genes)
     if (!is.null(mapping)){
       mapping[[1]]$col_significant = input$a_color_gwas_cat_sig
@@ -1257,44 +1248,143 @@ shinyServer(function(input, output, session){
     }
   })
   
+  #---------------------------------------------------------------
+  # download different mappings
+  
+  # download snp mapping
+  output$a_snp_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("snps-mapping",".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(a_snp_mapping()[,c('gene', 'SNP')], file, row.names = F)
+    }
+  )
+  
+  # download gwas catalogue mapping
+  output$a_gwas_catalogue_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("gwas-catalogue-mapping",".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(a_gwas_catalogue_mapping()[[1]][,c('trait','gene', 'SNP')], file, row.names = F)
+    }
+  )
+  
+  #--------------------------------------------------------
+  # venn digrams and hypergeometric testing
+  
+  # inweb hypergeometric overlap
+  a_inweb_calc_hyper <- reactive({
+    req(input$a_bait_rep, a_pulldown_significant())
+    inweb = data.frame(listName="InWeb", get_inweb_list(input$a_bait_rep))
+    inweb_intersect = data.frame(listName="InWeb", intersectN=T)
+    data = a_pulldown_significant()
+    # compile venn diagram information
+    hyper = calc_hyper(data, inweb, inweb_intersect)
+    hyper[['venn']][['Pulldown']] <- data$gene
+    hyper[['venn']][['InWeb']] <- inweb$gene[inweb$significant]
+    hyper
+  })
+  
+  # hypergeometric overlap gene upload
+  a_genes_upload_calc_hyper <- reactive({
+    req(a_genes_upload(), a_pulldown_significant())
+    genes = data.frame(listName="genelist", a_genes_upload())
+    genes_intersect = data.frame(listName="genelist", intersectN=T)
+    data = a_pulldown_significant()
+    # compile venn diagram information
+    hyper = calc_hyper(data, genes, genes_intersect)
+    hyper[['venn']][['Pulldown']] <- data$gene
+    hyper[['venn']][['Genelist']] <- genes$gene[genes$significant]
+    hyper
+  })
+  
+  # hypergeometric overlap of SNPs, keep p-value
+  # in case we need it later
+  a_snp_calc_overlap <- reactive({
+    req(a_genes_upload(), a_pulldown_significant())
+    genes = data.frame(listName="genelist", a_snp_mapping())
+    
+    ## to be determined..
+  })
+  
+  # draw venn diagram
+  output$a_inweb_venn_ui <- renderPlot({
+    req(input$a_bait_rep, a_pulldown_significant())
+    hyper = a_inweb_calc_hyper()
+    v = draw_genoppi_venn(hyper$venn, main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
+    grid::grid.newpage()
+    grid::grid.draw(v)
+  })
+  
+  # draw venn diagram
+  output$a_genes_upload_venn_ui <- renderPlot({
+    req(a_genes_upload(), a_pulldown_significant())
+    catf('ensure that p-value of genes_upload_calc_hyper is correct!')
+    hyper = a_genes_upload_calc_hyper()
+    v = draw_genoppi_venn(hyper$venn, main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
+    grid::grid.newpage()
+    grid::grid.draw(v)
+  })
+  
+  
+  # what is to be plotted below venn diagram
+  a_inweb_venn_verbatim <- reactive({
+    req(a_pulldown_significant(), a_inweb_calc_hyper())
+    tresholds = a_vp_count_text()
+    population = a_inweb_calc_hyper()
+    A <- paste0("A = pull down subset of ", tresholds, " &#40;", '(inweb_population)', "&#41;")
+    B <- paste0("B = Genes of interest in HGNC database", " &#40;", '(goi)', "&#41;")
+    total <- paste0("pull down &cap; HGNC database &#40;", "(total)", "&#41;")
+    return(list(A=A, B=B, total=total))
+  })
+  
+  # print to ui
+  output$a_inweb_venn_verbatim_ui <- renderUI({
+    output <- a_inweb_venn_verbatim()
+    HTML(paste(output$total, output$A, output$B, sep = "<br/>"))
+  })
+  
+  
   
   
   ## this function is now redundant.
-  SNP_to_gene <- eventReactive(input$a_make_plot, {#reactive({
-    
-    stop('deprecated!')
-    
-    if(!is.null(a_snp())){
-      withProgress(message = 'Finding genes in SNPs loci', 
-                   detail = "Hold please", value = 0, {
-                     d <- a_pulldown()
-                     snp_data <- a_snp()
-                     incProgress(0.2)
-                     res <- lapply(d$gene, function(s) {c(s, subset(snp_data, V1 %in%genes_snps[[s]]))})
-                     # Convert each list to a data.table
-                     dt_list <- map(res, as.data.table)
-                     # Harness the power of rbind list
-                     dt <- rbindlist(dt_list, fill = TRUE)
-                     if(ncol(dt)<2){
-                       dt$V2 <- NA
-                     }
-                     names(dt) <- c("gene", "snpid")
-                     dt <- dt[!is.na(dt$snpid)]
-                     incProgress(0.6)
-                     incProgress(0.8)
-                     if(nrow(dt) >= 1){
-                       n_occur <- data.frame(table(dt$snpid))
-                       incProgress(0.9)
-                       SNP_n_occur <- merge(dt, n_occur, by.x = 'snpid', by.y = 'Var1')
-                     } else if(nrow(dt) == 0){
-                       SNP_n_occur <- data.frame(snpid = character(), gene = character(), Freq = integer())
-                     }
-                   })
-      snpList <- SNP_n_occur
-    }
-    
-
-  })
+  #SNP_to_gene <- eventReactive(input$a_make_plot, {#reactive({
+  #  
+  #  stop('deprecated!')
+  #  
+  #  if(!is.null(a_snp())){
+  #    withProgress(message = 'Finding genes in SNPs loci', 
+  #                 detail = "Hold please", value = 0, {
+  #                   d <- a_pulldown()
+  #                   snp_data <- a_snp()
+  #                   incProgress(0.2)
+  #                   res <- lapply(d$gene, function(s) {c(s, subset(snp_data, V1 %in%genes_snps[[s]]))})
+  #                   # Convert each list to a data.table
+  #                   dt_list <- map(res, as.data.table)
+  #                   # Harness the power of rbind list
+  #                   dt <- rbindlist(dt_list, fill = TRUE)
+  #                   if(ncol(dt)<2){
+  #                     dt$V2 <- NA
+  #                   }
+  #                   names(dt) <- c("gene", "snpid")
+  #                   dt <- dt[!is.na(dt$snpid)]
+  #                   incProgress(0.6)
+  #                   incProgress(0.8)
+  #                   if(nrow(dt) >= 1){
+  #                     n_occur <- data.frame(table(dt$snpid))
+  #                     incProgress(0.9)
+  #                     SNP_n_occur <- merge(dt, n_occur, by.x = 'snpid', by.y = 'Var1')
+  #                   } else if(nrow(dt) == 0){
+  #                     SNP_n_occur <- data.frame(snpid = character(), gene = character(), Freq = integer())
+  #                   }
+  #                 })
+  #    snpList <- SNP_n_occur
+  #  }
+  #  
+  #
+  #})
   
   # output$a_SNP_extend2 <- renderUI({
   #   sliderInput("a_SNP_ext2", "Gene extension (±Kb)",
@@ -1302,38 +1392,38 @@ shinyServer(function(input, output, session){
   # })
   
   # eventReactive(input$a_make_vennd, 
-  SNP_to_gene_vennd <- eventReactive(input$a_make_vennd_snp,{
-    if(!is.null(a_snp_vennd())){
-      withProgress(message = 'Finding genes in SNPs loci', 
-                   detail = "Hold please", value = 0, {
-                     d <- a_pulldown()
-                     snp_data <- a_snp_vennd()
-                     incProgress(0.2)
-                     res <- lapply(d$gene, function(s) {c(s, subset(snp_data, V1 %in%genes_snps[[s]]))})
-                     # Convert each list to a data.table
-                     dt_list <- map(res, as.data.table)
-                     # Harness the power of rbind list
-                     dt <- rbindlist(dt_list, fill = TRUE)
-                     if(ncol(dt)<2){
-                       dt$V2 <- NA
-                     }
-                     names(dt) <- c("gene", "snpid")
-                     dt <- dt[!is.na(dt$snpid)]
-                     incProgress(0.6)
-                     incProgress(0.8)
-                     if(nrow(dt) >= 1){
-                       n_occur <- data.frame(table(dt$snpid))
-                       incProgress(0.9)
-                       SNP_n_occur <- merge(dt, n_occur, by.x = 'snpid', by.y = 'Var1')
-                     } else if(nrow(dt) == 0){
-                       SNP_n_occur <- data.frame(snpid = character(), gene = character(), Freq = integer())
-                     }
-                   })
-      snpList <- SNP_n_occur
-    } else{
-      return(NULL)
-    }
-  })
+  #SNP_to_gene_vennd <- eventReactive(input$a_make_vennd_snp,{
+  #  if(!is.null(a_snp_vennd())){
+  #    withProgress(message = 'Finding genes in SNPs loci', 
+  #                 detail = "Hold please", value = 0, {
+  #                   d <- a_pulldown()
+  #                   snp_data <- a_snp_vennd()
+  #                   incProgress(0.2)
+  #                   res <- lapply(d$gene, function(s) {c(s, subset(snp_data, V1 %in%genes_snps[[s]]))})
+  #                   # Convert each list to a data.table
+  #                   dt_list <- map(res, as.data.table)
+  #                   # Harness the power of rbind list
+  #                   dt <- rbindlist(dt_list, fill = TRUE)
+  #                   if(ncol(dt)<2){
+  #                     dt$V2 <- NA
+  #                   }
+  #                   names(dt) <- c("gene", "snpid")
+  #                   dt <- dt[!is.na(dt$snpid)]
+  #                   incProgress(0.6)
+  #                   incProgress(0.8)
+  #                   if(nrow(dt) >= 1){
+  #                     n_occur <- data.frame(table(dt$snpid))
+  #                     incProgress(0.9)
+  #                     SNP_n_occur <- merge(dt, n_occur, by.x = 'snpid', by.y = 'Var1')
+  #                   } else if(nrow(dt) == 0){
+  #                     SNP_n_occur <- data.frame(snpid = character(), gene = character(), Freq = integer())
+  #                   }
+  #                 })
+  #    snpList <- SNP_n_occur
+  #  } else{
+  #    return(NULL)
+  #  }
+  #})
   
   #a_protein_family <- function(x){
   #  pf_db <- input$a_pfam_db
@@ -2138,153 +2228,156 @@ shinyServer(function(input, output, session){
   
   
   
-  a_multi_vp_layer <- reactive({
-    stop('a_multi_vp_layer is deprecated!!')
-  })
+  #a_multi_vp_layer <- reactive({
+  #  stop('a_multi_vp_layer is deprecated!!')
+  #})
+  # 
+  #
+  #a_multi_vp_layer_gg <- function(){
+  #  multi_vp <- a_multi_vp()
+  #  d <- a_pulldown()
+  #  p_col <- input$colorbrewer_theme_goi
+  #  label <- input$a_marker_text
+  #  
+  #  if(input$colorscheme == "fdr"){
+  #    req(input$a_color_multi_sig, input$a_color_multi_insig)
+  #    data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
+  #    p <- plot_volcano_qc_gg(data)
+  #  } else if(input$colorscheme == "exac"){
+  #    d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
+  #    d$s[is.na(d$s)] <- 2
+  #    below_thresh <- subset(d, s < 0.9)
+  #    above_thresh <- subset(d, s >= 0.9)
+  #    no_exist <- subset(d, s == 2)
+  #    p <- plot_volcano_exac_gg(below_thresh, above_thresh, no_exist)
+  #  } else if(input$colorscheme == "cbf"){
+  #    data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
+  #    p <- plot_volcano_qc_gg(data)
+  #  } else if(input$colorscheme == "user"){
+  ##    validate(
+  ##      need(!is.null(input$file_color), "Please upload file with gene and score")
+  #    )
+  #    d1 <- a_in_file_color()
+  #    req(input$colorbrewer_theme)
+  #    col_theme <- input$colorbrewer_theme
+  ##    if(input$colorscheme_style == "cont"){
+  #      df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
+  #      data <- df$df1
+  #      data1 <- df$no_exist
+  #    } else if(input$colorscheme_style == "disc"){
+  #      df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
+  #      data <- df$df1
+  #      data1 <- df$no_exist
+  #      data2 <- rbind(data, data1)
+  #      p <- ggplot(data = data2, aes(x = logFC, y = -log10(pvalue), text = gene)) +
+  #        geom_point(data = data1, alpha = 0.5, size = 1.5, colour = "#f7f7f7") + 
+  #        geom_point(data = data, alpha = 0.5, size = 1.5, colour = data$col) + 
+  #        xlab("log2FC") + ylab("-log10(P)") +
+  #        theme_minimal() +
+  #        theme(axis.text.x = element_text(size=7),
+  #              axis.title.x=element_text(size=8),
+  #              axis.text.y=element_text(size=7),
+  #              axis.title.y=element_text(size=8),
+  #              panel.grid.minor = element_blank(),
+  #              plot.margin = unit(c(1,1,1,1), "pt"))
+  #    }
+  #    p
+  #  }
+  #  if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
+  #    # InWeb, SNP to gene, and genes upload
+  #    if(!is.null(a_bait_gene_layer())){
+  #      col <- input$a_color_inweb
+  #      vp_layer_inweb <- vp_layer_for_inweb_sf_gg(p, multi_vp$d_in, col, label)
+  #      p <- vp_layer_inweb
+  #    }
+  #    if(!is.null(SNP_to_gene())){
+  #      if(nrow(multi_vp$d_snp) != 0){
+  #        snp_sgl <- subset(multi_vp$d_snp, Freq == 1)
+  #        snp_mgl <- subset(multi_vp$d_snp, Freq != 1)
+  #        col <- c(color = colorRampPalette(brewer.pal(3, input$colorbrewer_theme_snp))(2))
+  #        if(nrow(snp_sgl) != 0){
+  #          vp_layer_snp2gene_sgl <- vp_layer_for_snp_to_gene_sgl_gg(p, snp_sgl, col[1], label)
+  #          p <- vp_layer_snp2gene_sgl
+  #        }
+  #        if(nrow(snp_mgl) != 0){
+  #          vp_layer_snp2gene_mgl <- vp_layer_for_snp_to_gene_mgl_gg(p, snp_mgl, col[2], label)
+  #          p <- vp_layer_snp2gene_mgl
+  #        }
+  #      } else{
+  #        p
+  #      }
+  #    }
+  #    if(!is.null(a_upload_genes())){
+  #      df <- ldply(multi_vp$d_g2s, data.frame)
+  #      if(nrow(df) != 0){
+  #        vp_layer_genes <- vp_layer_for_uploaded_genes_gg(p, df, p_col, label)
+  #        p <- vp_layer_genes
+  #      } else{
+  #        p
+  #      }
+  #    }
+  #    p
+  #  } else if(input$colorscheme == "cbf"){
+  #    # InWeb, SNP to gene, and genes upload
+  #    if(!is.null(a_bait_gene_layer())){
+  #      vp_layer_inweb <- vp_layer_for_inweb_cbf_sf_gg(p, multi_vp$d_in, label)
+  #      p <- vp_layer_inweb
+  #    }
+  #    if(!is.null(SNP_to_gene())){
+  #      if(nrow(multi_vp$d_snp) != 0){
+  #        snp_sgl <- subset(multi_vp$d_snp, Freq == 1)
+  #        snp_mgl <- subset(multi_vp$d_snp, Freq != 1)
+  #        if(nrow(snp_sgl) != 0){
+  #          vp_layer_snp2gene_sgl <- vp_layer_for_snp_to_gene_sgl_cbf_gg(p, snp_sgl, label)
+  #          p <- vp_layer_snp2gene_sgl
+  #        }
+  #        if(nrow(snp_mgl) != 0){
+  #          vp_layer_snp2gene_mgl <- vp_layer_for_snp_to_gene_mgl_cbf_gg(p, snp_mgl, label)
+  #          p <- vp_layer_snp2gene_mgl
+  #        }
+  #      } else{
+  #        p
+  #      }
+  #    }
+  #    if(!is.null(a_upload_genes())){
+  #      df <- ldply(multi_vp$d_g2s, data.frame)
+  #      if(nrow(df) != 0){
+  #        vp_layer_genes <- vp_layer_for_uploaded_genes_cbf_gg(p, df, label)
+  #        p <- vp_layer_genes
+  #      } else{
+  #        p
+  #      }
+  #    }
+  #    p
+  #  }
+  #}
   
-
-  a_multi_vp_layer_gg <- function(){
-    multi_vp <- a_multi_vp()
-    d <- a_pulldown()
-    p_col <- input$colorbrewer_theme_goi
-    label <- input$a_marker_text
-    
-    if(input$colorscheme == "fdr"){
-      req(input$a_color_multi_sig, input$a_color_multi_insig)
-      data <- separate_to_groups_for_color_integrated(d, input$a_fdr_thresh, input$a_color_multi_sig, input$a_color_multi_insig)
-      p <- plot_volcano_qc_gg(data)
-    } else if(input$colorscheme == "exac"){
-      d$s <- exac$em_p_hi[match(d$gene, exac$GENE_NAME)]
-      d$s[is.na(d$s)] <- 2
-      below_thresh <- subset(d, s < 0.9)
-      above_thresh <- subset(d, s >= 0.9)
-      no_exist <- subset(d, s == 2)
-      p <- plot_volcano_exac_gg(below_thresh, above_thresh, no_exist)
-    } else if(input$colorscheme == "cbf"){
-      data <- separate_to_groups_for_cbf_integrated(d, input$a_fdr_thresh)
-      p <- plot_volcano_qc_gg(data)
-    } else if(input$colorscheme == "user"){
-      validate(
-        need(!is.null(input$file_color), "Please upload file with gene and score")
-      )
-      d1 <- a_in_file_color()
-      req(input$colorbrewer_theme)
-      col_theme <- input$colorbrewer_theme
-      if(input$colorscheme_style == "cont"){
-        df <- separate_to_groups_for_color_continuous(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-      } else if(input$colorscheme_style == "disc"){
-        df <- separate_to_groups_for_color_discrete(d, d1, col_theme)
-        data <- df$df1
-        data1 <- df$no_exist
-        data2 <- rbind(data, data1)
-        p <- ggplot(data = data2, aes(x = logFC, y = -log10(pvalue), text = gene)) +
-          geom_point(data = data1, alpha = 0.5, size = 1.5, colour = "#f7f7f7") + 
-          geom_point(data = data, alpha = 0.5, size = 1.5, colour = data$col) + 
-          xlab("log2FC") + ylab("-log10(P)") +
-          theme_minimal() +
-          theme(axis.text.x = element_text(size=7),
-                axis.title.x=element_text(size=8),
-                axis.text.y=element_text(size=7),
-                axis.title.y=element_text(size=8),
-                panel.grid.minor = element_blank(),
-                plot.margin = unit(c(1,1,1,1), "pt"))
-      }
-      p
-    }
-    if(input$colorscheme == "fdr" | input$colorscheme == "exac" | input$colorscheme == "user"){
-      # InWeb, SNP to gene, and genes upload
-      if(!is.null(a_bait_gene_layer())){
-        col <- input$a_color_inweb
-        vp_layer_inweb <- vp_layer_for_inweb_sf_gg(p, multi_vp$d_in, col, label)
-        p <- vp_layer_inweb
-      }
-      if(!is.null(SNP_to_gene())){
-        if(nrow(multi_vp$d_snp) != 0){
-          snp_sgl <- subset(multi_vp$d_snp, Freq == 1)
-          snp_mgl <- subset(multi_vp$d_snp, Freq != 1)
-          col <- c(color = colorRampPalette(brewer.pal(3, input$colorbrewer_theme_snp))(2))
-          if(nrow(snp_sgl) != 0){
-            vp_layer_snp2gene_sgl <- vp_layer_for_snp_to_gene_sgl_gg(p, snp_sgl, col[1], label)
-            p <- vp_layer_snp2gene_sgl
-          }
-          if(nrow(snp_mgl) != 0){
-            vp_layer_snp2gene_mgl <- vp_layer_for_snp_to_gene_mgl_gg(p, snp_mgl, col[2], label)
-            p <- vp_layer_snp2gene_mgl
-          }
-        } else{
-          p
-        }
-      }
-      if(!is.null(a_upload_genes())){
-        df <- ldply(multi_vp$d_g2s, data.frame)
-        if(nrow(df) != 0){
-          vp_layer_genes <- vp_layer_for_uploaded_genes_gg(p, df, p_col, label)
-          p <- vp_layer_genes
-        } else{
-          p
-        }
-      }
-      p
-    } else if(input$colorscheme == "cbf"){
-      # InWeb, SNP to gene, and genes upload
-      if(!is.null(a_bait_gene_layer())){
-        vp_layer_inweb <- vp_layer_for_inweb_cbf_sf_gg(p, multi_vp$d_in, label)
-        p <- vp_layer_inweb
-      }
-      if(!is.null(SNP_to_gene())){
-        if(nrow(multi_vp$d_snp) != 0){
-          snp_sgl <- subset(multi_vp$d_snp, Freq == 1)
-          snp_mgl <- subset(multi_vp$d_snp, Freq != 1)
-          if(nrow(snp_sgl) != 0){
-            vp_layer_snp2gene_sgl <- vp_layer_for_snp_to_gene_sgl_cbf_gg(p, snp_sgl, label)
-            p <- vp_layer_snp2gene_sgl
-          }
-          if(nrow(snp_mgl) != 0){
-            vp_layer_snp2gene_mgl <- vp_layer_for_snp_to_gene_mgl_cbf_gg(p, snp_mgl, label)
-            p <- vp_layer_snp2gene_mgl
-          }
-        } else{
-          p
-        }
-      }
-      if(!is.null(a_upload_genes())){
-        df <- ldply(multi_vp$d_g2s, data.frame)
-        if(nrow(df) != 0){
-          vp_layer_genes <- vp_layer_for_uploaded_genes_cbf_gg(p, df, label)
-          p <- vp_layer_genes
-        } else{
-          p
-        }
-      }
-      p
-    }
-  }
+ # a_multi_vp_layer_plus_gg <- function(){
+#    
+#    stop('a_multi_vp_layer_plus_gg is deprecated!')
+#    
+#    validate(
+#      need(!is.null(a_search_gene()), "")
+#    )
+#    p <- a_multi_vp_layer_gg()
+#    goi <- a_search_gene()
+#    orig_data <- a_pulldown()
+#    searchgene <- orig_data[grepl(goi,orig_data$gene),]
+#    p1 <- search_volcano_gg(p, searchgene)
+#    p1
+#  }
   
-  a_multi_vp_layer_plus_gg <- function(){
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_multi_vp_layer_gg()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    p1 <- search_volcano_gg(p, searchgene)
-    p1
-  }
-  
-  output$download_multi_vp_gg <- downloadHandler(
-    filename = function() { paste("multi_vp_gg", '.png', sep='') },
-    content = function(file) {
-      if(is.null(a_search_gene())){
-        ggsave(file, plot = a_multi_vp_layer_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
-      } else {
-        ggsave(file, plot = a_multi_vp_layer_plus_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
-      }
-      
-    }
-  )
+  #output$download_multi_vp_gg <- downloadHandler(
+  #  filename = function() { paste("multi_vp_gg", '.png', sep='') },
+  #  content = function(file) {
+  #    if(is.null(a_search_gene())){
+  #      ggsave(file, plot = a_multi_vp_layer_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
+  #    } else {
+  #      ggsave(file, plot = a_multi_vp_layer_plus_gg(), device = "png", width = 4, height = 4, units = "in", dpi = 300)
+  #    }
+  #    
+  #  }
+  #)
   
   a_multi_vp_plus <- reactive({
     validate(
@@ -2299,6 +2392,8 @@ shinyServer(function(input, output, session){
   })
   
   a_multi_vp_count <- reactive({
+    
+    stop('a_multi_vp_count is deprecated!')
     multi_vp <- a_multi_vp()
     vp_data <- a_pulldown()
     current_subset <- nrow(subset(vp_data, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))

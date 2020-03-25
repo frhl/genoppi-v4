@@ -7,12 +7,15 @@
 #' @export
 
 get_snp_lists <- function(infile, genes){
-
+  
   # handle file path or data frame input
   if (is.null(dim(infile))) {
 	snpDf <- read.table(infile,header=T,sep="\t")
   } else { snpDf <- infile }
  
+  # informative errors
+  stop_invalid_columns(snpDf, 'SNP-data', c('listName','SNP'))
+  
   # SNP-to-gene mapping, restricted to gene names in genes vector 
   mapDf <- NULL
   for (g in genes) {
