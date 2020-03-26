@@ -22,6 +22,7 @@ source('aprils_functions.R')
 #load("data/proteinfam_loc_May2019.RData")
 #load("data/snp_to_gene.RData")
 #human_genome <- read.table("~/Projects/04_genoppi/Genoppi-master/data/ensembl_homo_sapiens_genes.txt", header = T)
+#exac <- read.table("~/Projects/04_genoppi/Genoppi-master/data/constrained_cleaned_exac_with_pHI_Aug26.txt", header = T, sep = "\t")
 #exac <- read.table("data/constrained_cleaned_exac_with_pHI_Aug26.txt", header = T, sep = "\t")
 #inweb_combined <- read.table("data/inweb_pooled.txt")
 
@@ -36,6 +37,7 @@ allowed_plotly_symbols = plotly_symbols[!grepl('^[0-9]+$', plotly_symbols)]
 #up_to_hgnc <- read.table("data/HGNC_gene_to_UniProt_accession_number_Genoppi_ready.csv", header = T, sep = "\t", stringsAsFactors = F)
 prot_fam <- read.table(file.path(main, "inst/extdata/protFams_genes_cols.txt"),  sep = "\t", quote = "", na.strings=c("","NA"), header = T, check.names = F)
 prot_fam_t <- data.frame(t(prot_fam))
+
 
 
 myDownloadButton <- function(outputId, label = "Download", img = icon("camera")){

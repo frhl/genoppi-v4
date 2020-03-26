@@ -51,7 +51,7 @@ body <- dashboardBody(
                                           ),
                                         ),
                                         box(
-                                          title = tagList(shiny::icon('chart-bar'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE, collapsed = TRUE,
+                                          title = tagList(img(src='icon_scatter.png',width='22px'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE, collapsed = TRUE,
                                           fluidRow(
                                             column(1, ''),
                                             column(11, plotlyOutput("ScatterPlot")) #, width = "550px", height = "550px"
@@ -65,23 +65,16 @@ body <- dashboardBody(
                                 br(),
                                  column(width = 4, 
                                     box(
-                                     title = "InWeb InBiomap", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
+                                     title = tagList(img(src='icon_inweb.png',width='20px'), "InWeb InBiomap"), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
                                      fluidRow(
                                        column(12, uiOutput("a_bait_layer"))
                                      ),
                                      fluidRow(
                                        column(6, uiOutput("a_label_inweb_ui"))
                                      ),
-                                     fluidRow(
-                                       column(12, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")) 
-                                     ),
-                                     fluidRow(
-                                       br(),
-                                       column(12, uiOutput("a_inweb_venn_verbatim_ui"))
-                                     ),
                                     ),
                                     box(
-                                      title = "GWAS Catalogue", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                      title = tagList(shiny::icon('list-alt'), "GWAS catalogue"), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                       fluidRow(
                                         column(12, uiOutput('a_gwas_catalogue_ui'))
                                       ),
@@ -92,7 +85,7 @@ body <- dashboardBody(
                                       
                                     ),
                                     box(
-                                     title = "Upload SNP file", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                     title ='Upload SNPs', width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                        column(12, uiOutput("a_SNP_file"))
                                        #column(2, uiOutput("a_reset_snp_ui"))
@@ -109,15 +102,12 @@ body <- dashboardBody(
                                      ),
                                      fluidRow(
                                        column(6, uiOutput("a_label_genes_upload_ui"))
-                                     ),
-                                     fluidRow(
-                                       column(12, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px"))
                                      )
                                   ),
                                   box(
-                                    title = "Statistics", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
-                                    #column(12, tableOutput("Multi_VP_count")),
-                                    #plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")
+                                    title = tagList(img(src='icon_gnomad.png',width='60px'), 'constraints'), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                    fluidRow(column(11, uiOutput('a_gnomad_constraints_available_ui'))),
+                                    fluidRow(column(11, tableOutput("a_table_gnomad_constraints_ui")))
                                   ),
                                   box(
                                     title = "Settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
@@ -149,14 +139,31 @@ body <- dashboardBody(
                                  ),
                                 column(width = 8,
                                     box(
-                                      title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, height = '800px', solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                      title = tagList(shiny::icon('chart-area'), "Volcano plot"), solidHeader = TRUE, status = 'success', collapsible = TRUE, width = 12, # height = '800px'
                                           fluidRow(
                                             column(12, myDownloadButton("a_integrated_plot_download",'Download volcano'))
                                           ),
                                           fluidRow(
                                            column(1, br(), br(), br(), br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
                                            column(11, plotlyOutput("Multi_VolcanoPlot")),
-                                         )
+                                         ),
+                                        fluidRow(
+                                          column(12, br(), br(), br(), br(), br(), br(), br(), br(), br(), br())
+                                        )
+                                    ),
+                                    box(
+                                      title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                      fluidRow(
+                                        column(4, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
+                                        column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px"))
+                                       ),
+                                       fluidRow(
+                                       br(),
+                                         column(4, uiOutput("a_inweb_venn_verbatim_ui"))
+                                       )
+                                      #fluidRow(
+                                      #  column(12, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px"))
+                                      #)
                                     )
                                 )
                         ),

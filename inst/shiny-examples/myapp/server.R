@@ -996,30 +996,30 @@ shinyServer(function(input, output, session){
     }
   })
   
-  a_bait_friends <- eventReactive(input$a_make_plot, {#reactive({
-    if(!is.null(a_bait_gene_layer())){
-      withProgress(message = 'Finding bait interactors in InWeb', 
-                   detail = 'Hold please', value = 0, {
-                     bait <- a_bait_gene_layer()
-                     bait_interactors <- inweb_hash[[bait]]
-                   })
-      bait_interactors
-    }
-  })
+  #a_bait_friends <- eventReactive(input$a_make_plot, {#reactive({
+  #  if(!is.null(a_bait_gene_layer())){
+  #    withProgress(message = 'Finding bait interactors in InWeb', 
+  #                 detail = 'Hold please', value = 0, {
+  #                   bait <- a_bait_gene_layer()
+  #                   bait_interactors <- inweb_hash[[bait]]
+  #                 })
+  #    bait_interactors
+  #  }
+  #})
   
-  a_bait_friends_vennd <- eventReactive(input$a_make_vennd_bait, { 
-    if(!is.null(a_bait_gene_vennd())){
-      withProgress(message = 'Finding bait interactors in InWeb', 
-                   detail = 'Hold please', value = 0, {
-                     bait <- a_bait_gene_vennd()
-                     bait_interactors <- inweb_hash[[bait]]
-                     incProgress(0.8)
-                   })
-      bait_interactors
-    } else{
-      return(NULL)
-    }
-  })
+  #a_bait_friends_vennd <- eventReactive(input$a_make_vennd_bait, { 
+  #  if(!is.null(a_bait_gene_vennd())){
+  #    withProgress(message = 'Finding bait interactors in InWeb', 
+  #                 detail = 'Hold please', value = 0, {
+  #                   bait <- a_bait_gene_vennd()
+  #                   bait_interactors <- inweb_hash[[bait]]
+  #                   incProgress(0.8)
+  #                 })
+  #    bait_interactors
+  #  } else{
+  #    return(NULL)
+  #  }
+  #})
   
   #set sample size 
   #used for volcano and scatter plot
@@ -1234,7 +1234,7 @@ shinyServer(function(input, output, session){
   
   # map gwas catalouge
   a_gwas_catalogue_mapping <- reactive({
-    req(input$a_gwas_catalogue)
+    req(input$a_gwas_catalogue, a_pulldown())
     genes = a_pulldown()$gene
     mapping = get_gwas_lists(input$a_gwas_catalogue, genes)
     if (!is.null(mapping)){
@@ -1247,6 +1247,18 @@ shinyServer(function(input, output, session){
       return(mapping)
     }
   })
+  
+  #a_gnomad_mapping <- reactive({
+  #  req(a_pulldown())
+  #  pulldown = a_pulldown_significant()
+  #  gnomad = merge(pulldown, gnomad_table, by = 'gene')
+  #  gnomad$significant = ifelse(gnomad$pLI > 0.9, TRUE, FALSE)
+  #  gnomad$col_significant = 'orange'
+  #  gnomad$col_other = 'grey'
+  #  gnomad$dataset = 'gnomAD'
+  #  return(gnomad)
+  #})
+  
   
   #---------------------------------------------------------------
   # download different mappings
@@ -1323,7 +1335,7 @@ shinyServer(function(input, output, session){
     req(a_genes_upload(), a_pulldown_significant())
     catf('ensure that p-value of genes_upload_calc_hyper is correct!')
     hyper = a_genes_upload_calc_hyper()
-    v = draw_genoppi_venn(hyper$venn, main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
+    v = draw_genoppi_venn(hyper$venn, c('blue', 'red'), main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
     grid::grid.newpage()
     grid::grid.draw(v)
   })
@@ -1346,7 +1358,33 @@ shinyServer(function(input, output, session){
     HTML(paste(output$total, output$A, output$B, sep = "<br/>"))
   })
   
+  #---------------------------------------------------------------
+  # gnomad integration
   
+  a_table_gnomad_constraints <- reactive({
+    hover_index = event_data("plotly_hover", source = "Multi_VolcanoPlot")
+    if (!is.null(hover_index)){
+      if (hover_index$key %in% gnomad$gene){
+        tabl = get_gnomad_constraints(hover_index$key)
+        return(tabl)
+      }
+    }
+  })
+  
+  # render text for gnomad status
+  output$a_gnomad_constraints_available_ui <- renderUI({
+    gene = event_data("plotly_hover", source = "Multi_VolcanoPlot")$key
+    if (!is.null(gene)){
+      if (gene %in% gnomad$gene){
+        return(HTML(paste(bold(gene),'Constraint info was found in gnomAD 2.1.1.')))
+      } else {
+        return(HTML(paste('No constraint info for', bold(gene), 'in gnomAD 2.1.1')))
+      }
+    }
+  })
+  
+  # render table
+  output$a_table_gnomad_constraints_ui <- renderTable(a_table_gnomad_constraints())
   
   
   ## this function is now redundant.
@@ -2205,7 +2243,7 @@ shinyServer(function(input, output, session){
   # convert into plotly graphics
   a_integrated_plot <- reactive({
     p <- a_integrated_plot_gg()
-    p <- make_interactive(p, volcano = T)
+    p <- make_interactive(p, volcano = T, source = "Multi_VolcanoPlot")
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_layout_html_axes_volcano(p, 700, 700)

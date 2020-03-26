@@ -101,6 +101,7 @@ list_to_df <- function(lst){
     if ('col_significant' %nin% cnames) df$col_significant <- 'yellow'
     if ('col_other' %nin% cnames) df$col_other <- 'grey'
     if ('alt_label' %nin% cnames) df$alt_label <- NA
+    if ('pLI' %nin% cnames) df$pLI <- NA
     if ('symbol' %nin% cnames) df$symbol <- 'circle' # plotly specific
     # size
     # labelsize
@@ -121,7 +122,7 @@ list_to_df <- function(lst){
 #' @note internal
 validate_reference <- function(df, valid = c('gene','col_significant','col_other',
                                              'shape','dataset','stroke','alt_label',
-                                            'label','size', 'symbol')){
+                                            'label','size', 'symbol','pLI')){
   
   bool = colnames(df) %in% valid
   cols = colnames(df)[!bool]

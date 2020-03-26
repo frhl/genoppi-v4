@@ -14,4 +14,9 @@ gwas_table
 \description{
 A table containing 179,364 genetic associations in GWAS catalog. Genetic data were mapped to genome assembly GRCh38.p13 and dbSNP Build 152.
 }
+\seealso{
+Other datasets: 
+\code{\link{gnomad_table}}
+}
+\concept{datasets}
 \keyword{datasets}
