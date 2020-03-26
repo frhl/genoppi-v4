@@ -88,7 +88,6 @@ body <- dashboardBody(
                                      title ='Upload SNPs', width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                        column(12, uiOutput("a_SNP_file"))
-                                       #column(2, uiOutput("a_reset_snp_ui"))
                                      ),
                                      fluidRow(
                                        column(8, uiOutput("a_label_snp_ui")),
@@ -106,8 +105,8 @@ body <- dashboardBody(
                                   ),
                                   box(
                                     title = tagList(img(src='icon_gnomad.png',width='60px'), 'constraints'), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
-                                    fluidRow(column(11, uiOutput('a_gnomad_constraints_available_ui'))),
-                                    fluidRow(column(11, tableOutput("a_table_gnomad_constraints_ui")))
+                                    fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
+                                    fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                   ),
                                   box(
                                     title = "Settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,

@@ -1362,7 +1362,7 @@ shinyServer(function(input, output, session){
   # gnomad integration
   
   a_table_gnomad_constraints <- reactive({
-    hover_index = event_data("plotly_hover", source = "Multi_VolcanoPlot")
+    hover_index = event_data("plotly_click", source = "Multi_VolcanoPlot")
     if (!is.null(hover_index)){
       if (hover_index$key %in% gnomad$gene){
         tabl = get_gnomad_constraints(hover_index$key)
@@ -1373,7 +1373,7 @@ shinyServer(function(input, output, session){
   
   # render text for gnomad status
   output$a_gnomad_constraints_available_ui <- renderUI({
-    gene = event_data("plotly_hover", source = "Multi_VolcanoPlot")$key
+    gene = event_data("plotly_click", source = "Multi_VolcanoPlot")$key
     if (!is.null(gene)){
       if (gene %in% gnomad$gene){
         return(HTML(paste(bold(gene),'Constraint info was found in gnomAD 2.1.1.')))
@@ -1381,6 +1381,7 @@ shinyServer(function(input, output, session){
         return(HTML(paste('No constraint info for', bold(gene), 'in gnomAD 2.1.1')))
       }
     }
+    return('Nothing selected.')
   })
   
   # render table
