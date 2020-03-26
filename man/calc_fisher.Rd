@@ -16,7 +16,7 @@ calc_fisher(df, listDf, intersectDf, bait = NULL)
 \item{bait}{name of bait protein}
 }
 \value{
-list of data.frame and list. Data.frame contains list_name, overlap_count, dfOnly_count, listOnly_count, neither_count, pvalue. List of lists (for each listName) contains genes names corresponding to each group (overlap_genes, dfOnly_genes, listOnly_genes, neither_genes).
+list of data.frame and list. Data.frame contains list_name, overlap_count, dfOnly_count, listOnly_count, neither_count, population_count, pvalue. List of lists (for each listName) contains genes names corresponding to each group (overlap_genes, dfOnly_genes, listOnly_genes, neither_genes, population_genes).
 }
 \description{
 Use one-tailed Fisher's exact test to calcualte overlap enrichment between proteomic data and other datasets (e.g. InWeb, gene lists, etc.)

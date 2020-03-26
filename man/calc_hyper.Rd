@@ -16,7 +16,7 @@ calc_hyper(df, listDf, intersectDf, bait = NULL)
 \item{bait}{name of bait protein}
 }
 \value{
-list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), pvalue. List of lists (for each listName) contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes).
+list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), population_count (N), pvalue. List of lists (for each listName) contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes, population_genes).
 }
 \description{
 Use one-tailed hypergeometric test to calcualte overlap enrichment between proteomic data and other datasets (e.g. InWeb, gene lists, etc.)

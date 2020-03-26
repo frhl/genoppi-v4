@@ -66,3 +66,4 @@ Collate:
     'impute_gaussian.R'
     'read_input.R'
     'stop_invalid.R'
+    'subset_snp_loci.R'

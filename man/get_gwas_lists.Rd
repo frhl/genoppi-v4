@@ -12,7 +12,7 @@ get_gwas_lists(traits, genes)
 \item{genes}{vector of gene names (genes detected in proteomic data)}
 }
 \value{
-list of two data.frames. First data.frame contains trait, gene and SNP columns (restricting to genes in input genes vector). Second data.frame contains GWAS catalog info for the included SNPs.
+data.frame containing GWAS catalog info (PUBMEDID, DISEASE.TRAIT, SNP, P.VALUE, STUDY.ACCESSION) + MAPPED_GENE columns (restricting to traits and genes in input vectors)
 }
 \description{
 Create gene list data.frame from input traits
