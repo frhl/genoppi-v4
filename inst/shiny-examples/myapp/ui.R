@@ -146,9 +146,9 @@ body <- dashboardBody(
                                            column(1, br(), br(), br(), br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
                                            column(11, plotlyOutput("Multi_VolcanoPlot")),
                                          ),
-                                        fluidRow(
-                                          column(12, br(), br(), br(), br(), br(), br(), br(), br(), br(), br())
-                                        )
+                                        #fluidRow(
+                                        #  column(12, br(), br(), br(), br(), br(), br(), br(), br(), br(), br())
+                                        #)
                                     ),
                                     box(
                                       title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,

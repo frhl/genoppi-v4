@@ -16,13 +16,17 @@ collapse_labels <- function(overlay){
   new = lapply(unique(overlay[drows, ]$gene), function(g) {
     z = overlay[overlay$gene %in% g, ]
     z$alt_label[is.na(z$alt_label)] <- ''
-    z$alt_label = paste(apply(z[,c('dataset','alt_label')] , 1 , paste , collapse = " " ), collapse =' <br> ')
-    # how do we deal with colors?
+    z$alt_label = paste(apply(z[,c('dataset','alt_label')] , 1 , paste , collapse = ": " ), collapse =' <br>')
+    # how do we deal with merging colors?
     return(z[1,])
     })
   
+  # deal with single labels 
+  old = overlay[!drows, ]
+  old$alt_label = apply(old[,c('dataset','alt_label')] , 1 , paste , collapse = ": " )
+  
   # conbine the filtered new overlays with alt labels with old
-  combined = as.data.frame(rbind(do.call(rbind, new), overlay[!drows, ]))
+  combined = as.data.frame(rbind(do.call(rbind, new), old))
   
   return(combined)
 }

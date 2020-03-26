@@ -1323,7 +1323,7 @@ shinyServer(function(input, output, session){
   
   # draw venn diagram
   output$a_inweb_venn_ui <- renderPlot({
-    req(input$a_bait_rep, a_pulldown_significant())
+    req(input$a_bait_rep, a_pulldown_significant(), a_inweb_calc_hyper())
     hyper = a_inweb_calc_hyper()
     v = draw_genoppi_venn(hyper$venn, main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
     grid::grid.newpage()
@@ -2247,7 +2247,7 @@ shinyServer(function(input, output, session){
     p <- make_interactive(p, volcano = T, source = "Multi_VolcanoPlot")
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    p <- add_layout_html_axes_volcano(p, 700, 700)
+    p <- add_layout_html_axes_volcano(p, 500, 500) # error in searching overlay here when layout width/height supplied. 
     p
   })
   
@@ -3298,15 +3298,9 @@ shinyServer(function(input, output, session){
   })
   
   output$Multi_VolcanoPlot <- renderPlotly({
-    validate(
-      need(input$a_file_pulldown_r != '', "Upload file")
-    )
-    #if(is.null(a_search_gene())){
-      #a_multi_vp_layer()
-      a_integrated_plot()
-    #} else{
-    #  a_multi_vp_plus()
-    #}
+    #validate(need(input$a_file_pulldown_r != '', "Upload file"))
+    req(a_pulldown_significant)
+    a_integrated_plot()
   })
   
   output$Multi_VP_count <- renderTable({
