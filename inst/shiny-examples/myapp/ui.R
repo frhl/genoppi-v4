@@ -38,7 +38,12 @@ body <- dashboardBody(
                                             br(),
                                           ),
                                           fluidRow(
-                                            column(12, tableOutput("a_verbatim_count_ui"))
+                                            column(12, tableOutput("a_verbatim_count_ui")),
+                                            br()
+                                          ),
+                                          fluidRow(
+                                            br(),
+                                            column(12, downloadButton("a_mttest_mapping_download"))
                                           )
                                         )
                                  ),

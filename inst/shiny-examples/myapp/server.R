@@ -1263,6 +1263,16 @@ shinyServer(function(input, output, session){
   #---------------------------------------------------------------
   # download different mappings
   
+  # download moderated t-test
+  output$a_mttest_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("pulldown-mttest",".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(a_pulldown_significant(), file, row.names = F)
+    }
+  )
+  
   # download snp mapping
   output$a_snp_mapping_download <- downloadHandler(
     filename = function() {
@@ -1376,12 +1386,12 @@ shinyServer(function(input, output, session){
     gene = event_data("plotly_click", source = "Multi_VolcanoPlot")$key
     if (!is.null(gene)){
       if (gene %in% gnomad$gene){
-        return(HTML(paste(bold(gene),'Constraint info was found in gnomAD 2.1.1.')))
+        return(HTML(paste(bold(gene),'constraint info from gnomAD 2.1.1.')))
       } else {
-        return(HTML(paste('No constraint info for', bold(gene), 'in gnomAD 2.1.1')))
+        return(HTML(paste('No constraint info for', bold(gene), 'in gnomAD 2.1.1.')))
       }
     }
-    return('Nothing selected.')
+    return('Nothing selected. Click a plot point.')
   })
   
   # render table
@@ -2263,7 +2273,17 @@ shinyServer(function(input, output, session){
       ggsave(file, plot =  input_integrated_plot_gg(), device = device)
     })
   
-
+  # download basic scatter plot
+  input_sp_gg <- function(){a_sp}
+  output$a_integrated_plot_download = downloadHandler(
+    filename = 'scatter_plot.png',
+    content = function(file) {
+      device <- function(..., width, height) {
+        grDevices::png(..., width = width, height = height,
+                       res = 300, units = "in")
+      }
+      ggsave(file, plot =  input_integrated_plot_gg(), device = device)
+    })
   
   
   
