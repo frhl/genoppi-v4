@@ -4,7 +4,7 @@
 #' @param listDf data.frame containing data to overlap, with listName, gene and significant columns
 #' @param intersectDf data.frame contaning listName and intersectN columns intersectN = vector of boolean variables indicating if total population should be intersect of the two datasets
 #' @param bait name of bait protein
-#' @return list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), pvalue. List of lists (for each listName) contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes).
+#' @return list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), population_count (N), pvalue. List of lists (for each listName) contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes, population_genes).
 #' @export
 
 calc_hyper <- function(df, listDf, intersectDf, bait=NULL){
@@ -40,10 +40,11 @@ calc_hyper <- function(df, listDf, intersectDf, bait=NULL){
 
     # add results to outDf (overlap counts and p-value) and outList (gene names coresponding to overalp counts)
     outDf <- rbind(outDf, data.frame(list_name=l, successInSample_count=length(successInSample), 
-      sample_count=length(sample), notSample_count=length(notSample), success_count=length(success), pvalue=hyperP))
+      sample_count=length(sample), notSample_count=length(notSample), success_count=length(success),
+      population_count=length(population), pvalue=hyperP))
   
     outList[[l]] <- list(successInSample_genes=successInSample, sample_genes=sample,
-      notSample_genes=notSample, success_genes=success)
+      notSample_genes=notSample, success_genes=success, population_genes=population)
 
   }
  

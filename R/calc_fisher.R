@@ -4,7 +4,7 @@
 #' @param listDf data.frame containing data to overlap, with listName, gene and significant columns
 #' @param intersectDf data.frame contaning listName and intersectN columnsl intersectN = vector of boolean variables indicating if total population should be intersect of the two datasets
 #' @param bait name of bait protein
-#' @return list of data.frame and list. Data.frame contains list_name, overlap_count, dfOnly_count, listOnly_count, neither_count, pvalue. List of lists (for each listName) contains genes names corresponding to each group (overlap_genes, dfOnly_genes, listOnly_genes, neither_genes).
+#' @return list of data.frame and list. Data.frame contains list_name, overlap_count, dfOnly_count, listOnly_count, neither_count, population_count, pvalue. List of lists (for each listName) contains genes names corresponding to each group (overlap_genes, dfOnly_genes, listOnly_genes, neither_genes, population_genes).
 #' @export
 
 calc_fisher <- function(df, listDf, intersectDf, bait=NULL){
@@ -41,9 +41,11 @@ calc_fisher <- function(df, listDf, intersectDf, bait=NULL){
 
       # add results to outDf (overlap counts and p-value) and outList (gene names coresponding to overalp counts)
       outDf <- rbind(outDf, data.frame(list_name=l, overlap_count=length(overlap), dfOnly_count=length(dfOnly),
-	listOnly_count=length(listOnly), neither_count=length(neither), pvalue=fisherP))
+	listOnly_count=length(listOnly), neither_count=length(neither),
+        population_count=length(population), pvalue=fisherP))
       
-      outList[[l]] <- list(overlap_genes=overlap, dfOnly_genes=dfOnly, listOnly_genes=listOnly, neither_genes=neither)
+      outList[[l]] <- list(overlap_genes=overlap, dfOnly_genes=dfOnly, listOnly_genes=listOnly,
+        neither_genes=neither, population_genes=population)
 
   }
  
