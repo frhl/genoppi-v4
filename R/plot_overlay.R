@@ -94,6 +94,8 @@ list_to_df <- function(lst){
     df = lst[[i]]
     stopifnot(is.data.frame(df))
     cnames = colnames(df)
+    
+    # expected columns
     if ('dataset' %nin% cnames) df$dataset <- names(lst)[i]
     if ('shape' %nin% cnames) df$shape <- 1 # ggplot2 specific
     if ('label' %nin% cnames) df$label <- TRUE
@@ -103,8 +105,7 @@ list_to_df <- function(lst){
     if ('alt_label' %nin% cnames) df$alt_label <- NA
     if ('pLI' %nin% cnames) df$pLI <- NA
     if ('symbol' %nin% cnames) df$symbol <- 'circle' # plotly specific
-    # size
-    # labelsize
+
     return(df)
   })
   return(as.data.frame(do.call(rbind, tmp_lst)))
