@@ -99,44 +99,44 @@ shinyServer(function(input, output, session){
   })  
   
   
-  output$a_color_theme <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$colorscheme == "user", "")
-    )
-    selectInput("colorbrewer_theme", "", 
-                c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
-                  "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
-                  "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"))
-  })
+  #output$a_color_theme <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$colorscheme == "user", "")
+  #  )
+  #  selectInput("colorbrewer_theme", "", 
+  #              c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
+  #                "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
+  #                "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"))
+  #})
   
-  output$a_color_theme_integrated <- renderUI({
-    validate(
-      need(input$colorscheme == "user", "")
-    )
-    selectInput("colorbrewer_theme_integrated", "User value", 
-                c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
-                  "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
-                  "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"))
-  })
+  #output$a_color_theme_integrated <- renderUI({
+  #  validate(
+  #    need(input$colorscheme == "user", "")
+  #  )
+  #  selectInput("colorbrewer_theme_integrated", "User value", 
+  #              c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
+  #                "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
+  #                "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"))
+  #})
   
-  output$a_color_theme_pf <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    selectInput("colorbrewer_theme_pf", "Protein families color", 
-                c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
-                  "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
-                  "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"))
-  })
+  #output$a_color_theme_pf <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  selectInput("colorbrewer_theme_pf", "Protein families color", 
+  #              c("YlOrRd", "YlOrBr", "YlGnBu", "YlGn", "Reds", "RdPu", "Purples", "PuRd", "PuBuGn", "PuBu", "OrRd", 
+  #                "Oranges", "Greys", "Greens", "GnBu", "BuPu", "BuGn", "Blues", "Set3", "Set2", "Set1", "Pastel2", "Pastel1",
+  #                "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG"))
+  #})
   
-  output$a_color_setting_indv_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$colorscheme == "fdr" || input$colorscheme == "user", "")
-    )
-    HTML("<b>Color selection for markers:</b>")
-  })
+  #output$a_color_setting_indv_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$colorscheme == "fdr" || input$colorscheme == "user", "")
+  #  )
+  #  HTML("<b>Color selection for markers:</b>")
+  #})
   
   
   #a_significance_tresholds <- reactive({
@@ -167,11 +167,11 @@ shinyServer(function(input, output, session){
   
 
   #----------------------------------------------------------
-  # sliders for selecting color and symbols of plots
+  # sliders for selecting color, symbols and labels of plots
   
   # basic plot
   output$a_color_theme_indv_sig <- renderUI({
-    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
+    validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
     colourpicker::colourInput('a_color_indv_sig', label, value = '#41AB5D', showColour = 'text', 
                   palette = c( "limited"), allowedCols = allowed_colors)
@@ -179,12 +179,11 @@ shinyServer(function(input, output, session){
     
   # basic plot
   output$a_color_theme_indv_insig <- renderUI({
-    validate(need(input$a_file_pulldown_r != '', ""),need(input$colorscheme == "fdr", ""))
+    validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
     colourpicker::colourInput('a_color_indv_insig', label, value = '#808080', showColour = 'text', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
-  
   
   # intgrated plot, snp
   output$a_color_snp_sig_ui <- renderUI({
@@ -231,15 +230,26 @@ shinyServer(function(input, output, session){
     colourpicker::colourInput('a_color_genes_upload_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
+  
   # integrated plot, genes uplaod
   output$a_symbol_genes_upload_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     selectInput('a_symbol_genes_upload', 'Symbol', choices = allowed_plotly_symbols)
   })
+  
   # integrated plot, genes upload
   output$a_label_genes_upload_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     checkboxInput("a_label_genes_upload", label = "Toggle labels", value = TRUE)
+  })
+  
+  # integrated plot, reset
+  output$a_reset_genes_upload_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    actionButton('a_reset_genes_upload', 'Reset')
+  })
+  observeEvent(input$a_reset_genes_upload, {
+    reset("a_file_genes_rep")
   })
   
   
@@ -262,7 +272,7 @@ shinyServer(function(input, output, session){
     validate(need(input$a_file_pulldown_r != '', ""))
     selectInput('a_symbol_inweb', 'Symbol', choices = allowed_plotly_symbols)
   })
-  # integrated plot, genes upload
+  # integrated plot, inweb
   output$a_label_inweb_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     checkboxInput("a_label_inweb", label = "Toggle labels", value = TRUE)
@@ -345,36 +355,28 @@ shinyServer(function(input, output, session){
   #              selected = "PuOr")
   #})
   
-  output$a_color_theme_inweb <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""), 
-      need(!is.null(input$a_bait_rep) && input$a_bait_rep != "", "")
-    )
-    selectInput('a_color_inweb', 'InWeb', add_marker_cols$V1, multiple=F, selectize=TRUE, selected = "yellow")
-  })
+  #output$a_color_theme_inweb <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""), 
+  #    need(!is.null(input$a_bait_rep) && input$a_bait_rep != "", "")
+  #  )
+  #  selectInput('a_color_inweb', 'InWeb', add_marker_cols$V1, multiple=F, selectize=TRUE, selected = "yellow")
+  #})
   
   output$a_bait_layer <- renderUI({
     textInput("a_bait_rep", value = "", "Input HGNC symbol to search for InWeb protein interactors (e.g. ZBTB7A)")
   })
   
-  output$a_bait_venndiagram <- renderUI({
-    textInput("a_bait_vennd", "Input HGNC symbol to search for InWeb protein interactors (e.g. ZBTB7A)")
-  })
-  
   output$a_bait_search <- renderUI({
-    textInput("a_bait_search_rep", "Indicate bait")
+    textInput("a_bait_search_rep", "Input bait (e.g. BCL2)")
   })
   
   output$a_GOI_search <- renderUI({
-    textInput("a_goi_search_rep", "Search for gene (e.g. SHH)")
+    textInput("a_goi_search_rep", "Search")
   })
   
   output$a_gwas_catalogue_ui <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$colorscheme == "fdr", "")
-    )
-    selectInput('a_gwas_catalogue', 'GWAS Catalogue', c('',unique(as.character(gwas_table$DISEASE.TRAIT))), multiple=T, selectize=TRUE, selected = "grey")
+    selectInput('a_gwas_catalogue', 'GWAS Catalogue', unique(as.character(as.vector(gwas_table$DISEASE.TRAIT))), multiple=T, selectize=TRUE, selected = "grey")
   })
   
   
@@ -389,7 +391,7 @@ shinyServer(function(input, output, session){
   ###
   
   
-  ##
+  # Search for replicates in data
   available_replicates <- reactive({
     d <- a_pulldown()
     if(!is.null(d)){
@@ -408,17 +410,15 @@ shinyServer(function(input, output, session){
   })
  #
   
-  output$a_text_label <- renderUI({
-    radioButtons('a_marker_text', 'Turn on/off labels',
-                 c(On = 'yes_label',
-                   Off = 'no_label'),
-                 inline = T
-    )
-  })
+  #output$a_text_label <- renderUI({
+  #  radioButtons('a_marker_text', 'Turn on/off labels',
+  #               c(On = 'yes_label',
+  #                 Off = 'no_label'),
+  #               inline = T)
+  #})
   
   output$a_SNP_file <- renderUI({
-    # fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line (e.g. rs12493885)',
-    #input$a_reset_snp
+    req(a_pulldown_significant())
     fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line',
               accept = c(
                 'text/csv',
@@ -541,9 +541,7 @@ shinyServer(function(input, output, session){
   })
   
   output$a_pf_loc_selection <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
+    #req(input$a_file_pulldown_r())
     selectInput('a_pf_loc_option', 'Data options', c("Protein family" = 'pf', "Localization_GO" = 'loc_go', "Localization_UniProt" = 'loc_uniprot'), selectize=FALSE)
   })
   
@@ -742,23 +740,23 @@ shinyServer(function(input, output, session){
     )
   })
   
-  observeEvent(input$basic,{
-    if(input$basic == "p3" | input$basic == "p4" | input$basic == "p5"){
-      shinyjs::hide("colorscheme")
-      shinyjs::hide("file_color")
-      shinyjs::hide("a_fdr_thresh")
-      shinyjs::hide("a_pval_thresh")
-      shinyjs::hide("a_logFC_thresh")
-      shinyjs::hide("a_logfc_direction_ui")
-    }else {
-      shinyjs::hide("colorscheme") # <---- note todo ... this is still here. should be removed!
-      shinyjs::show("file_color")
-      shinyjs::show("a_logFC_thresh")
-      shinyjs::show("a_pval_thresh")
-      shinyjs::show("a_fdr_thresh")
-      shinyjs::show("a_logfc_direction_ui")
-    }
-  })
+  #observeEvent(input$basic,{
+  #  if(input$basic == "p3" | input$basic == "p4" | input$basic == "p5"){
+  #    shinyjs::hide("colorscheme")
+  #    shinyjs::hide("file_color")
+  #    shinyjs::hide("a_fdr_thresh")
+  #    shinyjs::hide("a_pval_thresh")
+  #    shinyjs::hide("a_logFC_thresh")
+  #    shinyjs::hide("a_logfc_direction_ui")
+  #  }else {
+  #    shinyjs::hide("colorscheme") # <---- note todo ... this is still here. should be removed!
+  #   shinyjs::show("file_color")
+  #    shinyjs::show("a_logFC_thresh")
+  #    shinyjs::show("a_pval_thresh")
+  #    shinyjs::show("a_fdr_thresh")
+  #    shinyjs::show("a_logfc_direction_ui")
+  #  }
+  #})
   
   # show/hide the fdr/pvalue bar
   observeEvent(input$a_significance_type,{
@@ -1084,101 +1082,101 @@ shinyServer(function(input, output, session){
     }
   })
   
-  success_sample_bait <- reactive({
-    if(!is.null(sample_bait()) & !is.null(success_population_bait())){
-      samp <- sample_bait()
-      success_pop <- success_population_bait()
-      success_samp <- subset(samp, samp$gene %in% success_pop$gene)
-      rownames(success_samp) <- NULL
-      success_samp
-    }
-  })
+  #success_sample_bait <- reactive({
+  #  if(!is.null(sample_bait()) & !is.null(success_population_bait())){
+  #    samp <- sample_bait()
+  #    success_pop <- success_population_bait()
+  #    success_samp <- subset(samp, samp$gene %in% success_pop$gene)
+  #    rownames(success_samp) <- NULL
+  #    success_samp
+  #  }
+  #})
   
-  success_sample_GOI <- reactive({
-    if(!is.null(sample_GOI()) & !is.null(success_population_GOI())){
-      samp <- sample_GOI()
-      samp_total <- as.data.frame(data.table::rbindlist(samp))
-      samp <- c(samp, list(total = samp_total))
-      list_num <- input$a_goi_num_inputs
-      success_pop <- success_population_GOI()
-      success_samp <- subset(samp[[list_num]], samp[[list_num]]$gene %in% success_pop$gene)
-      rownames(success_samp) <- NULL
-      success_samp
-    }
-  })
+  #success_sample_GOI <- reactive({
+  #  if(!is.null(sample_GOI()) & !is.null(success_population_GOI())){
+  #    samp <- sample_GOI()
+  #    samp_total <- as.data.frame(data.table::rbindlist(samp))
+  #    samp <- c(samp, list(total = samp_total))
+  #    list_num <- input$a_goi_num_inputs
+  #    success_pop <- success_population_GOI()
+  #    success_samp <- subset(samp[[list_num]], samp[[list_num]]$gene %in% success_pop$gene)
+  #    rownames(success_samp) <- NULL
+  #    success_samp
+  #  }
+  #})
   
-  success_sample_SNP <- reactive({
-    if(!is.null(sample_SNP()) & !is.null(success_population_GOI())){
-      samp <- sample_SNP()
-      success_pop <- success_population_GOI()
-      success_samp <- subset(samp, samp$gene %in% success_pop$gene)
-      rownames(success_samp) <- NULL
-      success_samp
-    }
-  })
+  #success_sample_SNP <- reactive({
+  #  if(!is.null(sample_SNP()) & !is.null(success_population_GOI())){
+  #    samp <- sample_SNP()
+  #    success_pop <- success_population_GOI()
+  #    success_samp <- subset(samp, samp$gene %in% success_pop$gene)
+  #    rownames(success_samp) <- NULL
+  #    success_samp
+  #  }
+  #})
   
-  success_sample_SNP_SGL <- reactive({
-    if(!is.null(sample_SNP_SGL()) & !is.null(success_population_GOI())){
-      samp <- sample_SNP_SGL()
-      success_pop <- success_population_GOI()
-      success_samp <- subset(samp, samp$gene %in% success_pop$gene)
-      rownames(success_samp) <- NULL
-      success_samp
-    }
-  })
+  #success_sample_SNP_SGL <- reactive({
+  #  if(!is.null(sample_SNP_SGL()) & !is.null(success_population_GOI())){
+  #    samp <- sample_SNP_SGL()
+  #    success_pop <- success_population_GOI()
+  #    success_samp <- subset(samp, samp$gene %in% success_pop$gene)
+  #    rownames(success_samp) <- NULL
+  #    success_samp
+  #  }
+  #})
   
-  success_sample_SNP_MGL <- reactive({
-    if(!is.null(sample_SNP_MGL()) & !is.null(success_population_GOI())){
-      samp <- sample_SNP_MGL()
-      success_pop <- success_population_GOI()
-      success_samp <- subset(samp, samp$gene %in% success_pop$gene)
-      rownames(success_samp) <- NULL
-      success_samp
-    }
-  })
+  #success_sample_SNP_MGL <- reactive({
+  #  if(!is.null(sample_SNP_MGL()) & !is.null(success_population_GOI())){
+  #    samp <- sample_SNP_MGL()
+  #    success_pop <- success_population_GOI()
+  #    success_samp <- subset(samp, samp$gene %in% success_pop$gene)
+  #    rownames(success_samp) <- NULL
+  #    success_samp
+  #  }
+  #})
   
-  hypergeometric_test_list <- reactive({
-    if(!is.null(sample_bait()) & !is.null(success_population_bait()) & !is.null(success_sample_bait())){
-      samp <- sample_bait()
-      success_pop <- success_population_bait()
-      success_samp <- success_sample_bait()
-      bait <- a_bait_gene_vennd()
-      all_interactor <- a_bait_friends_vennd()
-      inweb_bait <- paste0("All known interactors of ", bait)
-      x <- list()
-      x[["A"]] <- as.character(success_pop$gene)
-      x[["B"]] <- as.character(samp$gene)
-      x[["Overlap"]] <- as.character(success_samp$gene)
-      x[[inweb_bait]] <- as.character(all_interactor)
-      n.obs <- sapply(x, length)
-      seq.max <- seq_len(max(n.obs))
-      mat <- sapply(x, "[", i = seq.max)
-      mat[is.na(mat)] <- " "
-      as.data.frame(mat)
-    }
-  })
+  #hypergeometric_test_list <- reactive({
+  #  if(!is.null(sample_bait()) & !is.null(success_population_bait()) & !is.null(success_sample_bait())){
+  #    samp <- sample_bait()
+  #    success_pop <- success_population_bait()
+  #    success_samp <- success_sample_bait()
+  #    bait <- a_bait_gene_vennd()
+  #    all_interactor <- a_bait_friends_vennd()
+  #    inweb_bait <- paste0("All known interactors of ", bait)
+  #    x <- list()
+  #    x[["A"]] <- as.character(success_pop$gene)
+  #    x[["B"]] <- as.character(samp$gene)
+  #    x[["Overlap"]] <- as.character(success_samp$gene)
+  #    x[[inweb_bait]] <- as.character(all_interactor)
+  #    n.obs <- sapply(x, length)
+  #    seq.max <- seq_len(max(n.obs))
+  #    mat <- sapply(x, "[", i = seq.max)
+  #    mat[is.na(mat)] <- " "
+  #    as.data.frame(mat)
+  #  }
+  #})
   
-  hypergeometric_test_list_GOI <- reactive({
-    if(!is.null(sample_GOI()) & !is.null(success_population_GOI()) & !is.null(success_sample_GOI())){
-      samp <- sample_GOI()
-      samp_total <- as.data.frame(data.table::rbindlist(samp))
-      samp <- c(samp, list(total = samp_total))
-      list_num <- input$a_goi_num_inputs
-      success_pop <- success_population_GOI()
-      success_samp <- success_sample_GOI()
-      genes_upload <- a_genes_uploaded_vennd()
-      x <- list()
-      x[["A"]] <- as.character(success_pop$gene)
-      x[["B"]] <- as.character(samp[[list_num]]$gene)
-      x[["Overlap"]] <- as.character(success_samp$gene)
-      x[["Uploaded list of genes"]] <- as.character(genes_upload)
-      n.obs <- sapply(x, length)
-      seq.max <- seq_len(max(n.obs))
-      mat <- sapply(x, "[", i = seq.max)
-      mat[is.na(mat)] <- " "
-      as.data.frame(mat)
-    }
-  })
+  #hypergeometric_test_list_GOI <- reactive({
+  #  if(!is.null(sample_GOI()) & !is.null(success_population_GOI()) & !is.null(success_sample_GOI())){
+  #    samp <- sample_GOI()
+  #    samp_total <- as.data.frame(data.table::rbindlist(samp))
+  #    samp <- c(samp, list(total = samp_total))
+  #    list_num <- input$a_goi_num_inputs
+  #    success_pop <- success_population_GOI()
+  #    success_samp <- success_sample_GOI()
+  #    genes_upload <- a_genes_uploaded_vennd()
+  #    x <- list()
+  #    x[["A"]] <- as.character(success_pop$gene)
+  #    x[["B"]] <- as.character(samp[[list_num]]$gene)
+  #    x[["Overlap"]] <- as.character(success_samp$gene)
+  #    x[["Uploaded list of genes"]] <- as.character(genes_upload)
+  #    n.obs <- sapply(x, length)
+  #    seq.max <- seq_len(max(n.obs))
+  #    mat <- sapply(x, "[", i = seq.max)
+  #    mat[is.na(mat)] <- " "
+  #    as.data.frame(mat)
+  #  }
+  #})
   
   hypergeometric_test_list_SNP <- reactive({
     if(!is.null(sample_SNP()) & !is.null(success_population_SNP()) & !is.null(success_sample_SNP())){
@@ -1238,12 +1236,13 @@ shinyServer(function(input, output, session){
     genes = a_pulldown()$gene
     mapping = get_gwas_lists(input$a_gwas_catalogue, genes)
     if (!is.null(mapping)){
-      mapping[[1]]$col_significant = input$a_color_gwas_cat_sig
-      mapping[[1]]$col_other = input$a_color_gwas_cat_insig
-      mapping[[1]]$symbol = input$a_symbol_gwas_cat
-      mapping[[1]]$label = input$a_label_gwas_cat
-      mapping[[1]]$dataset = mapping[[1]]$trait
-      mapping[[1]]$alt_label = mapping[[1]]$SNP
+      mapping$col_significant = input$a_color_gwas_cat_sig
+      mapping$col_other = input$a_color_gwas_cat_insig
+      mapping$symbol = input$a_symbol_gwas_cat
+      mapping$label = input$a_label_gwas_cat
+      mapping$dataset = mapping$trait
+      mapping$alt_label = mapping$SNP
+      print(mapping)
       return(mapping)
     }
   })
@@ -1289,7 +1288,7 @@ shinyServer(function(input, output, session){
       paste("gwas-catalogue-mapping",".csv", sep="")
     },
     content = function(file) {
-      write.csv(a_gwas_catalogue_mapping()[[1]][,c('trait','gene', 'SNP')], file, row.names = F)
+      write.csv(a_gwas_catalogue_mapping(), file, row.names = F)
     }
   )
   
@@ -1374,7 +1373,7 @@ shinyServer(function(input, output, session){
   a_table_gnomad_constraints <- reactive({
     hover_index = event_data("plotly_click", source = "Multi_VolcanoPlot")
     if (!is.null(hover_index)){
-      if (hover_index$key %in% gnomad$gene){
+      if (hover_index$key %in% gnomad_table$gene){
         tabl = get_gnomad_constraints(hover_index$key)
         return(tabl)
       }
@@ -1385,7 +1384,7 @@ shinyServer(function(input, output, session){
   output$a_gnomad_constraints_available_ui <- renderUI({
     gene = event_data("plotly_click", source = "Multi_VolcanoPlot")$key
     if (!is.null(gene)){
-      if (gene %in% gnomad$gene){
+      if (gene %in% gnomad_table$gene){
         return(HTML(paste(bold(gene),'constraint info from gnomAD 2.1.1.')))
       } else {
         return(HTML(paste('No constraint info for', bold(gene), 'in gnomAD 2.1.1.')))
@@ -1975,7 +1974,7 @@ shinyServer(function(input, output, session){
   #  stop('error, deprecated')
   #})
   
-  a_sp <- reactive({
+  a_sp_gg <- reactive({
     
     # what replicates are inputted
     req(input$a_select_scatterplot)
@@ -1986,17 +1985,34 @@ shinyServer(function(input, output, session){
     p = plot_scatter_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
 
     # handle individual plot
-    correlation = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1 = p[[input$a_select_scatterplot]]$ggplot
     p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep), x=rep[1], y=rep[2])
-
-    # add markers 
-    p1 = make_interactive(p1, x=rep[1], y=rep[2])
-    if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
-    p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',correlation))
+    p1$r = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1
 
+    # add markers 
+    #p1 = make_interactive(p1, x=rep[1], y=rep[2])
+    #if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
+    #p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',correlation))
+    #p1
+
   })
+  
+  a_sp <- reactive({
+    
+    # get basic stats
+    p1 = a_sp_gg()
+    rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
+    r = p1$r
+    
+    # concert into interactive graphics
+    p1 = make_interactive(p1, x=rep[1], y=rep[2])
+    if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
+    p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',r))
+    p1
+    
+  })
+  
   
   #a_sp_plus <- reactive({
   #  validate(
@@ -2243,7 +2259,7 @@ shinyServer(function(input, output, session){
   # generate plot in ggformat
   a_integrated_plot_gg <- reactive({
     p = a_vp_gg()
-    if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas_cat=a_gwas_catalogue_mapping()[[1]]), volcano = T)
+    if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()), volcano = T)
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
     if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()), volcano = T)}
@@ -2264,7 +2280,7 @@ shinyServer(function(input, output, session){
   # download integrated plot graphics.
   input_integrated_plot_gg <- function(){a_integrated_plot_gg()}
   output$a_integrated_plot_download = downloadHandler(
-    filename = 'integrated_plot.png',
+    filename = 'integrated-plot.png',
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = width, height = height,
@@ -2274,15 +2290,27 @@ shinyServer(function(input, output, session){
     })
   
   # download basic scatter plot
-  input_sp_gg <- function(){a_sp}
-  output$a_integrated_plot_download = downloadHandler(
-    filename = 'scatter_plot.png',
+  input_sp_gg <- function(){a_sp_gg()}
+  output$a_scatter_plot_download = downloadHandler(
+    filename = 'scatter-plot.png',
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = width, height = height,
                        res = 300, units = "in")
       }
-      ggsave(file, plot =  input_integrated_plot_gg(), device = device)
+      ggsave(file, plot =  input_sp_gg(), device = device)
+    })
+  
+  # download basic scatter plot
+  input_vp_gg <- function(){a_vp_gg()}
+  output$a_volcano_plot_download = downloadHandler(
+    filename = 'basic-volcano-plot.png',
+    content = function(file) {
+      device <- function(..., width, height) {
+        grDevices::png(..., width = width, height = height,
+                       res = 300, units = "in")
+      }
+      ggsave(file, plot =  input_vp_gg(), device = device)
     })
   
   

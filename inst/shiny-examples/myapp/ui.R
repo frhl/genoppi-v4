@@ -7,26 +7,15 @@ body <- dashboardBody(
     tabItem(tabName = "dashboard",
             shinyjs::useShinyjs(),
             tabsetPanel(id = "basic", #width = 12,
-                        tabPanel("Basic Plots", value = "p1",
+                        tabPanel("Basic plotting", value = "p1",
                                  br(),
                                  column(width = 4,
-                                        #box(
-                                        #  title = "Basic overlay", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
-                                        #  fluidPage(
-                                        #    column(12, uiOutput("a_prot_fam_db"))
-                                        #  ),
-                                        #  fluidPage(
-                                        #    column(4, uiOutput("a_text_prot_fam_db")),
-                                        #    column(8, downloadButton("download_pf_cleaned_input", "Remove selected PF from input"))
-                                        #  )
-                                        #),
                                         box(
                                           title = "Basic plot options", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
                                           fluidRow(
                                             column(12, uiOutput('a_select_scatterplot_ui')) 
                                           ),
                                           fluidRow(
-                                            #column(3, uiOutput("a_color_setting_indv_text")),
                                             column(6, uiOutput("a_color_theme_indv_sig")),
                                             column(6, uiOutput("a_color_theme_indv_insig"))
                                           )
@@ -51,6 +40,9 @@ body <- dashboardBody(
                                         box(
                                           title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(
+                                            column(11, myDownloadButton("a_volcano_plot_download", 'Volcano plot'))
+                                          ),
+                                          fluidRow(
                                             column(1, plotOutput("FDR_colorbar", width = "50px")),
                                             column(11, plotlyOutput("VolcanoPlot")) #, width = "550px", height = "550px"
                                           ),
@@ -58,7 +50,9 @@ body <- dashboardBody(
                                         box(
                                           title = tagList(img(src='icon_scatter.png',width='22px'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE, collapsed = TRUE,
                                           fluidRow(
-                                            column(1, ''),
+                                            column(11, myDownloadButton("a_scatter_plot_download", 'Scatter plot'))
+                                          ),
+                                          fluidRow(
                                             column(11, plotlyOutput("ScatterPlot")) #, width = "550px", height = "550px"
                                           )
                                         )
@@ -66,7 +60,7 @@ body <- dashboardBody(
                                  
                                  
                         ),
-                        tabPanel("Integrated Plots", value = "p2", 
+                        tabPanel("Integrated plotting", value = "p2", 
                                 br(),
                                  column(width = 4, 
                                     box(
@@ -105,16 +99,17 @@ body <- dashboardBody(
                                         column(12, uiOutput("a_genes_file")),
                                      ),
                                      fluidRow(
-                                       column(6, uiOutput("a_label_genes_upload_ui"))
+                                       column(8, uiOutput("a_label_genes_upload_ui"))
+                                       #column(4, uiOutput("a_reset_genes_upload_ui"))
                                      )
                                   ),
                                   box(
-                                    title = tagList(img(src='icon_gnomad.png',width='60px'), 'constraints'), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                    title = tagList('gnomAD constraints'), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                     fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
                                     fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                   ),
                                   box(
-                                    title = "Settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+                                    title = "Display settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
                                     fluidRow(column(12, h5('InWeb'))),
                                     fluidRow(
                                       column(4, uiOutput("a_color_inweb_sig_ui")),
@@ -145,7 +140,7 @@ body <- dashboardBody(
                                     box(
                                       title = tagList(shiny::icon('chart-area'), "Volcano plot"), solidHeader = TRUE, status = 'success', collapsible = TRUE, width = 12, # height = '800px'
                                           fluidRow(
-                                            column(12, myDownloadButton("a_integrated_plot_download",'Download volcano'))
+                                            column(12, myDownloadButton("a_integrated_plot_download",'Volcano plot'))
                                           ),
                                           fluidRow(
                                            column(1, br(), br(), br(), br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
@@ -171,32 +166,32 @@ body <- dashboardBody(
                                     )
                                 )
                         ),
-                        tabPanel("Venn Diagrams", value = "p3",
-                                 br(),
-                                 column(6,
-                                    box(
-                                      title = tagList("Upload SNP file"), width = 12, solidHeader = TRUE, status = 'warning', collapsible = TRUE,
-                                      fluidRow(
-                                        column(12, 'blalblabla')
-                                      )
-                                   ), 
-                                     box(
-                                       title = tagList("Statistics"), width = 12, solidHeader = FALSE, status = 'warning', collapsible = TRUE,
-                                       fluidRow(
-                                         column(12,
-                                            'something venn'
-                                         )
-                                       )
-                                    ), 
-                                     box(
-                                       title = tagList("Venn Diagram"), width = 12, solidHeader = FALSE, status = 'warning', collapsible = TRUE,
-                                       fluidRow(
-                                         column(12, 'blalblabla3')
-                                      )
-                                   ) 
-                                  )
-                        
-                                 #         br(),
+                        #tabPanel("Venn Diagrams", value = "p3",
+                        #         br(),
+                        #         column(6,
+                        #            box(
+                        #              title = tagList("Upload SNP file"), width = 12, solidHeader = TRUE, status = 'warning', collapsible = TRUE,
+                        #              fluidRow(
+                        #                column(12, 'blalblabla')
+                        #              )
+                        #           ), 
+                        #             box(
+                        #               title = tagList("Statistics"), width = 12, solidHeader = FALSE, status = 'warning', collapsible = TRUE,
+                        #               fluidRow(
+                        #                 column(12,
+                        #                    'something venn'
+                        #                 )
+                        #               )
+                        #            ), 
+                        #             box(
+                        #               title = tagList("Venn Diagram"), width = 12, solidHeader = FALSE, status = 'warning', collapsible = TRUE,
+                        #               fluidRow(
+                        #                 column(12, 'blalblabla3')
+                        #              )
+                        #           ) 
+                        #          )
+                        #
+                        #         #         br(),
                         #         fluidRow(
                         #           column(4, uiOutput("a_SNP_file_vennd")),
                         #           column(4, uiOutput("a_genes_file_vennd")),
@@ -254,32 +249,51 @@ body <- dashboardBody(
                         #         fluidRow(
                         #           column(4, uiOutput("a_vd_SNP_MGL_text"))
                         #         )
-                        ),
+                        #),
                         tabPanel("Protein Family", value = "p4",
                                  br(),
-                                 fluidRow(
-                                   column(4, uiOutput("a_pf_loc_selection")),
-                                   column(4, uiOutput("a_pf_plot_selection")),
-                                   column(4, plotlyOutput("Basic_Protein_Family_sp_prev", width = "200px", height = "200px"))
+                                 column(4,
+                                    box(
+                                      title = tagList("Settings"), width = 12, solidHeader = TRUE, status = 'primary', collapsible = TRUE,
+                                      fluidRow(
+                                        column(12, uiOutput("a_pf_loc_selection")),
+                                        column(5, uiOutput("a_PF_sort_col")),
+                                        column(5, uiOutput("a_BPF_freq"))
+                                      )
+                                   )
                                  ),
-                                 fluidRow(
-                                   column(8, uiOutput("a_BPF_text"))
-                                 ),
-                                 br(),
-                                 fluidRow(
-                                   column(4, uiOutput("a_BPF_FDR_slider")),
-                                   column(4, uiOutput("a_BPF_pvalue_slider")),
-                                   column(4, uiOutput("a_BPF_logFC_slider"))
-                                 ),
-                                 fluidRow(
-                                   column(3, uiOutput("a_BPF_marker_size")), 
-                                   column(3, uiOutput("a_PF_sort_col")),
-                                   column(3, uiOutput("a_BPF_freq")),
-                                   column(3, uiOutput("a_BPF_button"))
-                                 ),
-                                 fluidRow(
-                                   column(12, plotlyOutput("Basic_Protein_Family"), height = "800px")
+                                 column(8,
+                                        box(
+                                          title = tagList("Protein families"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                          fluidRow(
+                                            column(12, '</a_plot_protein_families>')
+                                          )
+                                        )
                                  )
+                        #         br(),
+                        #         fluidRow(
+                        #           ,
+                        #           
+                        #           column(4, plotlyOutput("Basic_Protein_Family_sp_prev", width = "200px", height = "200px"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(8, uiOutput("a_BPF_text"))
+                        #        ),
+                        #         br(),
+                        #         fluidRow(
+                        #           column(4, uiOutput("a_BPF_FDR_slider")),
+                        #           column(4, uiOutput("a_BPF_pvalue_slider")),
+                        #           column(4, uiOutput("a_BPF_logFC_slider"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(3, uiOutput("a_BPF_marker_size")), 
+                        #           column(3, uiOutput("a_PF_sort_col")),
+                        #           column(3, uiOutput("a_BPF_freq")),
+                        #           column(3, uiOutput("a_BPF_button"))
+                        #         ),
+                        #         fluidRow(
+                        #           column(12, plotlyOutput("Basic_Protein_Family"), height = "800px")
+                        #         )
                         ),
                         tabPanel("Download", value = "p6",
                                  br(),
@@ -672,7 +686,7 @@ sidebar <- dashboardSidebar(
                                HTML('<hr style="border-color: #D6DBE0;">'),
                                uiOutput("a_bait_search"),
                                uiOutput("a_GOI_search"),
-                               uiOutput("a_color_scheme"),
+                               #uiOutput("a_color_scheme"),
                                uiOutput("a_color_style"),
                                uiOutput("a_file_color"),
                                uiOutput("a_significance_type_ui"),
