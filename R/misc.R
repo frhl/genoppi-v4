@@ -42,6 +42,15 @@ catf <- function(msg, file = stderr()){
 #' @export
 as.bait <- function(bait) return(list(bait=data.frame(gene=bait, col_significant='red', col_other='orange')))
 
+#' @title color_gradient
+#' @description makes a function for getting gradient colors
+#' @param x vector of values
+#' @export
+#' @source stackoverflow snippet
+color_gradient <- function(x, colors=c("green", 'red'), colsteps=100) {
+  return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+}
+
 #' @title bold
 #' @description make text html bold
 #' @param x string

@@ -18,11 +18,19 @@ theme_genoppi <- function(){
 
 #' @title genoppi themed bar
 #' @description genoppi themed bar for shiny
-theme_genoppi_bar <- function(){
-  p <- theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        panel.background=element_blank(),
-        plot.title = element_text(size = rel(1)))
+theme_genoppi_bar <- function(rotate = F){
+  if (rotate == FALSE){
+    p <- theme(axis.title.x=element_blank(),
+               axis.text.x=element_blank(),
+               axis.ticks.x=element_blank(),
+               panel.background=element_blank(),
+               plot.title = element_text(size = rel(1)))
+  } else {
+    p <- theme(axis.title.y=element_blank(),
+               axis.text.y=element_blank(),
+               axis.ticks.y=element_blank(),
+               panel.background=element_blank(),
+               plot.title = element_text(size = rel(1)))
+  }
   p
 }

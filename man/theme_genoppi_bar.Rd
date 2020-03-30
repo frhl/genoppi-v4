@@ -4,7 +4,7 @@
 \alias{theme_genoppi_bar}
 \title{genoppi themed bar}
 \usage{
-theme_genoppi_bar()
+theme_genoppi_bar(rotate = F)
 }
 \description{
 genoppi themed bar for shiny

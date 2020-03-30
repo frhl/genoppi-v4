@@ -150,7 +150,7 @@ shinyServer(function(input, output, session){
   
   # track significance threshols for FDR and P-value
   monitor_significance_tresholds <- reactive({
-    sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', 'P-value')
+    sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', '<i>P</>-value')
     sig_value = ifelse(sig_type == 'FDR', input$a_fdr_thresh, input$a_pval_thresh)
     fc_sign = ifelse(input$a_logfc_direction, '<', '≥')
     region_le <- c(paste0(sig_type,"≤", sig_value))
@@ -307,6 +307,29 @@ shinyServer(function(input, output, session){
     checkboxInput("a_label_gwas_cat", label = "Toggle labels", value = TRUE)
   })
   
+# integrated plot, gnomad labels
+#output$a_label_gnomad_ui <- renderUI({
+#  validate(need(input$a_file_pulldown_r != '', ""))
+#  checkboxInput("a_label_gnomad", label = "Toggle labels", value = TRUE)
+#})
+
+# integrated plot, gnomad labels
+output$a_select_gnomad_pli_type_ui <- renderUI({
+  validate(need(input$a_file_pulldown_r != '', ""))
+  radioButtons("a_select_gnomad_pli_type", label = 'Select pLI type', 
+               choiceNames = list('None','Threshold', 'Continuous'),
+               choiceValues = list('none','threshold', 'continuous'))
+})
+
+# integrated plot, gnomad slider
+output$a_slide_gnomad_pli_threshold_ui <- renderUI({
+  #validate(need(input$a_file_pulldown_r != '', ""))
+  validate(need(input$a_select_gnomad_pli_type == 'threshold', ""))
+  sliderInput(inputId = "a_slide_gnomad_pli_threshold", label = 'Color interactors by pLI threshold', 
+              min = 0, max = 1, value = 0.5, step = 0.01)
+})
+
+
   
   
   #output$a_color_setting_text <- renderUI({
@@ -379,7 +402,7 @@ shinyServer(function(input, output, session){
   })
   
   output$a_gwas_catalogue_ui <- renderUI({
-    selectInput('a_gwas_catalogue', 'GWAS Catalogue', unique(as.character(as.vector(gwas_table$DISEASE.TRAIT))), multiple=T, selectize=TRUE, selected = "grey")
+    selectInput('a_gwas_catalogue', 'GWAS Catalog', unique(as.character(as.vector(gwas_table$DISEASE.TRAIT))), multiple=T, selectize=TRUE, selected = "grey")
   })
   
   
@@ -550,74 +573,74 @@ shinyServer(function(input, output, session){
     selectInput('a_pf_loc_option', 'Data options', c("Protein family" = 'pf', "Localization_GO" = 'loc_go', "Localization_UniProt" = 'loc_uniprot'), selectize=FALSE)
   })
   
-  a_pf_data_selection <- reactive({
-    inDselection <- input$a_pf_loc_option
-    if (inDselection == "pf") {
-      pf_data <- PF_gene_indexed
-    } else if (inDselection == "loc_go"){
-      pf_data <- go_location_gene_indexed
-    } else {
-      pf_data <- uniprot_location_gene_indexed
-    }
-  })
+  #a_pf_data_selection <- reactive({
+  #  inDselection <- input$a_pf_loc_option
+  #  if (inDselection == "pf") {
+  #    pf_data <- PF_gene_indexed
+  #  } else if (inDselection == "loc_go"){
+  #    pf_data <- go_location_gene_indexed
+  #  } else {
+  #    pf_data <- uniprot_location_gene_indexed
+  #  }
+  #})
   
-  output$a_pf_plot_selection <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    d <- a_orig_pulldown()
-    d_col <- colnames(d)
-    if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col &
-       "rep1" %in% d_col & "rep2" %in% d_col){
-      # radioButtons('a_BPF_option_sp', 'Turn on/off marker sizing',
-      #              c(On = 'change_m_BPF',
-      #                Off = 'static_m_BPF'),
-      #              inline = T
-      # )
-      radioButtons('a_pf_plot_option', 'Plot options', c("Volcano plot" = 'vp', "Scatter plot" = 'sp'), inline=T)
-    } else if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col){
-      # validate(
-      #   return(NULL)
-      # )
-      radioButtons('a_pf_plot_option', 'Plot options', c("Volcano plot" = 'vp'), inline=T)
-    } else if("rep1" %in% d_col & "rep2" %in% d_col){
-      # radioButtons('a_BPF_option_sp', 'Turn on/off marker sizing',
-      #              c(On = 'change_m_BPF',
-      #                Off = 'static_m_BPF'),
-      #              inline = T
-      # )
-      radioButtons('a_pf_plot_option', 'Plot options', c("Volcano plot" = 'vp', "Scatter plot" = 'sp'), inline=T)
-    }
-  })
+  #output$a_pf_plot_selection <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  d <- a_orig_pulldown()
+  #  d_col <- colnames(d)
+  #  if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col &
+  #     "rep1" %in% d_col & "rep2" %in% d_col){
+  #    # radioButtons('a_BPF_option_sp', 'Turn on/off marker sizing',
+  #    #              c(On = 'change_m_BPF',
+  #    #                Off = 'static_m_BPF'),
+  #    #              inline = T
+  #    # )
+  #    radioButtons('a_pf_plot_option', 'Plot options', c("Volcano plot" = 'vp', "Scatter plot" = 'sp'), inline=T)
+  #  } else if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col){
+  #    # validate(
+  #    #   return(NULL)
+  #    # )
+  #    radioButtons('a_pf_plot_option', 'Plot options', c("Volcano plot" = 'vp'), inline=T)
+  #  } else if("rep1" %in% d_col & "rep2" %in% d_col){
+  #    # radioButtons('a_BPF_option_sp', 'Turn on/off marker sizing',
+  #    #              c(On = 'change_m_BPF',
+  #    #                Off = 'static_m_BPF'),
+  #    #              inline = T
+  #    # )
+  #    radioButtons('a_pf_plot_option', 'Plot options', c("Volcano plot" = 'vp', "Scatter plot" = 'sp'), inline=T)
+  #  }
+  #})
   
-  a_pf_viz_selection <- reactive({
-    inDselection <- input$a_pf_plot_option
-    if (inDselection == "vp") {
-      pf_viz <- "volcano_viz"
-    } else {
-      pf_viz <- "scatter_viz"
-    }
-  })
+  #a_pf_viz_selection <- reactive({
+  #  inDselection <- input$a_pf_plot_option
+  #  if (inDselection == "vp") {
+  #    pf_viz <- "volcano_viz"
+  #  } else {
+  #    pf_viz <- "scatter_viz"
+  #  }
+  #})
   
-  output$a_PF_sort_col <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    radioButtons('a_PF_sort_option', 'Sort',
-                 c("Alphabetically" = 'sort_alph',
-                   "PF Frequency" = 'sort_freq'),
-                 inline = T
-    )
-  })
+  #output$a_PF_sort_col <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  radioButtons('a_PF_sort_option', 'Sort',
+  #               c("Alphabetically" = 'sort_alph',
+  #                 "PF Frequency" = 'sort_freq'),
+  #               inline = T
+  #  )
+  #})
   
-  a_PF_sorting <- reactive({
-    inPFsort <- input$a_PF_sort_option
-    if (inPFsort == "sort_alph") {
-      marker <- "sort_a"
-    } else {
-      marker <- "sort_f"
-    }
-  })
+  #a_PF_sorting <- reactive({
+  #  inPFsort <- input$a_PF_sort_option
+  #  if (inPFsort == "sort_alph") {
+  #    marker <- "sort_a"
+  #  } else {
+  #    marker <- "sort_f"
+  #  }
+  #})
   
   #create slider for FDR
   output$a_BPF_FDR_slider <- renderUI({
@@ -1252,16 +1275,75 @@ shinyServer(function(input, output, session){
     }
   })
   
-  #a_gnomad_mapping <- reactive({
-  #  req(a_pulldown())
-  #  pulldown = a_pulldown_significant()
-  #  gnomad = merge(pulldown, gnomad_table, by = 'gene')
-  #  gnomad$significant = ifelse(gnomad$pLI > 0.9, TRUE, FALSE)
-  #  gnomad$col_significant = 'orange'
-  #  gnomad$col_other = 'grey'
-  #  gnomad$dataset = 'gnomAD'
-  #  return(gnomad)
-  #})
+  
+  # setup main gnomad mapping
+  a_gnomad_mapping <- reactive({
+    req(a_pulldown())
+    pulldown = a_pulldown_significant()
+    gnomad = merge(pulldown, gnomad_table, by = 'gene')
+    gnomad$dataset = 'gnomAD'
+    gnomad$alt_label = paste0('pLI=',gnomad$pLI)
+    gnomad$label = FALSE
+    gnomad
+  })
+  
+  # do cutoff colorscale
+  a_gnomad_mapping_threshold <- reactive({
+    req(a_gnomad_mapping(), input$a_slide_gnomad_pli_threshold)
+    gnomad = a_gnomad_mapping()
+    bool_threshold = gnomad$pLI > input$a_slide_gnomad_pli_threshold
+    bool_threshold[is.na(bool_threshold)] <- FALSE
+    gnomad$col_significant = ifelse(bool_threshold, 'red', 'green')
+    gnomad$col_other = ifelse(bool_threshold, 'grey', 'grey')
+    return(gnomad)
+  })
+  
+  # continious colors scale
+  a_gnomad_mapping_continuous <- reactive({
+    req(a_gnomad_mapping())
+    gnomad = a_gnomad_mapping()
+    colors = color_gradient(gnomad$pLI[!is.na(gnomad$pLI)], colors = c('green', 'white', 'red'), colsteps = 10)
+    gnomad$col_other = 'grey'
+    gnomad$col_significant = 'grey'
+    gnomad$col_significant[!is.na(gnomad$pLI)] = colors[!is.na(gnomad$pLI)]
+    #browser()
+    return(gnomad)
+  })
+  
+  # make color scale for continous gnomad
+  a_gnomad_colorscale <- reactive({
+    req(a_gnomad_mapping_continuous())
+    color = color_gradient(1:100, colors = c('green', 'white', 'red'), colsteps = 100)
+    colorscheme = data.frame(value = 1:length(color)/100, color = color)
+    bar <- ggplot(colorscheme, aes(xmin = value-0.01, xmax = value, ymin = 0, ymax = 0.1)) + geom_rect(fill = color) +      
+      labs('Color scale') + theme_genoppi_bar(rotate=T) + coord_fixed()
+    bar
+  })
+  
+  # plot colorscale
+  output$a_gnomad_colorscale_ui <- renderPlot(
+    a_gnomad_colorscale()
+  )
+  
+  # anottate color scale
+  output$a_gnomad_colorscale_text_ui <- renderUI({
+    HTML(bold('pLI colorscale'))
+  })
+  
+  # hide show gnomad tab
+  observe({
+    if (!is.null(input$a_select_gnomad_pli_type)){
+      if (input$a_select_gnomad_pli_type == 'continuous'){
+        shinyjs::hide("a_slide_gnomad_pli_threshold_ui")
+        shinyjs::show("a_gnomad_colorscale_ui")
+        shinyjs::show("a_gnomad_colorscale_text_ui")
+      } else {
+        shinyjs::show("a_slide_gnomad_pli_threshold_ui")
+        shinyjs::hide("a_gnomad_colorscale_ui")
+        shinyjs::hide("a_gnomad_colorscale_text_ui")
+      }
+    }
+  })
   
   
   #---------------------------------------------------------------
@@ -1296,6 +1378,17 @@ shinyServer(function(input, output, session){
       write.csv(a_gwas_catalogue_mapping(), file, row.names = F)
     }
   )
+  
+  # download gnomAD mapping
+  output$a_gnomad_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("gnomad-mapping",".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(a_gnomad_mapping(), file, row.names = F)
+    }
+   )
+  
   
   #--------------------------------------------------------
   # venn digrams and hypergeometric testing
@@ -2262,6 +2355,9 @@ shinyServer(function(input, output, session){
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
     if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()), volcano = T)}
+    if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()), volcano = T)
+    if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'continuous') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_continuous()), volcano = T)
+    
     p$overlay <- collapse_labels(p$overlay)
     p
   })

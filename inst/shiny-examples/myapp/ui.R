@@ -71,7 +71,7 @@ body <- dashboardBody(
                                      ),
                                     ),
                                     box(
-                                      title = tagList(shiny::icon('list-alt'), "GWAS catalogue"), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                      title = tagList(shiny::icon('list-alt'), "GWAS catalog"), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                       fluidRow(
                                         column(12, uiOutput('a_gwas_catalogue_ui'))
                                       ),
@@ -103,6 +103,15 @@ body <- dashboardBody(
                                   ),
                                   box(
                                     title = tagList(img(src='icon_gnomad.png',width='50px')), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                    fluidRow(
+                                      column(4,uiOutput('a_select_gnomad_pli_type_ui')),
+                                      column(8, 
+                                             uiOutput('a_slide_gnomad_pli_threshold_ui'),
+                                             uiOutput('a_gnomad_colorscale_text_ui'),
+                                             plotOutput('a_gnomad_colorscale_ui', width = "275px", height = '100px')
+                                      )
+                                    ),
+                                    br(),
                                     fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
                                     fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                   ),
