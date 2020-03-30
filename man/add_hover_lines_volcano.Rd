@@ -4,7 +4,13 @@
 \alias{add_hover_lines_volcano}
 \title{add hover lines}
 \usage{
-add_hover_lines_volcano(p, line_pvalue, line_logfc, logfc_direction = "both")
+add_hover_lines_volcano(
+  p,
+  line_pvalue,
+  line_logfc,
+  logfc_direction = "both",
+  sig_type = "fdr"
+)
 }
 \arguments{
 \item{p}{a ggplot}

@@ -32,7 +32,7 @@ body <- dashboardBody(
                                           ),
                                           fluidRow(
                                             br(),
-                                            column(12, downloadButton("a_mttest_mapping_download"))
+                                            column(12, myDownloadButton("a_mttest_mapping_download", 'Pulldown data', icon("download")))
                                           )
                                         )
                                  ),
@@ -57,8 +57,6 @@ body <- dashboardBody(
                                           )
                                         )
                                  )
-                                 
-                                 
                         ),
                         tabPanel("Integrated plotting", value = "p2", 
                                 br(),
@@ -104,7 +102,7 @@ body <- dashboardBody(
                                      )
                                   ),
                                   box(
-                                    title = tagList('gnomAD constraints'), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                    title = tagList(img(src='icon_gnomad.png',width='50px')), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                     fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
                                     fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                   ),
@@ -247,7 +245,7 @@ body <- dashboardBody(
                         #           column(4, uiOutput("a_vd_SNP_MGL_text"))
                         #         )
                         #),
-                        tabPanel("Protein Family", value = "p4",
+                        tabPanel("Pathway annotations", value = "p4",
                                  br(),
                                  column(4,
                                     box(
@@ -261,7 +259,7 @@ body <- dashboardBody(
                                  ),
                                  column(8,
                                         box(
-                                          title = tagList("Protein families"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                          title = tagList("Pathway annotations"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(
                                             column(12, '</a_plot_protein_families>')
                                           )

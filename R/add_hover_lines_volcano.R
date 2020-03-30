@@ -6,16 +6,17 @@
 #' @import plotly
 #' @note internal
 #' @family shiny
-add_hover_lines_volcano <- function(p, line_pvalue, line_logfc, logfc_direction = 'both'){
+add_hover_lines_volcano <- function(p, line_pvalue, line_logfc, logfc_direction = 'both', sig_type='fdr'){
   
   stopifnot(!is.null(p$data))
   
-  p <- p %>%
-    # p-value line
-    add_lines(x = ~c(min(p$data$logFC)-0.5, max(p$data$logFC)+0.5), y = ~-log10(line_pvalue), line = list(dash = "dash", width = 0.5, color = "#2b333e"),
-              name = '', hoverinfo = "text", text = paste0("pvalue = ", line_pvalue), showlegend = F)
-
-    # logfc lines
+    # p-value line (horizontal lines)
+    if (sig_type %in% 'pvalue'){
+      p <- p %>% add_lines(x = ~c(min(p$data$logFC)-0.5, max(p$data$logFC)+0.5), y = ~-log10(line_pvalue), line = list(dash = "dash", width = 0.5, color = "#2b333e"),
+                           name = '', hoverinfo = "text", text = paste0("pvalue = ", line_pvalue), showlegend = F)
+    }
+  
+    # logfc lines (vertical lines)
     if (logfc_direction %in%  c('both', 'negative')){
       p <-  p %>% add_lines(x = -line_logfc, y = ~c(min(-log10(p$data$pvalue)-0.5), max(-log10(p$data$pvalue))+0.5), line = list(dash = "dash", width = 0.5, color = "#252525"),
                   name = '', hoverinfo = "text", text = paste0("logFC = ", -line_logfc), showlegend = F) 

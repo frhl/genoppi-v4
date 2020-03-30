@@ -22,7 +22,7 @@ make_interactive <- function(p, x='logFC', y='pvalue', volcano = F, source = NUL
                     marker = list(size = 7, cmin = 0, cmax = 1, color = data$color, line = list(width=0.2, color='black')),
                     opacity = 0.9, 
                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), 
-                    hoverinfo = "text", name = "pull down")
+                    hoverinfo = "text", name = "pull down", showlegend = F)
   
   # add dynamic text when hovering over item
   overlay = p$overlay

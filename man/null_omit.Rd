@@ -19,6 +19,7 @@ Other misc:
 \code{\link{bold}()},
 \code{\link{catf}()},
 \code{\link{enumerate_replicate_combinations}()},
+\code{\link{italics}()},
 \code{\link{lun}()}
 }
 \concept{misc}

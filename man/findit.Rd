@@ -14,4 +14,7 @@ findit(what = "name", directory = "R")
 \description{
 find files and lines that contain 'what'
 }
+\note{
+for debugging r-package.
+}
 \keyword{internal}

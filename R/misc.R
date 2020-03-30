@@ -40,7 +40,7 @@ catf <- function(msg, file = stderr()){
 #' @param bait string indicating the bait.
 #' @family misc
 #' @export
-as.bait <- function(bait) return(list(baitlist=data.frame(gene=bait, col_significant='red', col_other='orange')))
+as.bait <- function(bait) return(list(bait=data.frame(gene=bait, col_significant='red', col_other='orange')))
 
 #' @title bold
 #' @description make text html bold
@@ -49,11 +49,19 @@ as.bait <- function(bait) return(list(baitlist=data.frame(gene=bait, col_signifi
 #' @export
 bold <- function(x){paste('<b>',x,'</b>', sep='')}
 
+#' @title italics
+#' @description make text html italics 
+#' @param x string
+#' @family misc
+#' @export
+italics <- function(x){paste('<i>',x,'</i>', sep='')}
+
 #' @title findit
 #' @description find files and lines that contain 'what'
 #' @param what string to find
 #' @param directory string, directory
 #' @keywords internal
+#' @note for debugging r-package.
 #' @export
 findit <- function(what = 'name', directory = 'R'){
   files = list.files(directory)

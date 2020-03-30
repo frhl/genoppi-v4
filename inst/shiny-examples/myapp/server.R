@@ -33,7 +33,7 @@ shinyServer(function(input, output, session){
   })
   
   output$a_logfc_direction_ui <- renderUI({
-    radioButtons("a_logfc_direction", "LogFC direction",
+    radioButtons("a_logfc_direction", HTML("log<sub>2</sub>FC direction"),
                  c("Neg" = "negative", 
                    "Both" = "both",
                    "Pos" = "positive"),
@@ -44,8 +44,10 @@ shinyServer(function(input, output, session){
   
   # 
   output$a_significance_type_ui <- renderUI({
-    radioButtons("a_significance_type", "Significance",
-                 c("FDR" = "fdr", "P-value" = "pvalue"),
+    radioButtons("a_significance_type", "Significance metric",
+                 #c("FDR" = "fdr", "<i>P</i>-value" = "pvalue"),
+                 choiceNames = list("FDR", HTML("<i>P</i>-value")),
+                 choiceValues = list("fdr",'pvalue'),
                  inline = T)
   })
   
@@ -57,7 +59,7 @@ shinyServer(function(input, output, session){
   
   output$PVal_thresh <- renderUI({
     #validate(need(input$a_significance_type == 'pvalue', ''))
-    sliderInput("a_pval_thresh", "P-value threshold",
+    sliderInput("a_pval_thresh", HTML("<i>P</i>-value threshold"),
                 min = 0, max = 1, value = 0.05, step = 0.001)
   })
   
@@ -77,10 +79,10 @@ shinyServer(function(input, output, session){
         limit <- max(max(df$logFC), abs(min(df$logFC)))
         limit <- round(limit+0.5, 1)
       }
-      sliderInput("a_logFC_thresh", "logFC threshold",
+      sliderInput("a_logFC_thresh", HTML("log<sub>2</sub>FC threshold"),
                   min = 0, max = limit, value = 0, step = 0.1)
     }else
-      sliderInput("a_logFC_thresh", "logFC threshold",
+      sliderInput("a_logFC_thresh", HTML("log<sub>2</sub>FC threshold"),
                   min = 0, max = 1, value = 0, step = 0.1)
   })  
   
@@ -151,18 +153,18 @@ shinyServer(function(input, output, session){
     sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', 'P-value')
     sig_value = ifelse(sig_type == 'FDR', input$a_fdr_thresh, input$a_pval_thresh)
     fc_sign = ifelse(input$a_logfc_direction, '<', '≥')
-    region_l <- c(paste0(sig_type,"<", sig_value))
-    region_ge <- c(paste0(sig_type,"≥", sig_value))
-    return(list(sig=region_l, insig=region_ge, sig_type=sig_type, sig_value=sig_value))
+    region_le <- c(paste0(sig_type,"≤", sig_value))
+    region_g <- c(paste0(sig_type,">", sig_value))
+    return(list(sig=region_le, insig=region_g, sig_type=sig_type, sig_value=sig_value))
   })
   
   # track significance threshols for logFC
   monitor_logfc_threshold <- reactive({
     fc_dir = input$a_logfc_direction
     fc = input$a_logFC_thresh
-    if (fc_dir == 'negative') {fc_sig = paste("logFC&lt;", -fc); fc_insig =  paste("logFC&ge;", -fc)}
-    if (fc_dir == 'positive') {fc_sig = paste("logFC&ge;", fc); fc_insig =  paste("logFC&lt;", fc)}
-    if (fc_dir == 'both') {fc_sig = paste("|logFC|&ge;", fc); fc_insig = paste("|logFC|&lt;", fc) }
+    if (fc_dir == 'negative') {fc_sig = paste("log<sub>2</sub>FC&lt;", -fc); fc_insig =  paste("log<sub>2</sub>FC&ge;", -fc)}
+    if (fc_dir == 'positive') {fc_sig = paste("log<sub>2</sub>FC&ge;", fc); fc_insig =  paste("log<sub>2</sub>FC&lt;", fc)}
+    if (fc_dir == 'both') {fc_sig = paste("|log<sub>2</sub>FC|&ge;", fc); fc_insig = paste("|log<sub>2</sub>FC|&lt;", fc) }
     return(list(sig=fc_sig, insig=fc_insig))
   })
   
@@ -173,7 +175,7 @@ shinyServer(function(input, output, session){
   # basic plot
   output$a_color_theme_indv_sig <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    label = HTML(paste(c('Colors for ',monitor_significance_tresholds()$sig, 'and', monitor_logfc_threshold()$sig)))
     colourpicker::colourInput('a_color_indv_sig', label, value = '#41AB5D', showColour = 'text', 
                   palette = c( "limited"), allowedCols = allowed_colors)
   })
@@ -181,7 +183,7 @@ shinyServer(function(input, output, session){
   # basic plot
   output$a_color_theme_indv_insig <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    label = HTML(paste(c('Colors for ',monitor_significance_tresholds()$insig, 'and', monitor_logfc_threshold()$insig)))
     colourpicker::colourInput('a_color_indv_insig', label, value = '#808080', showColour = 'text', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
@@ -369,11 +371,11 @@ shinyServer(function(input, output, session){
   })
   
   output$a_bait_search <- renderUI({
-    textInput("a_bait_search_rep", "Input bait (e.g. BCL2)")
+    textInput("a_bait_search_rep", "Input bait (HGNC symbol, e.g. BCL2)")
   })
   
   output$a_GOI_search <- renderUI({
-    textInput("a_goi_search_rep", "Search")
+    textInput("a_goi_search_rep", "Search HGNC symbol")
   })
   
   output$a_gwas_catalogue_ui <- renderUI({
@@ -407,7 +409,9 @@ shinyServer(function(input, output, session){
   })
   
   output$a_select_scatterplot_ui <- renderUI({
-    selectInput('a_select_scatterplot','Scatterplot', choices = available_replicates())
+    selectInput('a_select_scatterplot',
+                'Replicates to compare in scatter plot', 
+                choices = available_replicates())
   })
  #
   
@@ -792,7 +796,7 @@ shinyServer(function(input, output, session){
     format <- a_in_pulldown()$format
     if (format$gene_rep | format$accession_rep){
       result = calc_mod_ttest(pulldown) }
-    result$all_gene_names <- result$gene
+    #result$all_gene_names <- result$gene
     return(result)
   })
   
@@ -1550,7 +1554,7 @@ shinyServer(function(input, output, session){
     p <- a_vp_gg()
     p <- make_interactive(p, volcano = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
     p <- add_layout_html_axes_volcano(p)
     return(p)
   })
@@ -1955,8 +1959,8 @@ shinyServer(function(input, output, session){
   
   a_vp_count_text <- reactive({
     if(!is.null(a_verbatim_count())){
-      enriched <- paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse = ', ')
-      enriched
+      enriched <- paste(c('Enrichment threshold:',monitor_significance_tresholds()$sig, 'and', monitor_logfc_threshold()$sig))
+      HTML(enriched)
     }
   })
   
@@ -1990,12 +1994,6 @@ shinyServer(function(input, output, session){
     p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep), x=rep[1], y=rep[2])
     p1$r = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1
-
-    # add markers 
-    #p1 = make_interactive(p1, x=rep[1], y=rep[2])
-    #if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
-    #p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',correlation))
-    #p1
 
   })
   
@@ -2272,7 +2270,7 @@ shinyServer(function(input, output, session){
   a_integrated_plot <- reactive({
     p <- a_integrated_plot_gg()
     p <- make_interactive(p, volcano = T, source = "Multi_VolcanoPlot")
-    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction)
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction,  sig_type = input$a_significance_type)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_layout_html_axes_volcano(p, 500, 500) # error in searching overlay here when layout width/height supplied. 
     p
@@ -2314,7 +2312,7 @@ shinyServer(function(input, output, session){
       ggsave(file, plot =  input_vp_gg(), device = device)
     })
   
-  
+  # 
   
   #a_multi_vp_layer <- reactive({
   #  stop('a_multi_vp_layer is deprecated!!')

@@ -18,6 +18,7 @@ Other misc:
 \code{\link{as.bait}()},
 \code{\link{bold}()},
 \code{\link{catf}()},
+\code{\link{italics}()},
 \code{\link{lun}()},
 \code{\link{null_omit}()}
 }

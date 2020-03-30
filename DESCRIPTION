@@ -1,6 +1,6 @@
 Package: genoppi
 Title: genoppi
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     c(person(given = "Frederik",
              family = "Lassen",
@@ -36,7 +36,6 @@ RoxygenNote: 7.0.2
 Collate: 
     'add_hover_lines_volcano.R'
     'add_layout_html_axes.R'
-    'add_markers_basic.R'
     'calc_fisher.R'
     'calc_hyper.R'
     'collapse_labels.R'
@@ -46,7 +45,10 @@ Collate:
     'get_inweb_list.R'
     'get_gene_lists.R'
     'get_gwas_lists.R'
+    'get_gnomad_constraints.R'
+    'get_protein_families.R'
     'gwas_table_data.R'
+    'make_interactive.R'
     'modify_ggplot_from_overlay.R'
     'check_input.R'
     'calc_mod_ttest.R'
