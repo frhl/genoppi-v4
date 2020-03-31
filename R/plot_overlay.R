@@ -25,56 +25,60 @@
 #' p2
 #' }
 
-
-
-plot_overlay <- function(p, reference, x='logFC', y='pvalue', volcano = F, point_expansion = 1.05, legend = T){
+plot_overlay <- function(p, reference, x=NULL, y=NULL, point_expansion = 1.05){
   
   # check data of p format of reference
   stopifnot(!is.null(p$data))
   stopifnot(is.list(reference) & !is.data.frame(reference))
   
+  # set initial paramaters depending on input
+  x = ifelse(is.null(x), p$visual$x, x)
+  y = ifelse(is.null(y), p$visual$y, y)
+  volcano = ifelse(!is.null(p$visual$volcano), p$visual$volcano, F)
+  
   # convert list to data.frame
   reference = validate_reference(list_to_df(reference))
+  mymerge = merge(p$data[,unique(c('gene', 'logFC', 'pvalue','FDR','significant', x, y))], reference, by = 'gene')
   
-  # merge genelist into data.frame and check for duplicates
-  mymerge = merge(p$data[,c('gene', 'logFC', 'pvalue','FDR','significant', x, y)], reference, by = 'gene')
-
+  
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
   
   # add the new point
-  p1 = p + geom_point(mymerge, 
-                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])), 
-                 size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
-                 #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
-                 color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
-          
-          # add black stroke to points
-          geom_point(mymerge[mymerge$stroke, ],
-                 mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])),
-                 size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
-                 color = 'black',
-                 shape = 1)
-          
-  # add text/labels to points
+  p1 = p + 
+    # add points without stroke
+    geom_point(mymerge, 
+                mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])), 
+                size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
+                #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
+                color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
+    
+    # add stroke
+    geom_point(mymerge[mymerge$stroke, ],
+               mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])),
+               size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
+               color = 'black',
+               shape = 1)
+  
+  # annotate points
   mymerge_labels = mymerge[mymerge$label,]
   p1 =  p1 + geom_text_repel(mymerge_labels, 
-                 mapping=aes(label=ifelse(is.na(mymerge_labels$alt_label), 
-                            as.character(mymerge_labels$gene), 
-                            paste(as.character(mymerge_labels$gene),
-                                 as.character(mymerge_labels$alt_label), sep = ','))), 
-                 arrow=arrow(length=unit(0.1, 'npc')),
-                 box.padding=unit(0.15, "lines"), point.padding=unit(0.2, "lines"), 
-                 size=ifelse('label_size' %in% colnames(mymerge_labels), mymerge_labels$labelsize, 3), 
-                 color="black")
+                             mapping=aes(label=ifelse(is.na(mymerge_labels$alt_label), 
+                                                      as.character(mymerge_labels$gene), 
+                                                      paste(as.character(mymerge_labels$gene),
+                                                            as.character(mymerge_labels$alt_label), sep = ','))), 
+                             arrow=arrow(length=unit(0.1, 'npc')),
+                             box.padding=unit(0.15, "lines"), point.padding=unit(0.2, "lines"), 
+                             size=ifelse('label_size' %in% colnames(mymerge_labels), mymerge_labels$labelsize, 3), 
+                             color="black")
   
   # save overlay and modify plotting data.frame
   if (!is.null(p1$overlay)) {p1$overlay = rbind(p1$overlay, mymerge)} else {p1$overlay = mymerge}
   
   return(p1)
+
+  
 }
-
-
 
 #' @title concert genoppi genelist to data.frame
 #' @description converts a named list of datasets to
@@ -88,7 +92,7 @@ list_to_df <- function(lst){
   # check that the same columns are present in each data.frame
   expected_cols = unique(unlist(lapply(lst, function(x) colnames(x))))
   invalid_col = lapply(lst, function(x) any(expected_cols %nin% colnames(x)))
-  if (any(unlist(invalid_col))) stop('all data.frames in list must have same column names.')
+  if (any(unlist(invalid_col))) stop('ALL data.frames in list must have SAME column names.')
   # add columns to each data.frame
   tmp_lst = lapply(1:length(lst), function(i) {
     df = lst[[i]]

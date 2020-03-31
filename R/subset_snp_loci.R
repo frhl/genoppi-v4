@@ -22,5 +22,5 @@ subset_snp_loci <- function(df){
     rownames(multiDf) <- NULL
   }
 
-  return(list(singleGeneDf=singleDf, multiGeneDf=multiDf))
+  return(list(allGeneDf=df, singleGeneDf=singleDf, multiGeneDf=multiDf))
 }

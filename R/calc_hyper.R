@@ -7,11 +7,18 @@
 #' @return list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), population_count (N), pvalue. List of lists (for each listName) contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes, population_genes).
 #' @export
 
-calc_hyper <- function(df, listDf, intersectDf, bait=NULL){
+calc_hyper <- function(df, listDf, intersectDf=NULL, bait=NULL){
 
   outDf <- NULL
   outList <- list()
 
+  # intersect df is no longer required by default. Perhaps give a warning?
+  #if (is.null(intersectDf)) data.frame(listName=df$listName, intersectN=T)
+  #if (!is.null(intersectDf)){
+  #  if (intersectDf == T) data.frame(listName=df$listName, intersectN=T)
+  #  if (intersectDf == F) data.frame(listName=df$listName, intersectN=F)
+  #}
+  
   # perform separate enrichment test for each listName in listDf
   for (l in unique(listDf$listName)) {
     currentDf <- listDf[listDf$listName==l, ]

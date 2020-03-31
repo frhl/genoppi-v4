@@ -20,25 +20,21 @@
 
 plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey', size_point = 3){
   
-  # check requirements
-  require(ggplot2)
-  if (!all(c('gene','logFC', 'pvalue', 'significant') %in% colnames(df))) stop('data.frame does not contain some of logFC, pvalue and signifcant.')
+  # check input
+  stop_invalid_columns(df,'plot_volcano_basic',c('gene','logFC', 'pvalue', 'significant'))
   
-  # no colors specified will result in standard color scheme
-  if ('color' %nin% colnames(df)){
-    df$color = NA
-    df$color = ifelse(df$significant, col_signficant, col_other)
-  }
-  
-  # start volcano plot
+  # map ping
+  df$color <- ifelse(df$significant, col_signficant, col_other)
   p <- ggplot(df, aes(x = logFC, y = -log10(pvalue))) +
     geom_point(alpha=1, size=size_point, color=df$color, stroke = 0.6) +   
-    # plot axes labels
-    geom_hline(yintercept=0, color="black") + geom_vline(xintercept=0, color="black") +
-    xlab(bquote(log[2]*"[fold change]")) + ylab(bquote(-log[10]*"["*italic(.("P"))*"-value]")) + 
-    # minimal theme
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    geom_hline(yintercept=0, color="black") + 
+    geom_vline(xintercept=0, color="black") +
+    xlab(bquote(log[2]*"[fold change]")) + 
+    ylab(bquote(-log[10]*"["*italic(.("P"))*"-value]")) + 
+    theme(panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(),
           panel.background = element_blank())
+  p$visual = list(volcano=T, x='logFC', y='pvalue')
   
   return(p)
 }
