@@ -16,7 +16,12 @@ A table containing 190,668 genetic associations in GWAS catalog. SNP data are ba
 }
 \seealso{
 Other datasets: 
-\code{\link{gnomad_table}}
+\code{\link{gnomad_table}},
+\code{\link{goa_bp_table}},
+\code{\link{goa_cc_table}},
+\code{\link{goa_mf_table}},
+\code{\link{hgnc_group_table}},
+\code{\link{msigdb_table}}
 }
 \concept{datasets}
 \keyword{datasets}
