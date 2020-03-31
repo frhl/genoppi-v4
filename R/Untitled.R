@@ -23,16 +23,6 @@ BCL2vsIgG.GPiN %>%
   make_interactive() %>%
   add_layout_html_axes_volcano(width = NULL, height = NULL)
 
-
-  #%>% # this should be simplified
-  #make_interactive(volcano = T) %>% 
-  #add_layout_html_axes_volcano(height = NULL,width =NULL) # simplified
-
-# plot 
-ggplot_interactors = ggplot_bait
-
-
-# note 1: if volcano has been set to true once, then all downstream volcano should be true
 # note 2: bait should always be the top layer. Currently, it doesnt show when overlaying with inweb.
 }
   

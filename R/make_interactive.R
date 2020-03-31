@@ -83,6 +83,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
 
 add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
   
+  
   # function for mapping -log10
   yf <- function(x) if (volcano) return(-log10(x)) else return(x)
   
