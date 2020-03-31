@@ -992,35 +992,35 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     success_population
   })
   
-  a_bait_gene_layer <- reactive({
-    bait_in <- input$a_bait_rep
-    if (is.null(bait_in) | bait_in == "" ){
-      return(NULL)
-    } else{
-      bait <- bait_in
-      bait <- toupper(bait)
-    }
-  })
+  #a_bait_gene_layer <- reactive({
+  #  bait_in <- input$a_bait_rep
+  #  if (is.null(bait_in) | bait_in == "" ){
+  #    return(NULL)
+  #  } else{
+  #    bait <- bait_in
+  #    bait <- toupper(bait)
+  #  }
+  #})
   
-  a_bait_gene_vennd <- reactive({
-    bait_in <- input$a_bait_vennd
-    if (is.null(bait_in) | bait_in == "" ){
-      return(NULL)
-    } else{
-      bait <- bait_in
-      bait <- toupper(bait)
-    }
-  })
+  #a_bait_gene_vennd <- reactive({
+  #  bait_in <- input$a_bait_vennd
+  #  if (is.null(bait_in) | bait_in == "" ){
+  #    return(NULL)
+  #  } else{
+  #    bait <- bait_in
+  #    bait <- toupper(bait)
+  #  }
+  #})
   
-  a_search_gene <- reactive({
-    gene_in <- input$a_goi_search_rep
-    if (is.null(gene_in) | gene_in == "" ){
-      return(NULL)
-    } else{
-      gene <- gene_in
-      gene <- toupper(gene)
-    }
-  })
+  #a_search_gene <- reactive({
+  #  gene_in <- input$a_goi_search_rep
+  #  if (is.null(gene_in) | gene_in == "" ){
+  #    return(NULL)
+  #  } else{
+  #    gene <- gene_in
+  #    gene <- toupper(gene)
+  #  }
+  #})
   
   #a_bait_friends <- eventReactive(input$a_make_plot, {#reactive({
   #  if(!is.null(a_bait_gene_layer())){
@@ -1049,66 +1049,66 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   #set sample size 
   #used for volcano and scatter plot
-  sample <- reactive({
-    if(!is.null(a_bait_friends())){
-      bait_interactors <- a_bait_friends()
-      pop <- population_bait()
-      sample <- subset(pop, pop$gene %in% bait_interactors)
-      rownames(sample) <- NULL
-      sample
-    }
-  })
+  #sample <- reactive({
+  #  if(!is.null(a_bait_friends())){
+  #    bait_interactors <- a_bait_friends()
+  #    pop <- population_bait()
+  #    sample <- subset(pop, pop$gene %in% bait_interactors)
+  #    rownames(sample) <- NULL
+  #    sample
+  #  }
+  #})
   
-  sample_bait <- reactive({
-    if(!is.null(a_bait_friends_vennd())){
-      bait_interactors <- a_bait_friends_vennd()
-      pop <- population_bait()
-      sample <- subset(pop, pop$gene %in% bait_interactors)
-      rownames(sample) <- NULL 
-      sample
-    }
-  })
+  #sample_bait <- reactive({
+  #  if(!is.null(a_bait_friends_vennd())){
+  #    bait_interactors <- a_bait_friends_vennd()
+  #    pop <- population_bait()
+  #    sample <- subset(pop, pop$gene %in% bait_interactors)
+  #    rownames(sample) <- NULL 
+  #    sample
+  #  }
+  #})
   
-  sample_GOI <- reactive({
-    if(!is.null(a_genes_uploaded_vennd())){
-      genes_upload <- a_genes_uploaded_vennd()
-      pop <- population_GOI()
-      sample <- lapply(genes_upload, function(x) subset(pop, gene %in% x) )  
-      sample
-    }
-  })
+  #sample_GOI <- reactive({
+  #  if(!is.null(a_genes_uploaded_vennd())){
+  #    genes_upload <- a_genes_uploaded_vennd()
+  #    pop <- population_GOI()
+  #    sample <- lapply(genes_upload, function(x) subset(pop, gene %in% x) )  
+  #    sample
+  #  }
+  #})
   
-  sample_SNP <- reactive({
-    if(!is.null(SNP_to_gene_vennd())){
-      snp2gene <- SNP_to_gene_vennd()
-      pop <- population_GOI()
-      sample <- subset(pop, pop$gene %in% snp2gene$gene)
-      rownames(sample) <- NULL 
-      sample
-    }
-  })
+  #sample_SNP <- reactive({
+  #  if(!is.null(SNP_to_gene_vennd())){
+  #    snp2gene <- SNP_to_gene_vennd()
+  #    pop <- population_GOI()
+  #    sample <- subset(pop, pop$gene %in% snp2gene$gene)
+  #    rownames(sample) <- NULL 
+  #    sample
+  #  }
+  #})
   
-  sample_SNP_SGL <- reactive({
-    if(!is.null(SNP_to_gene_vennd())){
-      snp2gene <- SNP_to_gene_vennd()
-      snp_sgl <- subset(snp2gene, Freq == 1)
-      pop <- population_GOI()
-      sample <- subset(pop, pop$gene %in% snp_sgl$gene)
-      rownames(sample) <- NULL 
-      sample
-    }
-  })
+  #sample_SNP_SGL <- reactive({
+  #  if(!is.null(SNP_to_gene_vennd())){
+  #    snp2gene <- SNP_to_gene_vennd()
+  #    snp_sgl <- subset(snp2gene, Freq == 1)
+  #    pop <- population_GOI()
+  #    sample <- subset(pop, pop$gene %in% snp_sgl$gene)
+  #    rownames(sample) <- NULL 
+  #    sample
+  #  }
+  #})
   
-  sample_SNP_MGL <- reactive({
-    if(!is.null(SNP_to_gene_vennd())){
-      snp2gene <- SNP_to_gene_vennd()
-      snp_mgl <- subset(snp2gene, Freq != 1)
-      pop <- population_GOI()
-      sample <- subset(pop, pop$gene %in% snp_mgl$gene)
-      rownames(sample) <- NULL 
-      sample
-    }
-  })
+  #sample_SNP_MGL <- reactive({
+  #  if(!is.null(SNP_to_gene_vennd())){
+  #    snp2gene <- SNP_to_gene_vennd()
+  #    snp_mgl <- subset(snp2gene, Freq != 1)
+  #    pop <- population_GOI()
+  #    sample <- subset(pop, pop$gene %in% snp_mgl$gene)
+  #    rownames(sample) <- NULL 
+  #    sample
+  #  }
+  #})
   
   #success_sample_bait <- reactive({
   #  if(!is.null(sample_bait()) & !is.null(success_population_bait())){
@@ -1206,23 +1206,23 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #  }
   #})
   
-  hypergeometric_test_list_SNP <- reactive({
-    if(!is.null(sample_SNP()) & !is.null(success_population_SNP()) & !is.null(success_sample_SNP())){
-      samp <- sample_SNP()
-      success_pop <- success_population_SNP()
-      success_samp <- success_sample_SNP()
-      snp_upload <- a_snp_vennd()
-      x <- list()
-      x[["A"]] <- as.character(success_pop$gene)
-      x[["B"]] <- as.character(samp$gene)
-      x[["Overlap"]] <- as.character(success_samp$gene)
-      n.obs <- sapply(x, length)
-      seq.max <- seq_len(max(n.obs))
-      mat <- sapply(x, "[", i = seq.max)
-      mat[is.na(mat)] <- " "
-      as.data.frame(mat)
-    }
-  })
+  #hypergeometric_test_list_SNP <- reactive({
+  #  if(!is.null(sample_SNP()) & !is.null(success_population_SNP()) & !is.null(success_sample_SNP())){
+  #    samp <- sample_SNP()
+  #    success_pop <- success_population_SNP()
+  #    success_samp <- success_sample_SNP()
+  #    snp_upload <- a_snp_vennd()
+  #    x <- list()
+  #    x[["A"]] <- as.character(success_pop$gene)
+  #    x[["B"]] <- as.character(samp$gene)
+  #    x[["Overlap"]] <- as.character(success_samp$gene)
+  #    n.obs <- sapply(x, length)
+  #    seq.max <- seq_len(max(n.obs))
+  #    mat <- sapply(x, "[", i = seq.max)
+  #    mat[is.na(mat)] <- " "
+  #    as.data.frame(mat)
+  #  }
+  #})
   
   #snp to gene using LD r^2>0.6±user defined extension
   a_snp <- reactive({
@@ -1305,7 +1305,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     gnomad$col_other = 'grey'
     gnomad$col_significant = 'grey'
     gnomad$col_significant[!is.na(gnomad$pLI)] = colors[!is.na(gnomad$pLI)]
-    #browser()
     return(gnomad)
   })
   
@@ -1341,6 +1340,22 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
         shinyjs::hide("a_gnomad_colorscale_ui")
         shinyjs::hide("a_gnomad_colorscale_text_ui")
       }
+    }
+  })
+  
+  # investigate pathways
+  a_pathway_mapping <- reactive({
+    req(a_pulldown())
+    pulldown = a_pulldown_significant()
+    pathways = get_pathways("hgnc",pulldown$gene)
+    if (!is.null(pathways)){
+      mapping = merge(pulldown, pathways, by = 'gene')
+      mapping$col_significant = input$a_color_gwas_cat_sig
+      mapping$col_other = input$a_color_gwas_cat_insig
+      #mapping$symbol = input$a_symbol_gwas_cat
+      #mapping$label = input$a_label_gwas_cat
+      mapping$dataset = mapping$pathway
+      return(mapping)
     }
   })
   
@@ -3769,7 +3784,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   )
   
   basic_plot_dl <- reactive({
-    browser()
     df <- a_in_pulldown()
     if("logFC" %in% colnames(df) & "FDR" %in% colnames(df) & "pvalue" %in% colnames(df) &
        "rep1" %in% colnames(df) & "rep2" %in% colnames(df)){
