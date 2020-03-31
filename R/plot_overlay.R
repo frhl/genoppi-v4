@@ -131,7 +131,7 @@ validate_reference <- function(df, valid = c('gene','col_significant','col_other
   
   bool = colnames(df) %in% valid
   cols = colnames(df)[!bool]
-  warning(paste('columns:', paste(cols, collapse=', '),'from reference data.frame are not ggplot compatible and were ignored.'))
+  if (any(!bool)) warning(paste('columns:', paste(cols, collapse=', '),'from reference data.frame are not ggplot compatible and were ignored.'))
   return(df[bool])
 }
 

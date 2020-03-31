@@ -3,7 +3,7 @@
 #' @param x a list of two vectors that contain some overlapping strings.
 #' @param colors color scheme.
 #' @param main title, typically a p-value.
-#' @importFrom VennDiagram venn.diagrm
+#' @importFrom VennDiagram venn.diagram
 #' @importFrom grid grid.newpage grid.draw
 #' @export
 

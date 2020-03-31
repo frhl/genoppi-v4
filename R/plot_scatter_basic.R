@@ -13,6 +13,9 @@
 
 plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col_signficant = "#41AB5D", col_other = 'grey'){
   
+  # no colors specified will result in standard color scheme
+  df$color = ifelse(df$significant, col_signficant, col_other)
+  
   # plot singlebasic scatter plot
   correlation = cor(df[,repA], df[,repB])
   p = ggplot(df, mapping=aes_(x=as.name(repA), y=as.name(repB))) + 
@@ -46,9 +49,6 @@ plot_scatter_basic_all <- function(df, size_point = 3, col_signficant = "#41AB5D
   # check input
   expected_columns = c('logFC', 'FDR', 'pvalue', 'significant', 'gene')
   stop_invalid_columns(df, 'plot_scatte_basic_all', expected_columns)
-  
-  # no colors specified will result in standard color scheme
-  df$color = ifelse(df$significant, col_signficant, col_other)
   
   # enumerate all combinations replicate
   reps = regmatches(colnames(df), regexpr('rep[0-9]',colnames(df)))

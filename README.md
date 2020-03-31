@@ -12,18 +12,18 @@ data("BCL2vsIgG.GPiN")
 BCL2vsIgG.GPiN %>% 
   calc_mod_ttest() %>% 
   id_enriched_proteins() %>%
+  plot_scatter_basic('rep1','rep3') %>% 
   plot_overlay(as.bait('BCL2')) %>% 
-  plot_scatter_basic('rep1','rep2')
-  
+  make_interactive()
+
 # look at basic voclcano plot
 BCL2vsIgG.GPiN %>% 
   calc_mod_ttest() %>% 
   id_enriched_proteins() %>%
   plot_volcano_basic() %>%
   plot_overlay(as.bait('BCL2')) %>% 
-  make_interactive(volcano = T)
-
-# investigate overlap
+  make_interactive() %>%
+  add_layout_html_axes_volcano(width = NULL, height = NULL)
 
 
 # tally overlap

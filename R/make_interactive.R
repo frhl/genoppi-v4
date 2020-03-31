@@ -7,7 +7,12 @@
 #' @import plotly
 #' @export
 
-make_interactive <- function(p, x='logFC', y='pvalue', volcano = F, source = NULL){
+make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
+  
+  # set initial paramaters depending on input
+  x = ifelse(is.null(x), p$visual$x, x)
+  y = ifelse(is.null(y), p$visual$y, y)
+  volcano = ifelse(!is.null(p$visual$volcano), p$visual$volcano, F)
   
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
