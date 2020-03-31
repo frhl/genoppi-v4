@@ -4,7 +4,7 @@
 \alias{calc_hyper}
 \title{Perform hypergeometric test}
 \usage{
-calc_hyper(df, listDf, intersectDf, bait = NULL)
+calc_hyper(df, listDf, intersectDf = NULL, bait = NULL)
 }
 \arguments{
 \item{df}{data.frame containing proteomic data, with gene and significant columns}

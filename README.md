@@ -2,9 +2,31 @@
 Genoppi version 4. See 'issues' for current development todo's. Run the current shiny app development by loading the package and running:
 
 ```R
+# load immunoprecipitation experiment
+# for Antibody to BCL2 and IgG control 
+# within neurons
 library(genoppi)
-launch_genoppi() # will launch a shiny app
+data("BCL2vsIgG.GPiN")
 
+# look at replicate correlation
+BCL2vsIgG.GPiN %>% 
+  calc_mod_ttest() %>% 
+  id_enriched_proteins() %>%
+  plot_overlay(as.bait('BCL2')) %>% 
+  plot_scatter_basic('rep1','rep2')
+  
+# look at basic voclcano plot
+BCL2vsIgG.GPiN %>% 
+  calc_mod_ttest() %>% 
+  id_enriched_proteins() %>%
+  plot_volcano_basic() %>%
+  plot_overlay(as.bait('BCL2')) %>% 
+  make_interactive(volcano = T)
+
+# investigate overlap
+
+
+# tally overlap
 ```
 
 ## R-package development

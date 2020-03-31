@@ -67,7 +67,8 @@ body <- dashboardBody(
                                        column(12, uiOutput("a_bait_layer"))
                                      ),
                                      fluidRow(
-                                       column(6, uiOutput("a_label_inweb_ui"))
+                                       column(8, uiOutput("a_label_inweb_ui")),
+                                       column(4, myDownloadButton("a_inweb_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
                                      ),
                                     ),
                                     box(

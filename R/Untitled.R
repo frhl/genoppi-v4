@@ -3,23 +3,23 @@
 
 if (F){
 # load immunoprecipitation experiment
+library(genoppi)
 data("BCL2vsIgG.GPiN")
-df = BCL2vsIgG.GPiN
 
-
-#
-
-#df %>% 
+# look at replicate correlation
+BCL2vsIgG.GPiN %>% 
   calc_mod_ttest() %>% 
   id_enriched_proteins() %>%
-  enumerate_plot_scatter_basic(repB='rep3')
-
-# setup basic pipeline for plotting
-df %>% 
+  plot_overlay(as.bait('BCL2')) %>% 
+  plot_scatter_basic('rep1','rep2')
+  
+# look at basic voclcano plot
+BCL2vsIgG.GPiN %>% 
   calc_mod_ttest() %>% 
   id_enriched_proteins() %>%
   plot_volcano_basic() %>%
-  plot_overlay(as.bait('BCL2'))
+  plot_overlay(as.bait('BCL2')) %>% 
+  make_interactive(volcano = T)
 
 # plot inweb interactors
 ggplot_interactors = ggplot_bait %>%

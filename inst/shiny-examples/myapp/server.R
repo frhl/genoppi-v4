@@ -734,39 +734,39 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     }
   })
   
-  output$a_BPF_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    HTML("<b>User-defined significance thresholds:</b>")
-  })
+  #output$a_BPF_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  HTML("<b>User-defined significance thresholds:</b>")
+  #})
   
-  output$a_BPF_button <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    if(!is.null(a_pulldown())){
-      actionButton("a_make_bpf", "Generate PF plot")
-    }
-  })
+  #output$a_BPF_button <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  if(!is.null(a_pulldown())){
+  #    actionButton("a_make_bpf", "Generate PF plot")
+  #  }
+  #})
   
-  output$a_prot_fam_db <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    selectInput('a_pfam_db', 'Protein families', colnames(prot_fam), multiple=TRUE, selectize=TRUE)
-  })
+  #output$a_prot_fam_db <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  selectInput('a_pfam_db', 'Protein families', colnames(prot_fam), multiple=TRUE, selectize=TRUE)
+  #})
   
-  output$a_text_prot_fam_db <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    radioButtons('a_marker_text_prot_fam_db', 'Turn on/off labels',
-                 c(On = 'yes_label',
-                   Off = 'no_label'),
-                 inline = T
-    )
-  })
+  #output$a_text_prot_fam_db <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  radioButtons('a_marker_text_prot_fam_db', 'Turn on/off labels',
+  #               c(On = 'yes_label',
+  #                 Off = 'no_label'),
+  #               inline = T
+  #  )
+  #})
   
   #observeEvent(input$basic,{
   #  if(input$basic == "p3" | input$basic == "p4" | input$basic == "p5"){
@@ -1245,7 +1245,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # map inweb prorteins
   a_inweb_mapping <- reactive({
-    req(input$a_bait_rep)
+    req(input$a_bait_rep, a_pulldown())
     mapping = get_inweb_list(input$a_bait_rep)
     if (!is.null(mapping)){
         mapping = mapping[mapping$significant, ]
@@ -1268,9 +1268,8 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       mapping$col_other = input$a_color_gwas_cat_insig
       mapping$symbol = input$a_symbol_gwas_cat
       mapping$label = input$a_label_gwas_cat
-      mapping$dataset = mapping$trait
+      mapping$dataset = mapping$DISEASE.TRAIT
       mapping$alt_label = mapping$SNP
-      print(mapping)
       return(mapping)
     }
   })
@@ -1349,6 +1348,19 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #---------------------------------------------------------------
   # download different mappings
   
+  # download inweb mapping
+  output$a_inweb_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("inweb-mapping",".csv", sep="")
+    },
+    content = function(file) {
+      pulldown = a_pulldown_significant()
+      inweb = a_inweb_mapping()[,c("dataset","gene")]
+      mymerge = merge(pulldown, inweb, by = 'gene')
+      write.csv(mymerge, file, row.names = F)
+    }
+  )
+  
   # download moderated t-test
   output$a_mttest_mapping_download <- downloadHandler(
     filename = function() {
@@ -1365,17 +1377,22 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       paste("snps-mapping",".csv", sep="")
     },
     content = function(file) {
-      write.csv(a_snp_mapping()[,c('gene', 'SNP')], file, row.names = F)
+      pulldown = a_pulldown_significant()
+      snp = a_snp_mapping()[,c('dataset','gene', 'SNP')]
+      mymerge = merge(pulldown, snp, by = 'gene')
+      write.csv(mymerge, file, row.names = F)
     }
   )
   
-  # download gwas catalogue mapping
   output$a_gwas_catalogue_mapping_download <- downloadHandler(
     filename = function() {
       paste("gwas-catalogue-mapping",".csv", sep="")
     },
     content = function(file) {
-      write.csv(a_gwas_catalogue_mapping(), file, row.names = F)
+      pulldown = a_pulldown_significant()
+      gwas = a_gwas_catalogue_mapping()[c("gene", "SNP","P.VALUE", "DISEASE.TRAIT", "PUBMEDID", "STUDY.ACCESSION")]
+      mymerge = merge(pulldown, gwas, by = 'gene')
+      write.csv(mymerge, file, row.names = F)
     }
   )
   
@@ -1385,7 +1402,10 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       paste("gnomad-mapping",".csv", sep="")
     },
     content = function(file) {
-      write.csv(a_gnomad_mapping(), file, row.names = F)
+      pulldown = a_pulldown_significant()
+      gnomad = a_gnomad_mapping()[,c('gene','pLI','oe_lof','oe_lof_lower','oe_lof_upper','gene_id')]
+      mymerge = merge(pulldown, gwas, by = 'gene')
+      write.csv(mymerge, file, row.names = F)
     }
    )
   
@@ -1419,13 +1439,10 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     hyper
   })
   
-  # hypergeometric overlap of SNPs, keep p-value
-  # in case we need it later
+  # h
   a_snp_calc_overlap <- reactive({
     req(a_genes_upload(), a_pulldown_significant())
-    genes = data.frame(listName="genelist", a_snp_mapping())
-    
-    ## to be determined..
+    overlap = subset_snp_loci(a_snp_mapping())
   })
   
   # draw venn diagram
@@ -1639,7 +1656,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     d <- a_pulldown_significant()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
     p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
-    p <- plot_overlay(p, as.bait(input$a_bait_search_rep), volcano = T) # add bait
+    p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
     return(p)
   })
   
@@ -2080,7 +2097,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     
     # handle all plots
     d = a_pulldown_significant()
-    p = plot_scatter_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
+    p = plot_scatter_basic_all(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
 
     # handle individual plot
     p1 = p[[input$a_select_scatterplot]]$ggplot
@@ -2097,9 +2114,9 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
     r = p1$r
     
-    # concert into interactive graphics
+    # convert into interactive graphics
     p1 = make_interactive(p1, x=rep[1], y=rep[2])
-    if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2], volcano = F)
+    if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2])
     p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',r))
     p1
     
@@ -2351,12 +2368,12 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # generate plot in ggformat
   a_integrated_plot_gg <- reactive({
     p = a_vp_gg()
-    if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()), volcano = T)
-    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()), volcano = T)
-    if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()), volcano = T)}
-    if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()), volcano = T)}
-    if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()), volcano = T)
-    if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'continuous') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_continuous()), volcano = T)
+    if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()))
+    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
+    if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
+    if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()))}
+    if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()))
+    if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'continuous') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_continuous()))
     
     p$overlay <- collapse_labels(p$overlay)
     p
