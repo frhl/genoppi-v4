@@ -4,7 +4,7 @@
 \alias{make_interactive}
 \title{Make ggplot interactive using plotly}
 \usage{
-make_interactive(p, x = "logFC", y = "pvalue", volcano = F, source = NULL)
+make_interactive(p, x = NULL, y = NULL, source = NULL)
 }
 \arguments{
 \item{x}{string. The x-column to be used from \code{p$data} and \code{p$overlay}.}
