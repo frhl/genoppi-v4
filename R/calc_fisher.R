@@ -12,6 +12,10 @@ calc_fisher <- function(df, listDf, intersectDf, bait=NULL){
   outDf <- NULL
   outList <- list()
 
+  # check input
+  if (is.null(bait)) warning('argument "bait=NULL", no bait was removed.')
+  if (!is.data.frame(intersectDf)) stop('argument intersectDF but be a valid data.frame. See examples ?calc_fisher.')
+  
   # perform separate enrichment test for each listName in listDf
   for (l in unique(listDf$listName)) {
     currentDf <- listDf[listDf$listName==l, ]

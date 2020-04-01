@@ -5,13 +5,22 @@
 #' @param intersectDf data.frame contaning listName and intersectN columns intersectN = vector of boolean variables indicating if total population should be intersect of the two datasets
 #' @param bait name of bait protein
 #' @return list of data.frame and list. Data.frame contains list_name, successInSample_count (x), sample_count (n), notSample_count (N-n), success_count (k), population_count (N), pvalue. List of lists (for each listName) contains genes names corresponding to each group (successInSample_genes, sample_genes, notSample_genes, success_genes, population_genes).
+#' @examples 
+#' \dontrun{
+#' # an example
+#' 
+#' }
 #' @export
 
-calc_hyper <- function(df, listDf, intersectDf=NULL, bait=NULL){
+calc_hyper <- function(df, listDf, intersectDf, bait=NULL){
 
   outDf <- NULL
   outList <- list()
-
+  
+  # check input
+  if (is.null(bait)) warning('argument "bait=NULL", no bait was removed.')
+  if (!is.data.frame(intersectDf)) stop('argument intersectDF but be a valid data.frame. See examples ?calc_hyper.')
+  
   # intersect df is no longer required by default. Perhaps give a warning?
   #if (is.null(intersectDf)) data.frame(listName=df$listName, intersectN=T)
   #if (!is.null(intersectDf)){

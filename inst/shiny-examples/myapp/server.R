@@ -436,7 +436,22 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
                 'Replicates to compare in scatter plot', 
                 choices = available_replicates())
   })
- #
+  
+  #
+  output$a_select_venn_genes_upload_ui <- renderUI({
+    selectInput('a_select_venn_list_genes_upload',
+                'Select GENES UPLOAD list', 
+                choices = c(a_available_lists_genes_upload(), 'combined'))
+                #multiple=T, selectize=TRUE, selected = "grey")
+  })
+
+  output$a_select_venn_snp_ui <- renderUI({
+    selectInput('a_select_venn_list_snp',
+                'Select SNP list', 
+                choices = c(a_available_lists_snp(), 'combined'))
+                #multiple=T, selectize=TRUE, selected = "grey")
+  })
+  
   
   #output$a_text_label <- renderUI({
   #  radioButtons('a_marker_text', 'Turn on/off labels',
@@ -643,96 +658,96 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #})
   
   #create slider for FDR
-  output$a_BPF_FDR_slider <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$a_pf_plot_option != '', "")
-    )
-    if(a_pf_viz_selection() == "volcano_viz"){
-      sliderInput("a_BPF_FDR_range", "FDR",
-                  min = 0, max = 1, value = c(0, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
-    } else if(a_pf_viz_selection() == "scatter_viz"){
-      d <- a_pulldown()
-      d_col <- colnames(d)
-      if("rep1" %in% d_col & "rep2" %in% d_col){
-        min_rep1 <- min(d$rep1)
-        min_rep1 <- round(min_rep1-0.5, 1)
-        max_rep1 <- max(d$rep1)
-        max_rep1 <- round(max_rep1+0.5, 1)
-        sliderInput("a_BPF_rep1_range", "rep1",
-                    min = min_rep1, max = max_rep1, value = c(-1, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
-      }
-    }
-  })
+  #output$a_BPF_FDR_slider <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$a_pf_plot_option != '', "")
+  #  )
+  #  if(a_pf_viz_selection() == "volcano_viz"){
+  #    sliderInput("a_BPF_FDR_range", "FDR",
+  #                min = 0, max = 1, value = c(0, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
+  #  } else if(a_pf_viz_selection() == "scatter_viz"){
+  #    d <- a_pulldown()
+  #    d_col <- colnames(d)
+  #    if("rep1" %in% d_col & "rep2" %in% d_col){
+  #      min_rep1 <- min(d$rep1)
+  #      min_rep1 <- round(min_rep1-0.5, 1)
+  #      max_rep1 <- max(d$rep1)
+  #      max_rep1 <- round(max_rep1+0.5, 1)
+  #      sliderInput("a_BPF_rep1_range", "rep1",
+  #                  min = min_rep1, max = max_rep1, value = c(-1, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
+  #    }
+  #  }
+  #})
   
   #create slider for pvalue
-  output$a_BPF_pvalue_slider <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$a_pf_plot_option != '', "")
-    )
-    if(a_pf_viz_selection() == "volcano_viz"){
-      sliderInput("a_BPF_pvalue_range", "pvalue",
-                  min = 0, max = 1, value = c(0, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
-    } else if(a_pf_viz_selection() == "scatter_viz"){
-      d <- a_pulldown()
-      d_col <- colnames(d)
-      if("rep1" %in% d_col & "rep2" %in% d_col){
-        min_rep2 <- min(d$rep2)
-        min_rep2 <- round(min_rep2-0.5, 1)
-        max_rep2 <- max(d$rep2)
-        max_rep2 <- round(max_rep2+0.5, 1)
-        sliderInput("a_BPF_rep2_range", "rep2",
-                    min = min_rep2, max = max_rep2, value = c(-1, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
-      }
-    }
-  })
+  #output$a_BPF_pvalue_slider <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$a_pf_plot_option != '', "")
+  #  )
+  #  if(a_pf_viz_selection() == "volcano_viz"){
+  #    sliderInput("a_BPF_pvalue_range", "pvalue",
+  #                min = 0, max = 1, value = c(0, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
+  #  } else if(a_pf_viz_selection() == "scatter_viz"){
+  #    d <- a_pulldown()
+  #    d_col <- colnames(d)
+  #    if("rep1" %in% d_col & "rep2" %in% d_col){
+  #      min_rep2 <- min(d$rep2)
+  #      min_rep2 <- round(min_rep2-0.5, 1)
+  #      max_rep2 <- max(d$rep2)
+  #      max_rep2 <- round(max_rep2+0.5, 1)
+  #      sliderInput("a_BPF_rep2_range", "rep2",
+  #                  min = min_rep2, max = max_rep2, value = c(-1, 1), step = 0.01, sep = '', pre = NULL, post = NULL)
+  #    }
+  #  }
+  #})
   
   # based on a_pulldown(), create slider for BPF logFC
-  output$a_BPF_logFC_slider <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$a_pf_plot_option != '', "")
-    )
-    if(a_pf_viz_selection() == "volcano_viz"){
-      if(!is.null(a_pulldown())){
-        input_file <- a_pulldown()
-        df <- input_file
-        min_logFC <- min(df$logFC)
-        min_logFC <- round(min_logFC-0.5, 1)
-        max_logFC <- max(df$logFC)
-        max_logFC <- round(max_logFC+0.5, 1)
-        sliderInput("a_BPF_logFC_range", "logFC",
-                    min = min_logFC, max = max_logFC, value = c(1, max_logFC), step = 0.1)
-      }
-    } else if(a_pf_viz_selection() == "scatter_viz"){
-      return(NULL)
-    }
-  })
+  #output$a_BPF_logFC_slider <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$a_pf_plot_option != '', "")
+  #  )
+  #  if(a_pf_viz_selection() == "volcano_viz"){
+  #    if(!is.null(a_pulldown())){
+  #      input_file <- a_pulldown()
+  #      df <- input_file
+  #      min_logFC <- min(df$logFC)
+  #      min_logFC <- round(min_logFC-0.5, 1)
+  #      max_logFC <- max(df$logFC)
+  #      max_logFC <- round(max_logFC+0.5, 1)
+  #      sliderInput("a_BPF_logFC_range", "logFC",
+  #                  min = min_logFC, max = max_logFC, value = c(1, max_logFC), step = 0.1)
+  #    }
+  #  } else if(a_pf_viz_selection() == "scatter_viz"){
+  #    return(NULL)
+  #  }
+  #})
   
-  output$a_BPF_marker_size <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    radioButtons('a_BPF_option', 'Turn on/off marker sizing',
-                 c(On = 'change_m_BPF',
-                   Off = 'static_m_BPF'),
-                 inline = T
-    )
-  })
+  #output$a_BPF_marker_size <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  radioButtons('a_BPF_option', 'Turn on/off marker sizing',
+  #               c(On = 'change_m_BPF',
+  #                 Off = 'static_m_BPF'),
+  #               inline = T
+  #  )
+  #})
   
-  output$a_BPF_freq <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    if(!is.null(input$a_BPF_option)){
-      inBPFmarker <- input$a_BPF_option
-      if (inBPFmarker == "change_m_BPF") {
-        sliderInput("a_BPF_marker_freq", "Marker size",
-                    min = 1, max = 40, value = 1, step = 1)     
-      }
-    }
-  })
+  #output$a_BPF_freq <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  if(!is.null(input$a_BPF_option)){
+  #    inBPFmarker <- input$a_BPF_option
+  #    if (inBPFmarker == "change_m_BPF") {
+  #      sliderInput("a_BPF_marker_freq", "Marker size",
+  #                  min = 1, max = 40, value = 1, step = 1)     
+  #    }
+  #  }
+  #})
   
   #output$a_BPF_text <- renderUI({
   #  validate(
@@ -869,7 +884,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       genes$data$col_other = input$a_color_genes_upload_insig
       genes$data$symbol = input$a_symbol_genes_upload
       genes$data$label = input$a_label_genes_upload
-      return(genes$data)
+      return(genes)
     }
   })
   
@@ -901,31 +916,31 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #  }
   #})
   
-  a_genes_uploaded <- reactive({
-    if(!is.null(a_upload_genes())){
-      genes <- a_upload_genes()
-      genes <- as.data.frame(sapply(genes, toupper)) 
-      genes
-    }
-  })
+  #a_genes_uploaded <- reactive({
+  #  if(!is.null(a_upload_genes())){
+  #    genes <- a_upload_genes()
+  #    genes <- as.data.frame(sapply(genes, toupper)) 
+  #    genes
+  #  }
+  #})
   
-  a_upload_genes_vennd <- reactive({
-    genes <- input$a_file_genes_vennd
-    if (is.null(genes)){
-      return(NULL)
-    } else{
-      df <- fread(genes$datapath, header = T, fill = T,
-                  sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
-    }
-  })
+  #a_upload_genes_vennd <- reactive({
+  #  genes <- input$a_file_genes_vennd
+  #  if (is.null(genes)){
+  #    return(NULL)
+  #  } else{
+  #    df <- fread(genes$datapath, header = T, fill = T,
+  #                sep="auto", na.strings=c(""," ","NA"), stringsAsFactors = FALSE, data.table = FALSE, blank.lines.skip = T)
+  #  }
+  #})
   
-  a_genes_uploaded_vennd <- eventReactive(input$a_make_vennd_goi, { 
-    if(!is.null(a_upload_genes_vennd())){
-      genes <- a_upload_genes_vennd()
-      genes <- as.data.frame(sapply(genes, toupper)) 
-      genes
-    }
-  })
+  #a_genes_uploaded_vennd <- eventReactive(input$a_make_vennd_goi, { 
+  #  if(!is.null(a_upload_genes_vennd())){
+  #    genes <- a_upload_genes_vennd()
+  #    genes <- as.data.frame(sapply(genes, toupper)) 
+  #    genes
+  #  }
+  #})
   
   #output$a_goi_num_inputs <- renderUI({
   #  validate(
@@ -944,53 +959,53 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #})
   
   #population_bait -- pull down overlap inweb
-  population_bait <- reactive({
-    present_in_inweb <- a_pulldown()
-    population_bait <- subset(present_in_inweb, present_in_inweb$gene %in% inweb_combined$V1)
-    population_bait <- population_bait[!duplicated(population_bait[,c("gene")]),]
-    population_bait
-  })
+  #population_bait <- reactive({
+  #  present_in_inweb <- a_pulldown()
+  #  population_bait <- subset(present_in_inweb, present_in_inweb$gene %in% inweb_combined$V1)
+  #  population_bait <- population_bait[!duplicated(population_bait[,c("gene")]),]
+  #  population_bait
+  #})
   
-  population_GOI <- reactive({
-    present_in_hum_genome <- a_pulldown()
-    hgnc <- toupper(human_genome$HGNCsymbol)
-    population_hum_genome <- subset(present_in_hum_genome, present_in_hum_genome$gene %in% hgnc)
-  })
+  #population_GOI <- reactive({
+  #  present_in_hum_genome <- a_pulldown()
+  #  hgnc <- toupper(human_genome$HGNCsymbol)
+  #  population_hum_genome <- subset(present_in_hum_genome, present_in_hum_genome$gene %in% hgnc)
+  #})
   
-  population_SNP <- reactive({
-    present_in_hum_genome <- a_pulldown()
-    hgnc <- toupper(human_genome$HGNCsymbol)
-    population_hum_genome <- subset(present_in_hum_genome, present_in_hum_genome$gene %in% hgnc)
-  })
+  #population_SNP <- reactive({
+  #  present_in_hum_genome <- a_pulldown()
+  #  hgnc <- toupper(human_genome$HGNCsymbol)
+  #  population_hum_genome <- subset(present_in_hum_genome, present_in_hum_genome$gene %in% hgnc)
+  #})
   
   #success in population_bait -- within user FDR and logFC cutoff in population_bait
-  success_population_bait <- reactive({ #eventReactive(input$a_logFC_range | input$a_FDR_range, {
-    pullDown_in_inweb <- population_bait()
-    success_population <- subset(pullDown_in_inweb, logFC <= input$a_logFC_range[2] & logFC >= input$a_logFC_range[1] &
-                                   FDR <= input$a_FDR_range[2] & FDR >= input$a_FDR_range[1] &
-                                   pvalue <= input$a_pvalue_range[2] & pvalue >= input$a_pvalue_range[1])
-    rownames(success_population) <- NULL 
-    success_population <- success_population[!duplicated(success_population[,c("gene")]),]
-    success_population
-  })
+  #success_population_bait <- reactive({ #eventReactive(input$a_logFC_range | input$a_FDR_range, {
+  #  pullDown_in_inweb <- population_bait()
+  #  success_population <- subset(pullDown_in_inweb, logFC <= input$a_logFC_range[2] & logFC >= input$a_logFC_range[1] &
+  #                                 FDR <= input$a_FDR_range[2] & FDR >= input$a_FDR_range[1] &
+  #                                 pvalue <= input$a_pvalue_range[2] & pvalue >= input$a_pvalue_range[1])
+  #  rownames(success_population) <- NULL 
+  #  success_population <- success_population[!duplicated(success_population[,c("gene")]),]
+  #  success_population
+  #})
   
-  success_population_GOI <- reactive({ #eventReactive(input$a_logFC_range | input$a_FDR_range, {
-    pullDown_in_hum_genome <- population_GOI()
-    success_population <- subset(pullDown_in_hum_genome, logFC <= input$a_logFC_range[2] & logFC >= input$a_logFC_range[1] &
-                                   FDR <= input$a_FDR_range[2] & FDR >= input$a_FDR_range[1] &
-                                   pvalue <= input$a_pvalue_range[2] & pvalue >= input$a_pvalue_range[1])
-    rownames(success_population) <- NULL 
-    success_population
-  })
+  #success_population_GOI <- reactive({ #eventReactive(input$a_logFC_range | input$a_FDR_range, {
+  #  pullDown_in_hum_genome <- population_GOI()
+  #  success_population <- subset(pullDown_in_hum_genome, logFC <= input$a_logFC_range[2] & logFC >= input$a_logFC_range[1] &
+  #                                 FDR <= input$a_FDR_range[2] & FDR >= input$a_FDR_range[1] &
+  #                                 pvalue <= input$a_pvalue_range[2] & pvalue >= input$a_pvalue_range[1])
+  #  rownames(success_population) <- NULL 
+  #  success_population
+  #})
   
-  success_population_SNP <- reactive({ #eventReactive(input$a_logFC_range | input$a_FDR_range | input$a_pvalue_range, {
-    pullDown_in_hum_genome <- population_SNP()
-    success_population <- subset(pullDown_in_hum_genome, logFC <= input$a_logFC_range[2] & logFC >= input$a_logFC_range[1] &
-                                   FDR <= input$a_FDR_range[2] & FDR >= input$a_FDR_range[1] &
-                                   pvalue <= input$a_pvalue_range[2] & pvalue >= input$a_pvalue_range[1])
-    rownames(success_population) <- NULL 
-    success_population
-  })
+  #success_population_SNP <- reactive({ #eventReactive(input$a_logFC_range | input$a_FDR_range | input$a_pvalue_range, {
+  #  pullDown_in_hum_genome <- population_SNP()
+  #  success_population <- subset(pullDown_in_hum_genome, logFC <= input$a_logFC_range[2] & logFC >= input$a_logFC_range[1] &
+  #                                 FDR <= input$a_FDR_range[2] & FDR >= input$a_FDR_range[1] &
+  #                                 pvalue <= input$a_pvalue_range[2] & pvalue >= input$a_pvalue_range[1])
+  #  rownames(success_population) <- NULL 
+  #  success_population
+  #})
   
   #a_bait_gene_layer <- reactive({
   #  bait_in <- input$a_bait_rep
@@ -1428,6 +1443,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #--------------------------------------------------------
   # venn digrams and hypergeometric testing
   
+  # INWEB
   # inweb hypergeometric overlap
   a_inweb_calc_hyper <- reactive({
     req(input$a_bait_rep, a_pulldown_significant())
@@ -1435,52 +1451,24 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     inweb_intersect = data.frame(listName="InWeb", intersectN=T)
     data = a_pulldown_significant()
     # compile venn diagram information
-    hyper = calc_hyper(data, inweb, inweb_intersect)
-    hyper[['venn']][['Pulldown']] <- data$gene
-    hyper[['venn']][['InWeb']] <- inweb$gene[inweb$significant]
+    hyper = calc_hyper(data, inweb, inweb_intersect, bait = input$a_bait_search_rep)
+    hyper[['venn']][['Pulldown']] <- hyper$genes$InWeb$success_genes
+    hyper[['venn']][['InWeb']] <- hyper$genes$InWeb$sample_genes
     hyper
-  })
-  
-  # hypergeometric overlap gene upload
-  a_genes_upload_calc_hyper <- reactive({
-    req(a_genes_upload(), a_pulldown_significant())
-    genes = data.frame(listName="genelist", a_genes_upload())
-    genes_intersect = data.frame(listName="genelist", intersectN=T)
-    data = a_pulldown_significant()
-    # compile venn diagram information
-    hyper = calc_hyper(data, genes, genes_intersect)
-    hyper[['venn']][['Pulldown']] <- data$gene
-    hyper[['venn']][['Genelist']] <- genes$gene[genes$significant]
-    hyper
-  })
-  
-  # h
-  a_snp_calc_overlap <- reactive({
-    req(a_genes_upload(), a_pulldown_significant())
-    overlap = subset_snp_loci(a_snp_mapping())
   })
   
   # draw venn diagram
   output$a_inweb_venn_ui <- renderPlot({
     req(input$a_bait_rep, a_pulldown_significant(), a_inweb_calc_hyper())
     hyper = a_inweb_calc_hyper()
-    v = draw_genoppi_venn(hyper$venn, main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
+    v = draw_genoppi_venn(hyper$venn, 
+                          color = c('blue','yellow'),#c(input$a_color_indv_sig, input$a_color_inweb_sig), 
+                          main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
     grid::grid.newpage()
     grid::grid.draw(v)
   })
   
-  # draw venn diagram
-  output$a_genes_upload_venn_ui <- renderPlot({
-    req(a_genes_upload(), a_pulldown_significant())
-    catf('ensure that p-value of genes_upload_calc_hyper is correct!')
-    hyper = a_genes_upload_calc_hyper()
-    v = draw_genoppi_venn(hyper$venn, c('blue', 'red'), main = paste0('P-value = ', format(hyper$statistics$pvalue, digits = 3)))
-    grid::grid.newpage()
-    grid::grid.draw(v)
-  })
-  
-  
-  # what is to be plotted below venn diagram
+  # plot below venn diagram inweb
   a_inweb_venn_verbatim <- reactive({
     req(a_pulldown_significant(), a_inweb_calc_hyper())
     tresholds = a_vp_count_text()
@@ -1496,6 +1484,104 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     output <- a_inweb_venn_verbatim()
     HTML(paste(output$total, output$A, output$B, sep = "<br/>"))
   })
+  
+  ## GENES UPLOAD
+  # hypergeometric overlap gene upload
+  a_genes_upload_calc_hyper <- reactive({
+    req(a_genes_upload(), a_pulldown_significant())
+    
+    # get data for overlap calculation
+    pulldown = a_pulldown_significant()
+    genes_uploaded = a_genes_upload()
+    genes = genes_uploaded$data
+    intersect = genes_uploaded$intersect
+    genelist = input$a_select_venn_list_genes_upload
+    
+    # compile venn diagram information
+    intersect_selected = intersect[intersect$listName %in% genelist | genelist == 'combined',]
+    genes_selected = genes[genes$listName %in% genelist | genelist == 'combined',]
+    hyper = calc_hyper(pulldown, genes_selected, intersect_selected, input$a_bait_search_rep)
+    
+    # generate all possible venn diagrams
+    #hyper_venn = lapply(hyper$statistics$list_name, function(lst){
+    #  list(pulldown = hyper$genes[[lst]]$success_genes,
+    #       geneslist = hyper$genes[[lst]]$sample_genes,
+    #       pvalue = hyper$statistics[hyper$statistics$list_name == lst,]$pvalue,
+    #       total = hyper$statistics[hyper$statistics$list_name == lst,]$population_count)
+    #})
+   # names(hyper_venn) = hyper$statistics$list_name
+    return(hyper)
+  })
+  
+  # get a vector of available lists that have been uploaded
+  a_available_lists_genes_upload <- reactive({
+    req(a_genes_upload())
+    return(unique(as.character(a_genes_upload()$data$listName)))
+  })
+  
+  # draw venn diagram for genes upload
+  output$a_genes_upload_venn_ui <- renderPlot({
+    req(a_genes_upload_calc_hyper(), input$a_select_venn_list_genes_upload)
+    
+    # get data and variables for genelist
+    genelist = input$a_select_venn_list_genes_upload
+    mapping = a_genes_upload_calc_hyper()
+    
+    if (!is.null(mapping$genes)){
+      
+      # ready venn diagram
+      diagram = list(
+        pulldown = mapping$genes[[1]]$success_genes,
+        geneslist = mapping$genes[[1]]$sample_genes)
+      names(diagram) <- c('pulldown', genelist)
+      
+      # plot venn diagram
+      v = draw_genoppi_venn(diagram,color = c('blue','cyan'), main = paste0('P-value = ', format(mapping$statistics$pvalue, digits = 3)))
+      grid::grid.newpage()
+      grid::grid.draw(v)
+    } else {NULL}
+  })
+  
+  # SNPS UPLOAD
+  # get available snp lists
+  a_available_lists_snp <- reactive({
+    return(unique(as.character(a_snp_mapping()$listName)))
+  })
+  
+  # hypergeometric overlap gene upload
+  a_snp_draw_venn <- reactive({
+    req(a_pulldown_significant(), input$a_select_venn_list_snp)
+    snplist = input$a_select_venn_list_snp
+    
+    # get data for venn
+    snps_uploaded = a_snp_mapping()
+    snps_selected = snps_uploaded[snps_uploaded$listName %in% snplist | snplist == 'combined',]
+    mapping = subset_snp_loci(snps_selected)
+    
+    # generate venn
+    return(list(venn=mapping))
+  })
+  
+  # draw venn diagram for genes upload
+  output$a_snp_all_venn_ui <- renderPlot({
+    req(a_snp_draw_venn(), a_pulldown_significant())
+    
+    # variables and data for drawing venn
+    snplist = input$a_select_venn_list_snp
+    pulldown = a_pulldown_significant()
+    mapping = a_snp_draw_venn()
+    
+    # draw venn digram if mapping is valid
+    if (!is.null(mapping)){
+      diagram = list(pulldown=pulldown[pulldown$significant,]$gene,
+                  genelist=as.character(mapping$venn$allGeneDf$gene))
+      names(diagram) = c('pulldown', snplist)
+      venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = 'All genes (SNPs)')
+      grid::grid.newpage()
+      grid::grid.draw(venn)
+  }else {NULL}
+  })
+
   
   #---------------------------------------------------------------
   # gnomad integration
@@ -2386,7 +2472,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()))
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
-    if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(snps=a_genes_upload()))}
+    if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(upload=a_genes_upload()$data))}
     if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()))
     if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'continuous') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_continuous()))
     

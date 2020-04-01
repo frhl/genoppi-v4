@@ -159,15 +159,15 @@ body <- dashboardBody(
                                       title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                       fluidRow(
                                         column(4, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
-                                        column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px"))
+                                        column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
+                                        column(4, plotOutput('a_snp_all_venn_ui', width = "220px", height = "220px"))
                                        ),
                                        fluidRow(
-                                       br(),
-                                         column(4, uiOutput("a_inweb_venn_verbatim_ui"))
+                                        br(),
+                                        column(4, uiOutput("a_inweb_venn_verbatim_ui")),
+                                        column(4, uiOutput('a_select_venn_genes_upload_ui')),
+                                        column(4, uiOutput('a_select_venn_snp_ui'))
                                        )
-                                      #fluidRow(
-                                      #  column(12, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px"))
-                                      #)
                                     )
                                 )
                         ),
