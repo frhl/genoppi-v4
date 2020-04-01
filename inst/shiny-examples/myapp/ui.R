@@ -117,7 +117,7 @@ body <- dashboardBody(
                                     fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                   ),
                                   box(
-                                    title = "Display settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+                                    title = "Display settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE,
                                     fluidRow(column(12, h5('InWeb'))),
                                     fluidRow(
                                       column(4, uiOutput("a_color_inweb_sig_ui")),

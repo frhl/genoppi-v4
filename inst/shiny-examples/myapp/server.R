@@ -1471,11 +1471,11 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # plot below venn diagram inweb
   a_inweb_venn_verbatim <- reactive({
     req(a_pulldown_significant(), a_inweb_calc_hyper())
-    tresholds = a_vp_count_text()
-    population = a_inweb_calc_hyper()
-    A <- paste0("A = pull down subset of ", tresholds, " &#40;", '(inweb_population)', "&#41;")
-    B <- paste0("B = Genes of interest in HGNC database", " &#40;", '(goi)', "&#41;")
-    total <- paste0("pull down &cap; HGNC database &#40;", "(total)", "&#41;")
+    tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    hyper = a_inweb_calc_hyper()
+    A <- paste0("A = pulldown subsetted by ", tresholds, " &#40;",hyper$statistics$success_count, "&#41;")
+    B <- paste0("B = Interactors of in InWeb database", " &#40;",hyper$statistics$sample_count, "&#41;")
+    total <- paste0("pull down &cap; InWeb database &#40;", hyper$statistics$population_count, "&#41;")
     return(list(A=A, B=B, total=total))
   })
   
@@ -1501,15 +1501,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     intersect_selected = intersect[intersect$listName %in% genelist | genelist == 'combined',]
     genes_selected = genes[genes$listName %in% genelist | genelist == 'combined',]
     hyper = calc_hyper(pulldown, genes_selected, intersect_selected, input$a_bait_search_rep)
-    
-    # generate all possible venn diagrams
-    #hyper_venn = lapply(hyper$statistics$list_name, function(lst){
-    #  list(pulldown = hyper$genes[[lst]]$success_genes,
-    #       geneslist = hyper$genes[[lst]]$sample_genes,
-    #       pvalue = hyper$statistics[hyper$statistics$list_name == lst,]$pvalue,
-    #       total = hyper$statistics[hyper$statistics$list_name == lst,]$population_count)
-    #})
-   # names(hyper_venn) = hyper$statistics$list_name
     return(hyper)
   })
   
