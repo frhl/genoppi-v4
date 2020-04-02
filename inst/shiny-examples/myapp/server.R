@@ -317,8 +317,8 @@ shinyServer(function(input, output, session){
 output$a_select_gnomad_pli_type_ui <- renderUI({
   validate(need(input$a_file_pulldown_r != '', ""))
   radioButtons("a_select_gnomad_pli_type", label = 'Select pLI type', 
-               choiceNames = list('None','Threshold', 'Continuous'),
-               choiceValues = list('none','threshold', 'continuous'))
+               choiceNames = list('None','Threshold'),
+               choiceValues = list('none','threshold'))
 })
 
 # integrated plot, gnomad slider
@@ -452,6 +452,23 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
                 #multiple=T, selectize=TRUE, selected = "grey")
   })
   
+  output$a_select_venn_snp_loci_ui <- renderUI({
+    req(a_snp_mapping())
+    selectInput('a_select_venn_list_snp_loci',
+                'Select loci type', 
+                choices = c('All loci' = 'all', 
+                            'Multi loci' = 'multi', 
+                            'Single loci' = 'single'))
+  })
+  
+  output$a_select_venn_gwas_catalogue_loci_ui <- renderUI({
+    req(a_gwas_catalogue_mapping())
+    selectInput('a_select_venn_gwas_catalogue_loci',
+                'Select loci type', 
+                choices = c('All loci' = 'all', 
+                            'Multi loci' = 'multi', 
+                            'Single loci' = 'single'))
+  })
   
   #output$a_text_label <- renderUI({
   #  radioButtons('a_marker_text', 'Turn on/off labels',
@@ -473,17 +490,17 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     )
   })
   
-  output$a_SNP_file_vennd <- renderUI({
-    fileInput('a_file_SNP_vennd', 'File containing list of SNPs, one ID per line (e.g. rs11172113)',
-              accept = c(
-                'text/csv',
-                'text/comma-separated-values',
-                'text/tab-separated-values',
-                'text/plain',
-                '.csv',
-                '.tsv')
-    )
-  })
+  #output$a_SNP_file_vennd <- renderUI({
+  #  fileInput('a_file_SNP_vennd', 'File containing list of SNPs, one ID per line (e.g. rs11172113)',
+  #            accept = c(
+  #              'text/csv',
+  #              'text/comma-separated-values',
+  #              'text/tab-separated-values',
+  #              'text/plain',
+  #              '.csv',
+  #              '.tsv')
+  #  )
+  #})
   
   output$a_genes_file <- renderUI({
     fileInput('a_file_genes_rep', 'File containing at least 2 genes with header, one HGNC symbol per line (e.g. TINMAN)',
@@ -509,50 +526,51 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     )
   })
   
-  output$a_plot_button <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    all_inputs <- c(input$a_file_SNP_rep, input$a_file_genes_rep, input$a_bait_rep)
-    
-    if(any(!is.null(all_inputs)) && any(all_inputs != "")){
-      actionButton("a_make_plot", "Generate plots")
-    }
-  })
+  #output$a_plot_button <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  all_inputs <- c(input$a_file_SNP_rep, input$a_file_genes_rep, input$a_bait_rep)
+  #  
+  #  if(any(!is.null(all_inputs)) && any(all_inputs != "")){
+  #    actionButton("a_make_plot", "Generate plots")
+  #  }
+  #})
   
-  output$a_vennd_button3 <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$a_bait_vennd != '', "")
-    )
-    if(!is.null(a_bait_gene_vennd())){
-      actionButton("a_make_vennd_bait", "Bait")
-    }
-  })
+  #output$a_vennd_button3 <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$a_bait_vennd != '', "")
+  #  )
+  #  if(!is.null(a_bait_gene_vennd())){
+  #    actionButton("a_make_vennd_bait", "Bait")
+  #  }
+  #})
   
-  output$a_vennd_button1 <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    if(!is.null(a_snp_vennd())){
-      actionButton("a_make_vennd_snp", "SNP")
-    }
-  })
+  #output$a_vennd_button1 <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  if(!is.null(a_snp_vennd())){
+  #    actionButton("a_make_vennd_snp", "SNP")
+  #  }
+  #})
   
-  output$a_vennd_button2 <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    if(!is.null(a_upload_genes_vennd())){
-      actionButton("a_make_vennd_goi", "GOI")
-    }
-  })
+  #output$a_vennd_button2 <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  if(!is.null(a_upload_genes_vennd())){
+  #    actionButton("a_make_vennd_goi", "GOI")
+  #  }
+  #})
   
   # based on a_pulldown(), create slider for logFC
   output$a_logFC_slider <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
+    validate(need(input$a_file_pulldown_r != '', ""))
+    
+    catf('deprecated..!')
+    
     if(!is.null(a_pulldown())){
       input_file <- a_pulldown()
       df <- input_file
@@ -585,7 +603,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   output$a_pf_loc_selection <- renderUI({
     #req(input$a_file_pulldown_r())
-    selectInput('a_pf_loc_option', 'Data options', c("Protein family" = 'pf', "Localization_GO" = 'loc_go', "Localization_UniProt" = 'loc_uniprot'), selectize=FALSE)
+    selectInput('a_pf_loc_option', 'Data options', c("GFBC"="hgnc", "MF"="mf", "CC"="cc", "BP"="bp", "msigdb"="msigdb"), selectize=FALSE)
   })
   
   #a_pf_data_selection <- reactive({
@@ -879,7 +897,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     filepath = input$a_file_genes_rep$datapath
     if (!is.null(filepath)){
       genes = get_gene_lists(filepath)
-      genes$data$dataset = 'genes upload'
+      genes$data$dataset = 'Upload'
       genes$data$col_significant = input$a_color_genes_upload_sig
       genes$data$col_other = input$a_color_genes_upload_insig
       genes$data$symbol = input$a_symbol_genes_upload
@@ -1027,15 +1045,12 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #  }
   #})
   
-  #a_search_gene <- reactive({
-  #  gene_in <- input$a_goi_search_rep
-  #  if (is.null(gene_in) | gene_in == "" ){
-  #    return(NULL)
-  #  } else{
-  #    gene <- gene_in
-  #    gene <- toupper(gene)
-  #  }
-  #})
+  # needed for searching gene
+  a_search_gene <- reactive({
+    gene_in <- input$a_goi_search_rep
+    req(gene_in)
+    toupper(gene_in)
+  })
   
   #a_bait_friends <- eventReactive(input$a_make_plot, {#reactive({
   #  if(!is.null(a_bait_gene_layer())){
@@ -1305,55 +1320,58 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   a_gnomad_mapping_threshold <- reactive({
     req(a_gnomad_mapping(), input$a_slide_gnomad_pli_threshold)
     gnomad = a_gnomad_mapping()
-    bool_threshold = gnomad$pLI > input$a_slide_gnomad_pli_threshold
+    bool_threshold = gnomad$pLI >= input$a_slide_gnomad_pli_threshold
     bool_threshold[is.na(bool_threshold)] <- FALSE
-    gnomad$col_significant = ifelse(bool_threshold, 'red', 'green')
-    gnomad$col_other = ifelse(bool_threshold, 'grey', 'grey')
+    gnomad = gnomad[bool_threshold,]
+    gnomad$col_significant = 'red'
+    gnomad$col_other = 'grey'
+    #gnomad$col_significant = ifelse(bool_threshold, 'red', 'green')
+    #gnomad$col_other = ifelse(bool_threshold, 'grey', 'grey')
     return(gnomad)
   })
   
   # continious colors scale
-  a_gnomad_mapping_continuous <- reactive({
-    req(a_gnomad_mapping())
-    gnomad = a_gnomad_mapping()
-    colors = color_gradient(gnomad$pLI[!is.na(gnomad$pLI)], colors = c('green', 'white', 'red'), colsteps = 10)
-    gnomad$col_other = 'grey'
-    gnomad$col_significant = 'grey'
-    gnomad$col_significant[!is.na(gnomad$pLI)] = colors[!is.na(gnomad$pLI)]
-    return(gnomad)
-  })
+  #a_gnomad_mapping_continuous <- reactive({
+  #  req(a_gnomad_mapping())
+  #  gnomad = a_gnomad_mapping()
+  #  colors = color_gradient(gnomad$pLI[!is.na(gnomad$pLI)], colors = c('green', 'white', 'red'), colsteps = 10)
+  #  gnomad$col_other = 'grey'
+  #  gnomad$col_significant = 'grey'
+  #  gnomad$col_significant[!is.na(gnomad$pLI)] = colors[!is.na(gnomad$pLI)]
+  #  return(gnomad)
+  #})
   
   # make color scale for continous gnomad
-  a_gnomad_colorscale <- reactive({
-    req(a_gnomad_mapping_continuous())
-    color = color_gradient(1:100, colors = c('green', 'white', 'red'), colsteps = 100)
-    colorscheme = data.frame(value = 1:length(color)/100, color = color)
-    bar <- ggplot(colorscheme, aes(xmin = value-0.01, xmax = value, ymin = 0, ymax = 0.1)) + geom_rect(fill = color) +      
-      labs('Color scale') + theme_genoppi_bar(rotate=T) + coord_fixed()
-    bar
-  })
+  #a_gnomad_colorscale <- reactive({
+  #  req(a_gnomad_mapping_continuous())
+  #  color = color_gradient(1:100, colors = c('green', 'white', 'red'), colsteps = 100)
+  #  colorscheme = data.frame(value = 1:length(color)/100, color = color)
+  #  bar <- ggplot(colorscheme, aes(xmin = value-0.01, xmax = value, ymin = 0, ymax = 0.1)) + geom_rect(fill = color) +      
+  #    labs('Color scale') + theme_genoppi_bar(rotate=T) + coord_fixed()
+  #  bar
+  #})
   
   # plot colorscale
-  output$a_gnomad_colorscale_ui <- renderPlot(
-    a_gnomad_colorscale()
-  )
+  #output$a_gnomad_colorscale_ui <- renderPlot(
+  #  a_gnomad_colorscale()
+  #)
   
   # anottate color scale
-  output$a_gnomad_colorscale_text_ui <- renderUI({
-    HTML(bold('pLI colorscale'))
-  })
+  #output$a_gnomad_colorscale_text_ui <- renderUI({
+  #  HTML(bold('pLI colorscale'))
+  #})
   
   # hide show gnomad tab
   observe({
     if (!is.null(input$a_select_gnomad_pli_type)){
-      if (input$a_select_gnomad_pli_type == 'continuous'){
+      if (input$a_select_gnomad_pli_type == 'none'){
         shinyjs::hide("a_slide_gnomad_pli_threshold_ui")
-        shinyjs::show("a_gnomad_colorscale_ui")
-        shinyjs::show("a_gnomad_colorscale_text_ui")
+        #shinyjs::show("a_gnomad_colorscale_ui")
+        #shinyjs::show("a_gnomad_colorscale_text_ui")
       } else {
         shinyjs::show("a_slide_gnomad_pli_threshold_ui")
-        shinyjs::hide("a_gnomad_colorscale_ui")
-        shinyjs::hide("a_gnomad_colorscale_text_ui")
+        #shinyjs::hide("a_gnomad_colorscale_ui")
+        #shinyjs::hide("a_gnomad_colorscale_text_ui")
       }
     }
   })
@@ -1447,14 +1465,18 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # inweb hypergeometric overlap
   a_inweb_calc_hyper <- reactive({
     req(input$a_bait_rep, a_pulldown_significant())
-    inweb = data.frame(listName="InWeb", get_inweb_list(input$a_bait_rep))
-    inweb_intersect = data.frame(listName="InWeb", intersectN=T)
-    data = a_pulldown_significant()
-    # compile venn diagram information
-    hyper = calc_hyper(data, inweb, inweb_intersect, bait = input$a_bait_search_rep)
-    hyper[['venn']][['Pulldown']] <- hyper$genes$InWeb$success_genes
-    hyper[['venn']][['InWeb']] <- hyper$genes$InWeb$sample_genes
-    hyper
+    inweb_output = get_inweb_list(input$a_bait_rep)
+    if (!is.null(inweb_output)){
+      # gather all inweb data
+      inweb_list = data.frame(listName="InWeb", inweb_output)
+      inweb_intersect = data.frame(listName="InWeb", intersectN=T)
+      data = a_pulldown_significant()
+      # compile venn diagram information
+      hyper = calc_hyper(data, inweb_list, inweb_intersect, bait = input$a_bait_search_rep)
+      hyper[['venn']][['Pulldown']] <- hyper$genes$InWeb$success_genes
+      hyper[['venn' ]][['InWeb']] <- hyper$genes$InWeb$sample_genes
+      return(hyper)
+    } else {NULL}
   })
   
   # draw venn diagram
@@ -1475,7 +1497,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     hyper = a_inweb_calc_hyper()
     A <- paste0("A = pulldown subsetted by ", tresholds, " &#40;",hyper$statistics$success_count, "&#41;")
     B <- paste0("B = Interactors of in InWeb database", " &#40;",hyper$statistics$sample_count, "&#41;")
-    total <- paste0("pull down &cap; InWeb database &#40;", hyper$statistics$population_count, "&#41;")
+    total <- paste0("N = pull down &cap; InWeb &#40;", hyper$statistics$population_count, "&#41;")
     return(list(A=A, B=B, total=total))
   })
   
@@ -1489,7 +1511,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # hypergeometric overlap gene upload
   a_genes_upload_calc_hyper <- reactive({
     req(a_genes_upload(), a_pulldown_significant())
-    
+
     # get data for overlap calculation
     pulldown = a_pulldown_significant()
     genes_uploaded = a_genes_upload()
@@ -1541,7 +1563,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # hypergeometric overlap gene upload
   a_snp_draw_venn <- reactive({
-    req(a_pulldown_significant(), input$a_select_venn_list_snp)
+    req(a_pulldown_significant(), input$a_select_venn_list_snp, a_snp_mapping())
     snplist = input$a_select_venn_list_snp
     
     # get data for venn
@@ -1555,9 +1577,10 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # draw venn diagram for genes upload
   output$a_snp_all_venn_ui <- renderPlot({
-    req(a_snp_draw_venn(), a_pulldown_significant())
+    req(a_snp_draw_venn(), a_pulldown_significant(), input$a_select_venn_list_snp_loci)
     
     # variables and data for drawing venn
+    loci = paste0(input$a_select_venn_list_snp_loci,'GeneDf')
     snplist = input$a_select_venn_list_snp
     pulldown = a_pulldown_significant()
     mapping = a_snp_draw_venn()
@@ -1565,7 +1588,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     # draw venn digram if mapping is valid
     if (!is.null(mapping)){
       diagram = list(pulldown=pulldown[pulldown$significant,]$gene,
-                  genelist=as.character(mapping$venn$allGeneDf$gene))
+                  genelist=as.character(mapping$venn[[loci]]$gene))
       names(diagram) = c('pulldown', snplist)
       venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = 'All genes (SNPs)')
       grid::grid.newpage()
@@ -1573,6 +1596,60 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   }else {NULL}
   })
 
+  # subset all snps for gwas catalog
+  a_gwas_catalogue_mapping_venn <- reactive({
+    req(a_gwas_catalogue_mapping(), a_pulldown_significant())
+    mapping = a_gwas_catalogue_mapping()
+    subset = subset_snp_loci(mapping)
+    subset
+  })
+  
+  # gwas catalogue
+  output$a_gwas_catalogue_venn_all_ui <- renderPlot({
+    req(a_gwas_catalogue_mapping_venn, input$a_select_venn_gwas_catalogue_loci)
+    
+    # get mapping
+    pulldown = a_pulldown_significant()
+    mapping = a_gwas_catalogue_mapping_venn()
+    loci = paste0(input$a_select_venn_gwas_catalogue_loci, 'GeneDf') 
+    
+    # draw venn diagram
+    diagram = list(pulldown=pulldown[pulldown$significant,]$gene, genelist=mapping[[loci]]$gene)
+    names(diagram) = c('pulldown', 'GWAS catalog')
+    venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = 'All genes (SNPs)')
+    grid::grid.newpage()
+    grid::grid.draw(venn)
+  })
+
+  
+  # hypergeometric overlap gnomAD
+  a_gnomad_calc_hyper <- reactive({
+    req(a_gnomad_mapping_threshold(), a_pulldown_significant())
+    
+    # get data for overlap calculation
+    pulldown = a_pulldown_significant()
+    gnomad = a_gnomad_mapping_threshold()['gene']
+    gnomad$listName = 'gnomad'
+    gnomad$significant = TRUE
+    intersect=data.frame(listName='gnomad', intersectN=TRUE)
+    
+    # compile venn diagram information
+    #hyper = calc_hyper(pulldown, gnomad, intersect)
+    hyper = list()
+    hyper[['venn' ]][['gnomAD']] <- gnomad$gene
+    hyper[['venn']][['Pulldown']] <- pulldown$gene[pulldown$significant]
+    return(hyper)
+  })
+  
+  # draw venn diagram for gnomAD
+  output$a_gnomad_venn_ui <- renderPlot({
+    req(a_pulldown_significant(), a_gnomad_calc_hyper())
+    hyper = a_gnomad_calc_hyper()
+    v = draw_genoppi_venn(hyper$venn, color = c('blue','red'), main = paste0('P-value = (Discuss)'))
+    grid::grid.newpage()
+    grid::grid.draw(v)
+  })
+  
   
   #---------------------------------------------------------------
   # gnomad integration
@@ -1760,6 +1837,11 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     p <- add_layout_html_axes_volcano(p)
     return(p)
   })
+  
+  
+
+  
+  
   
   #a_vp_plus_rep_gg <- function(){
   #  validate(
@@ -2457,6 +2539,9 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #  }
   #})
   
+  #---------------------------------------------------------------------
+  # integrated plotting
+  
   # generate plot in ggformat
   a_integrated_plot_gg <- reactive({
     p = a_vp_gg()
@@ -2517,7 +2602,61 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       ggsave(file, plot =  input_vp_gg(), device = device)
     })
   
-  # 
+
+  #---------------------------------------------------------------------
+  # integrated plotting
+  
+  a_pathway_mapping <- reactive({
+    req(a_pulldown_significant())
+    
+    db = input$a_pf_loc_option
+    if (!is.null(db)){
+      
+      # get raw data
+      pulldown <- a_pulldown_significant()
+      overlap <- get_pathways(db, pulldown$gene)
+      
+      # count frequency
+      pathway_freq = as.data.frame(table(overlap$pathway))
+      pathway_freq = pathway_freq[pathway_freq$Freq > 6, ]
+      colnames(pathway_freq) <- c('pathway', 'Freq')
+      gene_pathway_freq = merge(overlap[overlap$pathway %in% pathway_freq$pathway, ], pathway_freq, by = 'pathway')
+      
+      # get overlay
+      overlay = merge(pulldown, gene_pathway_freq, by = 'gene')
+      
+      # assign size 
+      overlay$dataset = db
+      overlay$alt_label = overlay$pathway
+      overlay$size = overlay$Freq/max(overlay$Freq)
+      overlay$size = 9+exp(3*overlay$size)
+      overlay$symbol = 'square'
+      overlay$col_significant = 'red'
+      overlay$col_other = 'red'
+      overlay$opacity = 0.5
+      overlay$label = F
+      return(overlay)
+    } else {NULL}
+    
+  })
+  
+  a_pathway_plot_gg <- reactive({
+    req(a_pulldown_significant())
+      p <- a_vp_gg()
+      p <- plot_overlay(p, list(pathway=a_pathway_mapping()))
+      p <- make_interactive(p)
+      p
+      
+  })
+  
+  a_pathway_plot <- reactive({
+    p <- a_pathway_plot_gg()
+    p <- make_interactive(p)
+    #if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
+    #p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
+    #p <- add_layout_html_axes_volcano(p, 500, 500)
+    return(p)
+  })
   
   #a_multi_vp_layer <- reactive({
   #  stop('a_multi_vp_layer is deprecated!!')
@@ -3471,19 +3610,15 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # the actual volcano plot outputted to the user
   output$VolcanoPlot <- renderPlotly({
-    validate(
-      need(input$a_file_pulldown_r != '', "Upload file")
-    )
-    if(is.null(a_pf_db())){
+    validate(need(input$a_file_pulldown_r != '', "Upload file"))
       a_vp_layerx()
-    } else if(!is.null(a_pf_db())){
-      if(is.null(a_search_gene())){
-        a_vp_pf_db()
-      } else{
-        a_vp_pf_db_plus_rep()
-      }
-    }
   })
+  
+  output$VolcanoPlotPathway <- renderPlotly({
+    req(a_pathway_plot())
+    a_pathway_plot()
+  })
+  
   
   output$a_verbatim_count_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', " "))

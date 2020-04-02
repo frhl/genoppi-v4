@@ -158,16 +158,32 @@ body <- dashboardBody(
                                     box(
                                       title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                       fluidRow(
-                                        column(4, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
-                                        column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
-                                        column(4, plotOutput('a_snp_all_venn_ui', width = "220px", height = "220px"))
+                                        column(5, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
+                                        column(5, uiOutput("a_inweb_venn_verbatim_ui")),
+                                        column(2, '')
                                        ),
                                        fluidRow(
-                                        br(),
-                                        column(4, uiOutput("a_inweb_venn_verbatim_ui")),
-                                        column(4, uiOutput('a_select_venn_genes_upload_ui')),
-                                        column(4, uiOutput('a_select_venn_snp_ui'))
-                                       )
+                                        column(5, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
+                                        column(5, uiOutput('a_select_venn_genes_upload_ui')),
+                                        column(2, uiOutput(''))
+                                       ),
+                                       fluidRow(
+                                        column(5, plotOutput('a_snp_all_venn_ui', width = "220px", height = "220px")),
+                                        column(5, 
+                                               uiOutput('a_select_venn_snp_ui'),
+                                               uiOutput('a_select_venn_snp_loci_ui')
+                                               ),
+                                        column(2, '')
+                                       ),
+                                      fluidRow(
+                                        column(5, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
+                                        column(4, uiOutput('a_select_venn_gwas_catalogue_loci_ui')),
+                                        column(3, '')
+                                      ),
+                                      fluidRow(
+                                        column(5, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px"))
+                                        
+                                      )
                                     )
                                 )
                         ),
@@ -271,7 +287,7 @@ body <- dashboardBody(
                                         box(
                                           title = tagList("Pathway annotations"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(
-                                            column(12, '</a_plot_protein_families>')
+                                            column(12, plotlyOutput('VolcanoPlotPathway'))
                                           )
                                         )
                                  )

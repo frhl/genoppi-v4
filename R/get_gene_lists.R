@@ -9,7 +9,9 @@ get_gene_lists <- function(filename, sep="\t"){
  
   geneDf <- read.table(filename, header=T, sep)
  
-  if (!"significant" %in% names(geneDf)) { geneDf$significant <- TRUE }
+  # check for columns and add accordingly
+  if ("significant" %nin% names(geneDf)) { geneDf$significant <- TRUE }
+  if ("listName" %nin% names(geneDf)) {geneDf$listName = 'list1' }
   
   # if geneDf contains significant=F entries
   intersectDf <- data.frame(listName=unique(geneDf$listName), 
