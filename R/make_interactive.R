@@ -20,7 +20,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
   
   # deal with non-overlaid items
   data = p$data[p$data$gene %nin% p$overlay$gene, ]
-  p1 <- plot_ly(showlegend = TRUE, width = 550, height = 550, source = source) # width = height = 550
+  p1 <- plot_ly(showlegend = FALSE, width = 550, height = 550, source = source) # width = height = 550
   p1 <- add_markers(p1, data = data, 
                     x = ~data[[x]], 
                     y = ~yf(data[[y]]),
@@ -31,8 +31,10 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
                     hoverinfo = "text", name = "pull down")
   
   # add dynamic text when hovering over item
+  
   overlay = p$overlay
   if (nrow(overlay) > 0){
+    #browser()
     p1 <- add_markers(p1, data = overlay, 
                       x = ~overlay[[x]], 
                       y = ~yf(overlay[[y]]),

@@ -2655,6 +2655,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     if (!is.null(subset)){ overlay = overlay[overlay$pathway %in% subset,]}
 
     if (nrow(overlay) > 0){
+      overlay$dataset = overlay$pathway
       overlay$alt_label = overlay$pathway
       overlay$size = overlay$Freq/max(a_pathway_mapping_values()$Freq)
       overlay$size = 9+exp(3*overlay$size)
