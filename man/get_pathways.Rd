@@ -7,7 +7,7 @@
 get_pathways(database, genes)
 }
 \arguments{
-\item{database}{string ("hgnc","mf","cc","bp","msigdb")}
+\item{database}{string ("hgnc","mf","cc","bp","h","c1","c2","c3","c4","c5","c6", or "c7")}
 
 \item{genes}{vector of gene names (genes detected in proteomic data)}
 }
@@ -15,5 +15,5 @@ get_pathways(database, genes)
 data.frame containing gene, pathway, (and GO.ID if appropriate) columns
 }
 \description{
-Look up pathway annotations for genes using data from HGNC, GO (MF, CC, BP), or MSigDB database.
+Look up pathway annotations for genes using data from HGNC, GO (MF, CC, BP), or MSigDB (H,C1-C7) database.
 }

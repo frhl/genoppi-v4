@@ -4,7 +4,7 @@
 \alias{add_layout_html_axes_volcano}
 \title{layout for volcano plot.}
 \usage{
-add_layout_html_axes_volcano(p, height = 400, width = 400)
+add_layout_html_axes_volcano(p, height = NULL, width = NULL)
 }
 \arguments{
 \item{p}{a ggplot}
