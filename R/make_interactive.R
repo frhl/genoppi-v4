@@ -10,6 +10,7 @@
 make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
   
   # set initial paramaters depending on input
+  stopifnot(!is.null(p$visual))
   x = ifelse(is.null(x), p$visual$x, x)
   y = ifelse(is.null(y), p$visual$y, y)
   volcano = ifelse(!is.null(p$visual$volcano), p$visual$volcano, F)
@@ -31,6 +32,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
   
   # add dynamic text when hovering over item
   overlay = p$overlay
+  print(overlay)
   if (nrow(overlay) > 0){
     p1 <- add_markers(p1, data = overlay, 
                       x = ~overlay[[x]], 
@@ -40,10 +42,10 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
                                                    as.character(overlay$col_significant), 
                                                    as.character(overlay$col_other)),
                                     symbol = overlay$symbol,
-                                    #opacity = overlay$opacity,
+                                    #size = 9,
                                     size = overlay$size, #9, 
                                     line = list(width=1.0, color = "black"), 
-                                    opacity = 1),
+                                    opacity = overlay$opacity),
                       mode = "marker+text",
                       hoverinfo = "text", 
                       legendgroup = "group3",

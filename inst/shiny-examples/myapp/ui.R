@@ -278,8 +278,14 @@ body <- dashboardBody(
                                       title = tagList("Settings"), width = 12, solidHeader = TRUE, status = 'primary', collapsible = TRUE,
                                       fluidRow(
                                         column(12, uiOutput("a_pf_loc_selection")),
-                                        column(5, uiOutput("a_PF_sort_col")),
-                                        column(5, uiOutput("a_BPF_freq"))
+                                        #column(5, uiOutput("a_PF_sort_col")),
+                                        #column(5, uiOutput("a_BPF_freq"))
+                                      ),
+                                      fluidRow(
+                                        column(12, uiOutput("a_pathway_mapping_freq_slider_ui"))
+                                      ),
+                                      fluidRow(
+                                        column(12, uiOutput("a_pathway_mapping_search_ui"))
                                       )
                                    )
                                  ),
@@ -291,6 +297,7 @@ body <- dashboardBody(
                                           )
                                         )
                                  )
+                        )
                         #         br(),
                         #         fluidRow(
                         #           ,
@@ -315,41 +322,41 @@ body <- dashboardBody(
                         #         fluidRow(
                         #           column(12, plotlyOutput("Basic_Protein_Family"), height = "800px")
                         #         )
-                        ),
-                        tabPanel("Download", value = "p6",
-                                 br(),
-                                 downloadButton("download_mapped_uniprot", "Converted identifiers"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_replications_calculated", "Calculated moderated t-statistic"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_snp_to_genes", "SNP to gene"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_goi_overlap", "GOI"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_enriched_families_bpf", "Enriched protein families"),
-                                 hr(),
-                                 downloadButton("download_basic_plots", "QC report"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_layered_plots", "Integrated plots report"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_venn_diagram_plot", "Venn diagram - InWeb report"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_venn_diagram_GOI_plot", "Venn diagram - GOI report"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_venn_diagram_SNP_plot", "Venn diagram - SNP report"),
-                                 br(),
-                                 br(),
-                                 downloadButton("download_bpf_vp_plot", "Protein family report")
-                                 
-                        )
+                        #),
+                        #tabPanel("Download", value = "p6",
+                        #         br(),
+                        #         downloadButton("download_mapped_uniprot", "Converted identifiers"),
+                        #         br(),
+                        #         br(),
+                        #         downloadButton("download_replications_calculated", "Calculated moderated t-statistic"),
+                        #         br(),
+                        #         br(),
+                        #         downloadButton("download_snp_to_genes", "SNP to gene"),
+                        #         br(),
+                        #         br(),
+                        #         downloadButton("download_goi_overlap", "GOI"),
+                        #         br(),
+                        #         br(),
+                        #         downloadButton("download_enriched_families_bpf", "Enriched protein families"),
+                        #         hr(),
+                        #         downloadButton("download_basic_plots", "QC report"),
+                        #         br(),
+                        #         br(),
+                        ##         downloadButton("download_layered_plots", "Integrated plots report"),
+                        ##         br(),
+                        #         br(),
+                        #         downloadButton("download_venn_diagram_plot", "Venn diagram - InWeb report"),
+                        #         br(),
+                        #         br(),
+                        #         downloadButton("download_venn_diagram_GOI_plot", "Venn diagram - GOI report"),
+                        #         br(),
+                        #         br(),
+                        ##         downloadButton("download_venn_diagram_SNP_plot", "Venn diagram - SNP report"),
+                        #         br(),
+                        #         br(),
+                        #         downloadButton("download_bpf_vp_plot", "Protein family report")
+                        #         
+                        #)
                         
             )
     ),

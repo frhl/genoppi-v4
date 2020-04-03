@@ -603,8 +603,30 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   output$a_pf_loc_selection <- renderUI({
     #req(input$a_file_pulldown_r())
-    selectInput('a_pf_loc_option', 'Data options', c("GFBC"="hgnc", "MF"="mf", "CC"="cc", "BP"="bp", "msigdb"="msigdb"), selectize=FALSE)
+    selectInput('a_pf_loc_option', 'Data options', c("HGNC gene groups"="hgnc", 
+                                                     "GO molecular function"="mf", 
+                                                     "GO cellular components"="cc", 
+                                                     "GO biological process"="bp", 
+                                                     "MSigDB"="msigdb"), selectize=FALSE)
   })
+  
+  output$a_pathway_mapping_freq_slider_ui <- renderUI({
+    req(a_pulldown_significant())
+    freq = a_pathway_mapping_values()$Freq
+    fmax = ifelse(is.null(freq), 1, max(freq))
+    fmin = ifelse(is.null(freq), 1, min(freq))
+    sliderInput("a_pathway_mapping_freq_slider", "Subset by frequency",
+                min = fmin, max = fmax, value = c(fmin, fmax), step = 1)
+  })
+  
+  output$a_pathway_mapping_search_ui <- renderUI({
+    req(a_pulldown_significant())
+    mapping = a_pathway_mapping_values()
+    mapping = mapping[rev(order(mapping$Freq)), ]
+    selectInput('a_pathway_mapping_search', 'Search annotation', unique(mapping$pathway), multiple=T, selectize=TRUE, selected = "grey")
+  })
+  
+  
   
   #a_pf_data_selection <- reactive({
   #  inDselection <- input$a_pf_loc_option
@@ -1376,21 +1398,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     }
   })
   
-  # investigate pathways
-  a_pathway_mapping <- reactive({
-    req(a_pulldown())
-    pulldown = a_pulldown_significant()
-    pathways = get_pathways("hgnc",pulldown$gene)
-    if (!is.null(pathways)){
-      mapping = merge(pulldown, pathways, by = 'gene')
-      mapping$col_significant = input$a_color_gwas_cat_sig
-      mapping$col_other = input$a_color_gwas_cat_insig
-      #mapping$symbol = input$a_symbol_gwas_cat
-      #mapping$label = input$a_label_gwas_cat
-      mapping$dataset = mapping$pathway
-      return(mapping)
-    }
-  })
   
   
   #---------------------------------------------------------------
@@ -2545,13 +2552,13 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # generate plot in ggformat
   a_integrated_plot_gg <- reactive({
     p = a_vp_gg()
+    
+    #if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') browser()
     if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()))
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
     if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(upload=a_genes_upload()$data))}
     if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()))
-    if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'continuous') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_continuous()))
-    
     p$overlay <- collapse_labels(p$overlay)
     p
   })
@@ -2606,55 +2613,76 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #---------------------------------------------------------------------
   # integrated plotting
   
-  a_pathway_mapping <- reactive({
+  # load in data and preset colors in a seperate
+  # reactive to reduce overhead time
+  a_pathway_mapping_initial <- reactive({
     req(a_pulldown_significant())
-    
     db = input$a_pf_loc_option
     if (!is.null(db)){
-      
-      # get raw data
+      # get raw data and assign frequency count
       pulldown <- a_pulldown_significant()
       overlap <- get_pathways(db, pulldown$gene)
-      
-      # count frequency
-      pathway_freq = as.data.frame(table(overlap$pathway))
-      pathway_freq = pathway_freq[pathway_freq$Freq > 6, ]
-      colnames(pathway_freq) <- c('pathway', 'Freq')
-      gene_pathway_freq = merge(overlap[overlap$pathway %in% pathway_freq$pathway, ], pathway_freq, by = 'pathway')
-      
-      # get overlay
-      overlay = merge(pulldown, gene_pathway_freq, by = 'gene')
-      
-      # assign size 
-      overlay$dataset = db
+      overlap <- assign_freq(overlap, 'pathway')
+      # assign color scheme
+      colors = as.data.frame(overlap[,c('pathway','Freq')])
+      colors = colors[!duplicated(colors), ]
+      colors$color = ifelse(colors$Freq <= 5, 'grey', NA)
+      colors$color[is.na(colors$color)] <- color_distinct()[1:sum(is.na(colors$color))]
+      # merge with overlap
+      overlap = merge(overlap, colors[,c('pathway','color')], by = 'pathway')
+      overlap = merge(overlap, pulldown)
+      return(overlap)
+    } else {NULL}
+  })
+  
+  # get frequency
+  a_pathway_mapping_values <- reactive({
+    req(a_pathway_mapping_initial())
+    return(unique(a_pathway_mapping_initial()))
+  })
+  
+  
+  # make mapping
+  a_pathway_mapping <- reactive({
+    req(a_pathway_mapping_initial())
+    # get data and subset
+    overlay = a_pathway_mapping_initial()
+    # subset by slider
+    overlay = overlay[overlay$Freq >= input$a_pathway_mapping_freq_slider[1] & 
+                      overlay$Freq <= input$a_pathway_mapping_freq_slider[2], ]
+    # subset by search bar
+    subset = input$a_pathway_mapping_search
+    if (!is.null(subset)){ overlay = overlay[overlay$pathway %in% subset,]}
+
+    if (nrow(overlay) > 0){
       overlay$alt_label = overlay$pathway
-      overlay$size = overlay$Freq/max(overlay$Freq)
+      overlay$size = overlay$Freq/max(a_pathway_mapping_values()$Freq)
       overlay$size = 9+exp(3*overlay$size)
+      overlay$col_significant = overlay$color
+      overlay$col_other = overlay$color
       overlay$symbol = 'square'
-      overlay$col_significant = 'red'
-      overlay$col_other = 'red'
-      overlay$opacity = 0.5
+      overlay$shape = 'square'
+      overlay$opacity = 0.8
       overlay$label = F
       return(overlay)
     } else {NULL}
-    
   })
   
+  # make the ggplot
   a_pathway_plot_gg <- reactive({
     req(a_pulldown_significant())
       p <- a_vp_gg()
       p <- plot_overlay(p, list(pathway=a_pathway_mapping()))
-      p <- make_interactive(p)
       p
-      
   })
   
+  # convert to plotly
   a_pathway_plot <- reactive({
     p <- a_pathway_plot_gg()
     p <- make_interactive(p)
-    #if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    #p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
-    #p <- add_layout_html_axes_volcano(p, 500, 500)
+    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
+    p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
+    p <- add_layout_html_axes_volcano(p, 500, 500)
     return(p)
   })
   

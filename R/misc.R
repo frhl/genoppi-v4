@@ -42,7 +42,7 @@ catf <- function(msg, file = stderr()){
 #' @export
 as.bait <- function(bait) return(list(bait=data.frame(gene=bait, col_significant='red', col_other='orange')))
 
-#' @title color_gradient
+#' @title color gradient
 #' @description makes a function for getting gradient colors
 #' @param x vector of values
 #' @export
@@ -50,6 +50,26 @@ as.bait <- function(bait) return(list(bait=data.frame(gene=bait, col_significant
 color_gradient <- function(x, colors=c("green", 'red'), colsteps=100) {
   return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
 }
+
+#' @title distinct coloring
+#' @description generates vector of 74 distinct colors from RColorBrewer.
+#' @importFrom RColorBrewer brewer.pal.info brewer.pal
+#' @export
+color_distinct <- function(){
+  #return(grDevices::colors()[grep('gr(a|e)y', grDevices::colors(), invert = T)])
+  palette = brewer.pal.info[brewer.pal.info$category == 'qual',]
+  return(rep(unlist(mapply(brewer.pal, palette$maxcolors, rownames(palette))),10))
+}
+
+#' @title assign frequency
+#' @description assign a frequency of occurences to a dataframe
+#' @export
+assign_freq <- function(df, col){
+  tabl = as.data.frame(table(df[[col]]))
+  colnames(tabl) <- c(col, 'Freq')
+  return(merge(df, tabl, by = col))
+}
+
 
 #' @title bold
 #' @description make text html bold
