@@ -42,7 +42,7 @@ body <- dashboardBody(
                                           fluidRow(
                                             column(11, myDownloadButton("a_volcano_plot_download", 'Volcano plot'))
                                           ),
-                                          fluidRow(
+                                          fluidRow(style = "padding-bottom:50px",
                                             column(1, plotOutput("FDR_colorbar", width = "50px")),
                                             column(11, plotlyOutput("VolcanoPlot")) #, width = "550px", height = "550px"
                                           ),
@@ -150,10 +150,10 @@ body <- dashboardBody(
                                           fluidRow(
                                             column(12, myDownloadButton("a_integrated_plot_download",'Volcano plot'))
                                           ),
-                                          fluidRow(
+                                          fluidRow(style = "padding-bottom:50px",
                                            column(1, br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
                                            column(11, plotlyOutput("Multi_VolcanoPlot")),
-                                         ),
+                                         )
                                     ),
                                     box(
                                       title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
@@ -292,7 +292,7 @@ body <- dashboardBody(
                                  column(8,
                                         box(
                                           title = tagList("Pathway annotations"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
-                                          fluidRow(
+                                          fluidRow(style = "padding-bottom:50px",
                                             column(12, plotlyOutput('VolcanoPlotPathway'))
                                           )
                                         )

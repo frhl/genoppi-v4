@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{color_gradient}
 \alias{color_gradient}
-\title{color_gradient}
+\title{color gradient}
 \source{
 stackoverflow snippet
 }

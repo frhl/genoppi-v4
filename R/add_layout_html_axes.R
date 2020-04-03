@@ -19,7 +19,7 @@ add_layout_html_axes_scatterplot <- function(p, repA, repB, title=''){
 #' @param p a ggplot
 #' @note internal
 #' @family shiny
-add_layout_html_axes_volcano <- function(p, height = 400, width = 400){
+add_layout_html_axes_volcano <- function(p, height = NULL, width = NULL){
   stopifnot(!is.null(p$data))
   p <- p %>% layout(xaxis = list(title = "log<sub>2</sub>(Fold change)", range=~c(min(p$data$logFC)-0.5, max(p$data$logFC)+0.5)),
                     yaxis = list(title = "-log<sub>10</sub>(<i>P</i>-value)", range=~c(min(-log10(p$data$pvalue)-0.5), max(-log10(p$data$pvalue))+0.5)),

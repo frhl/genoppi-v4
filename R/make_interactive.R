@@ -20,7 +20,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
   
   # deal with non-overlaid items
   data = p$data[p$data$gene %nin% p$overlay$gene, ]
-  p1 <- plot_ly(showlegend = FALSE, width = 550, height = 550, source = source)
+  p1 <- plot_ly(showlegend = TRUE, width = 550, height = 550, source = source) # width = height = 550
   p1 <- add_markers(p1, data = data, 
                     x = ~data[[x]], 
                     y = ~yf(data[[y]]),
@@ -28,11 +28,10 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
                     marker = list(size = 7, cmin = 0, cmax = 1, color = data$color, line = list(width=0.2, color='black')),
                     opacity = 0.9, 
                     text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), 
-                    hoverinfo = "text", name = "pull down", showlegend = F)
+                    hoverinfo = "text", name = "pull down")
   
   # add dynamic text when hovering over item
   overlay = p$overlay
-  print(overlay)
   if (nrow(overlay) > 0){
     p1 <- add_markers(p1, data = overlay, 
                       x = ~overlay[[x]], 
@@ -49,7 +48,8 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
                       mode = "marker+text",
                       hoverinfo = "text", 
                       legendgroup = "group3",
-                      name = " ",
+                      #name = apply(overlay[,c('dataset','significant')], 1, paste, collapse = '-'),
+                      name = overlay$dataset,
                       text = ~gene, 
                       hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3)), ifelse(!is.na(overlay$alt_label), alt_label, dataset), sep = "<br>"),
                       textposition = ~ifelse(logFC>0,"top right","top left"))

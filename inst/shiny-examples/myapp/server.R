@@ -1841,7 +1841,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     p <- make_interactive(p)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
-    p <- add_layout_html_axes_volcano(p)
+    p <- add_layout_html_axes_volcano(p, 500*0.8, 625*0.8)
     return(p)
   })
   
@@ -2569,7 +2569,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     p <- make_interactive(p, source = "Multi_VolcanoPlot")
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction,  sig_type = input$a_significance_type)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    p <- add_layout_html_axes_volcano(p, 500, 500) # error in searching overlay here when layout width/height supplied. 
+    p <- add_layout_html_axes_volcano(p, 500, 625) # error in searching overlay here when layout width/height supplied. 
     p
   })
   
@@ -2682,7 +2682,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     p <- make_interactive(p)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
-    p <- add_layout_html_axes_volcano(p, 500, 500)
+    p <- add_layout_html_axes_volcano(p, 500, 625)
     return(p)
   })
   
