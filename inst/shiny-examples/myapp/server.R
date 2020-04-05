@@ -414,9 +414,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
 
   
 
-  ###
-  
-  
   # Search for replicates in data
   available_replicates <- reactive({
     d <- a_pulldown()
@@ -431,10 +428,35 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     return(enum)
   })
   
+  # make summary of replicates
+  replicate_summary_table <- reactive({
+    req(a_sp_gg())
+    p = a_sp_gg_all()
+    rs = lapply(p, function(x) format(x$correlation, digits = 4))
+    rs = t(data.frame(rs))
+    rs = cbind(gsub('\\.',' vs ',rownames(rs)), rs)
+    colnames(rs) <- c('Comparison','Correlation (r)')
+    return(rs)
+  })
+  
+  # render replicate summary
+  output$a_replicate_summary_table_ui <- renderTable({
+    #req(replicate_summary_table())
+    replicate_summary_table()
+  })
+  
+  # render select scatter plot
   output$a_select_scatterplot_ui <- renderUI({
+    
+    # rename reps
+    rep_input = available_replicates()
+    reps_verbatim = gsub('rep','replicate ', rep_input)
+    reps_verbatim = gsub('\\.', ' and ', reps_verbatim)
+    reps = lapply(rep_input, function(x){x})
+    names(reps) = reps_verbatim
     selectInput('a_select_scatterplot',
                 'Replicates to compare in scatter plot', 
-                choices = available_replicates())
+                choices = reps)
   })
   
   #
@@ -2270,15 +2292,23 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #  stop('error, deprecated')
   #})
   
+  
+  a_sp_gg_all <- reactive({
+    
+    # handle all scatter plots
+    req(a_pulldown_significant())
+    d = a_pulldown_significant()
+    p = plot_scatter_basic_all(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
+    return(p)
+    
+  })
+  
   a_sp_gg <- reactive({
     
     # what replicates are inputted
-    req(input$a_select_scatterplot)
+    req(input$a_select_scatterplot, a_pulldown_significant())
     rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
-    
-    # handle all plots
-    d = a_pulldown_significant()
-    p = plot_scatter_basic_all(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
+    p = a_sp_gg_all()
 
     # handle individual plot
     p1 = p[[input$a_select_scatterplot]]$ggplot
