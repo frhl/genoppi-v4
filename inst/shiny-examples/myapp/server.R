@@ -435,6 +435,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     rs = lapply(p, function(x) format(x$correlation, digits = 4))
     rs = t(data.frame(rs))
     rs = cbind(gsub('\\.',' vs ',rownames(rs)), rs)
+    rs = rbind(rs, c('Average', format(mean(as.numeric(rs[,2])), digits = 4)))
     colnames(rs) <- c('Comparison','Correlation (r)')
     return(rs)
   })

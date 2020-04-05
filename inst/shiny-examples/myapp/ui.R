@@ -16,9 +16,6 @@ body <- dashboardBody(
                                             column(12, uiOutput('a_select_scatterplot_ui')) 
                                           ),
                                           fluidRow(
-                                            column(12, tableOutput("a_replicate_summary_table_ui"))
-                                          ),
-                                          fluidRow(
                                             column(6, uiOutput("a_color_theme_indv_sig")),
                                             column(6, uiOutput("a_color_theme_indv_insig"))
                                           )
@@ -32,6 +29,10 @@ body <- dashboardBody(
                                           fluidRow(
                                             column(12, tableOutput("a_verbatim_count_ui")),
                                             br()
+                                          ),
+                                          fluidRow(
+                                            br(),
+                                            column(12, tableOutput("a_replicate_summary_table_ui"))
                                           ),
                                           fluidRow(
                                             br(),
