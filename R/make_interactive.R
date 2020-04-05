@@ -8,7 +8,7 @@
 #' @import plotly
 #' @export
 
-make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T){
+make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_text = ''){
   
   # set initial paramaters depending on input
   stopifnot(!is.null(p$visual))
@@ -22,7 +22,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T){
   # change the dataset column so that it takes 'significant'
   p$data$dataset = 'Pulldown'
   data = list_to_df(list(A=combine_dataset_and_significance(p$data))) # list_to_df func should be re-worked
-  overlay = combine_dataset_and_significance(p$overlay)
+  overlay = combine_dataset_and_significance(p$overlay, sig_text = sig_text)
   overlay$color = ifelse(overlay$significant, 
                          as.character(overlay$col_significant), 
                          as.character(overlay$col_other))

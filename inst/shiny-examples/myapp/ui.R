@@ -48,7 +48,7 @@ body <- dashboardBody(
                                           ),
                                         ),
                                         box(
-                                          title = tagList(img(src='icon_scatter.png',width='22px'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE, collapsed = TRUE,
+                                          title = tagList(img(src='icon_scatter.png',width='22px'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE, collapsed = FALSE,
                                           fluidRow(
                                             column(11, myDownloadButton("a_scatter_plot_download", 'Scatter plot'))
                                           ),
@@ -294,7 +294,7 @@ body <- dashboardBody(
                                  column(8,
                                         box(
                                           title = tagList("Pathway annotations"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
-                                          fluidRow(style = "padding-bottom:50px",
+                                          fluidRow(style = "padding-bottom:125px",
                                             column(12, plotlyOutput('VolcanoPlotPathway'))
                                           )
                                         )
