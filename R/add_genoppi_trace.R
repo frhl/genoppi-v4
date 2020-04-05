@@ -12,6 +12,7 @@ add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2,
   # pass previous environment to function
   x = parameters$x
   y = parameters$y
+  volcano = parameters$volcano
   global_colors = parameters$global_colors
   
   # function for mapping -log10 when volcano = T
@@ -28,15 +29,16 @@ add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2,
                   key = ~dataset,
                   name = ~dataset,
                   text = ~gene,
-                  #symbol = ~symbol,
                   opacity = 0.9,
+                  symbol = data$symbol,
                   marker = list(size = size,
                                 cmin = 0,
                                 cmax = 1, 
                                 line = list(width=stroke_width, color = "black"), 
-                                opacity = 1),
+                                opacity = data$opacity,
+                                symbol = data$symbol), # note that the order matters!
                   hoverinfo = "text", 
-                  hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3))), #ifelse(!is.na(overlay$alt_label), alt_label, dataset), sep = "<br>"),
+                  hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3),'<br>',ifelse(!is.na(data$alt_label), alt_label, dataset), sep = "<br>")),
                   textposition = ~ifelse(logFC>0,"top right","top left"),
                   showlegend = legend)
   

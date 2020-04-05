@@ -42,7 +42,7 @@ body <- dashboardBody(
                                           fluidRow(
                                             column(11, myDownloadButton("a_volcano_plot_download", 'Volcano plot'))
                                           ),
-                                          fluidRow(style = "padding-bottom:50px",
+                                          fluidRow(style = "padding-bottom:75px",
                                             column(1, plotOutput("FDR_colorbar", width = "50px")),
                                             column(11, plotlyOutput("VolcanoPlot")) #, width = "550px", height = "550px"
                                           ),
@@ -150,7 +150,7 @@ body <- dashboardBody(
                                           fluidRow(
                                             column(12, myDownloadButton("a_integrated_plot_download",'Volcano plot'))
                                           ),
-                                          fluidRow(style = "padding-bottom:50px",
+                                          fluidRow(style = "padding-bottom:100px",
                                            column(1, br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
                                            column(11, plotlyOutput("Multi_VolcanoPlot")),
                                          )

@@ -4,10 +4,11 @@
 #' @param x string. The x-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param y string. The y-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param volcano boolean. If True, will convert y-axis to \code{y=-log10(y)}.
+#' @param legend boolean. Show legend for significant interactors?
 #' @import plotly
 #' @export
 
-make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
+make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T){
   
   # set initial paramaters depending on input
   stopifnot(!is.null(p$visual))
@@ -20,11 +21,16 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
   
   # change the dataset column so that it takes 'significant'
   p$data$dataset = 'Pulldown'
-  data = combine_dataset_and_significance(p$data)
+  data = list_to_df(list(A=combine_dataset_and_significance(p$data))) # list_to_df func should be re-worked
   overlay = combine_dataset_and_significance(p$overlay)
   overlay$color = ifelse(overlay$significant, 
                          as.character(overlay$col_significant), 
                          as.character(overlay$col_other))
+  
+  # rework this..
+  data$symbol <- as.character(data$symbol)
+  overlay$symbol <- as.character(overlay$symbol)
+  
   global_colors = get_global_colors(data, overlay) 
   params = environment()
   
@@ -34,8 +40,9 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
   
   # add overlay
   if (nrow(overlay) > 0){
+    
     p1 = p1 %>% 
-      add_genoppi_trace(overlay[overlay$significant, ], params, size = 9, stroke_width = 0.9, legend = T) %>%
+      add_genoppi_trace(overlay[overlay$significant, ], params, size = 9, stroke_width = 0.9, legend = legend) %>%
       add_genoppi_trace(overlay[!overlay$significant, ], params, size = 9, stroke_width = 0.9, legend = F) 
     p1$overlay = p$overlay
   }
@@ -93,10 +100,10 @@ add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
 #' @param sig_text what should be the significance text?
 #' @param insig_text what should be the insignificance text?
 #' @export
-combine_dataset_and_significance <- function(data, sig_text = '(Y)', insig_text = '(N)'){
+combine_dataset_and_significance <- function(data, sig_text = '', insig_text = '(N)'){
   stopifnot(sig_text != insig_text)
   stopifnot('dataset' %in% colnames(data))
-  data$sigtext = ifelse(data$significant, as.character('(Y)'), as.character('(N)'))
+  data$sigtext = ifelse(data$significant, as.character(sig_text), as.character(insig_text))
   data$dataset = apply(data[,c('dataset','sigtext')], 1, paste, collapse = ' ')
   data$sigtext = NULL
   return(data)
