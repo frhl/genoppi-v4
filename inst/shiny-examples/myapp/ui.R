@@ -150,7 +150,8 @@ body <- dashboardBody(
                                  ),
                                 column(width = 8,
                                     box(
-                                      title = tagList(shiny::icon('chart-area'), "Volcano plot"), solidHeader = TRUE, status = 'success', collapsible = TRUE, width = 12, # height = '800px'
+                                      title = tagList(shiny::icon('chart-area'), "Volcano plot"), solidHeader = TRUE, status = 'success', collapsible = TRUE, width = 12,
+                                      # height = '800px'
                                           fluidRow(
                                             column(12, myDownloadButton("a_integrated_plot_download",'Volcano plot'))
                                           ),
@@ -161,33 +162,39 @@ body <- dashboardBody(
                                     ),
                                     tabBox(
                                       title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'),  width = 12, #status = 'success', collapsible = TRUE,
-                                      tabPanel('tabzz',
+                                      tabPanel('InWeb',
                                         fluidRow(
-                                          column(5, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
-                                          column(5, uiOutput("a_inweb_venn_verbatim_ui")),
-                                          column(2, '')
+                                          column(4, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
+                                          column(5, br(), br(), br(), br(),
+                                                    uiOutput("a_inweb_venn_verbatim_ui")),
+                                          column(3, DT::dataTableOutput("a_inweb_venn_table_ui"))
                                          ),
+                                      ),
+                                      tabPanel('Genes upload',
                                          fluidRow(
                                           column(5, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
                                           column(5, uiOutput('a_select_venn_genes_upload_ui')),
                                           column(2, uiOutput(''))
                                          ),
+                                      ),
+                                      tabPanel('SNP upload',
                                          fluidRow(
                                           column(5, plotOutput('a_snp_all_venn_ui', width = "220px", height = "220px")),
-                                          column(5, 
-                                                 uiOutput('a_select_venn_snp_ui'),
-                                                 uiOutput('a_select_venn_snp_loci_ui')
-                                                 ),
+                                          column(5, uiOutput('a_select_venn_snp_ui'),
+                                                    uiOutput('a_select_venn_snp_loci_ui')),
                                           column(2, '')
-                                         ),
+                                         )
+                                      ),
+                                      tabPanel('GWAS catalog',
                                         fluidRow(
                                           column(5, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
                                           column(4, uiOutput('a_select_venn_gwas_catalogue_loci_ui')),
                                           column(3, '')
                                         ),
+                                      ),
+                                      tabPanel('gnomAD',
                                         fluidRow(
-                                          column(5, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px"))
-                                          
+                                          column(12, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px"))
                                         )
                                       )
                                     )

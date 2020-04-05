@@ -1525,10 +1525,25 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     req(a_pulldown_significant(), a_inweb_calc_hyper())
     tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
     hyper = a_inweb_calc_hyper()
-    A <- paste0("A = pulldown subsetted by ", tresholds, " &#40;",hyper$statistics$success_count, "&#41;")
-    B <- paste0("B = Interactors of in InWeb database", " &#40;",hyper$statistics$sample_count, "&#41;")
-    total <- paste0("N = pull down &cap; InWeb &#40;", hyper$statistics$population_count, "&#41;")
+    A <- HTML(paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;"))
+    B <- HTML(paste0("B = Interactors of in InWeb database", " &#40;", bold(hyper$statistics$sample_count), "&#41;"))
+    total <- HTML(paste0("N = pull down &cap; InWeb &#40;", bold(hyper$statistics$population_count), "&#41;"))
     return(list(A=A, B=B, total=total))
+  })
+  
+  
+  output$a_inweb_venn_table_ui <- DT::renderDataTable({
+    req(a_pulldown_significant(), a_inweb_calc_hyper())
+    hyper = a_inweb_calc_hyper() #$genes$InWeb$successInSample_genes
+    x = as.character(hyper$venn$Pulldown)
+    y = as.character(hyper$venn$InWeb)
+    genes = data.frame(gene = unique(c(x, y)), dataset=NA)
+    genes[genes$gene %in% x,]$dataset <- 'Pulldown'
+    genes[genes$gene %in% y, ]$dataset <- 'InWeb'
+    genes[genes$gene %in% x & genes$gene %in% y, ]$dataset <- 'Overlap'
+    
+    DT::datatable(genes, options = list(dom = 'ft', pageLength = 4))
+
   })
   
   # print to ui
