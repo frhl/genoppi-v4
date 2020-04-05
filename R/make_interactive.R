@@ -18,59 +18,41 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL){
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
   
-  # deal with non-overlaid items
-  data = p$data[p$data$gene %nin% p$overlay$gene, ]
-  p1 <- plot_ly(showlegend = FALSE, width = 550, height = 550, source = source) # width = height = 550
-  p1 <- add_markers(p1, data = data, 
-                    x = ~data[[x]], 
-                    y = ~yf(data[[y]]),
-                    key = data$gene,
-                    marker = list(size = 7, cmin = 0, cmax = 1, color = data$color, line = list(width=0.2, color='black')),
-                    opacity = 0.9, 
-                    text = ~paste0(gene, ", FDR=", signif(FDR, digits = 3)), 
-                    hoverinfo = "text", name = "pull down")
+  # change the dataset column so that it takes 'significant'
+  p$data$dataset = 'Pulldown'
+  data = combine_dataset_and_significance(p$data)
+  overlay = combine_dataset_and_significance(p$overlay)
+  overlay$color = ifelse(overlay$significant, 
+                         as.character(overlay$col_significant), 
+                         as.character(overlay$col_other))
+  global_colors = get_global_colors(data, overlay) 
+  params = environment()
   
-  # add dynamic text when hovering over item
+  # add basic plot
+  p1 = plot_ly(source = source) %>% 
+    add_genoppi_trace(data[data$gene %nin% overlay$gene,], params)
   
-  overlay = p$overlay
+  # add overlay
   if (nrow(overlay) > 0){
-    #browser()
-    p1 <- add_markers(p1, data = overlay, 
-                      x = ~overlay[[x]], 
-                      y = ~yf(overlay[[y]]),
-                      key = overlay$gene,
-                      marker = list(color = ifelse(overlay$significant, 
-                                                   as.character(overlay$col_significant), 
-                                                   as.character(overlay$col_other)),
-                                    symbol = overlay$symbol,
-                                    #size = 9,
-                                    size = overlay$size, #9, 
-                                    line = list(width=1.0, color = "black"), 
-                                    opacity = overlay$opacity),
-                      mode = "marker+text",
-                      hoverinfo = "text", 
-                      legendgroup = "group3",
-                      #name = apply(overlay[,c('dataset','significant')], 1, paste, collapse = '-'),
-                      name = overlay$dataset,
-                      text = ~gene, 
-                      hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3)), ifelse(!is.na(overlay$alt_label), alt_label, dataset), sep = "<br>"),
-                      textposition = ~ifelse(logFC>0,"top right","top left"))
-                      #textfont = ifelse(overlay$label, list(size = 11), list(size=1)))
-    
-    # add annotations
-    overlay_label <- overlay[overlay$label, ]
-    if (nrow(overlay_label) > 0){
-      p1 <- add_annotations(p1,
-                            x = overlay_label[[x]],
-                            y = yf(overlay_label[[y]]),
-                            xref = "x",
-                            yref = "y",
-                            text = overlay_label$gene,
-                            xanchor = ifelse(overlay_label$logFC < 0, 'right', 'left'),
-                            yanchor = 'bottom',
-                            showarrow = F)
-    }
-    p1$overlay <- p$overlay
+    p1 = p1 %>% 
+      add_genoppi_trace(overlay[overlay$significant, ], params, size = 9, stroke_width = 0.9, legend = T) %>%
+      add_genoppi_trace(overlay[!overlay$significant, ], params, size = 9, stroke_width = 0.9, legend = F) 
+    p1$overlay = p$overlay
+  }
+  
+  # add annotations
+  if (nrow(overlay) > 0 & any(overlay$label)){
+    overlay_label = overlay[overlay$label, ]
+    p1 <- add_annotations(p1,
+                          x = overlay_label[[x]],
+                          y = yf(overlay_label[[y]]),
+                          color = 'black',
+                          xref = "x",
+                          yref = "y",
+                          text = overlay_label$gene,
+                          xanchor = ifelse(overlay_label$logFC < 0, 'right', 'left'),
+                          yanchor = 'bottom',
+                          showarrow = F)
   }
   p1$data <- p$data
   p1
@@ -103,4 +85,48 @@ add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
   p
 }
 
+#' @title Combine data set and significance
+#' @description In order to correctly draw plotly points
+#' the identifier (dataset) must have a unique colors associated with it.
+#' This function appends the dataset column with a significance text. 
+#' @param data a data or overlay data.frame with \code{dataset} as column.
+#' @param sig_text what should be the significance text?
+#' @param insig_text what should be the insignificance text?
+#' @export
+combine_dataset_and_significance <- function(data, sig_text = '(Y)', insig_text = '(N)'){
+  stopifnot(sig_text != insig_text)
+  stopifnot('dataset' %in% colnames(data))
+  data$sigtext = ifelse(data$significant, as.character('(Y)'), as.character('(N)'))
+  data$dataset = apply(data[,c('dataset','sigtext')], 1, paste, collapse = ' ')
+  data$sigtext = NULL
+  return(data)
+}
+
+
+#' @title get global colors
+#' @description the colors supplied to plotly must be in a global colors
+#' scheme with appropiate names (similar to a dict). This function generated
+#' this mapping, so that the color scheme can be correctly plotted.
+#' @param data a data.frame object.
+#' @param overlay a data.frame object.
+#' @export
+get_global_colors <- function(data, overlay){
+  
+  # check
+  stopifnot(all(c('color', 'dataset') %in% colnames(data)))
+  stopifnot(all(c('color', 'dataset') %in% colnames(overlay)))
+  
+  # get pairs of colors
+  tabl_data = data[,c('dataset','color')]
+  tabl_data = as.data.frame(tabl_data[!duplicated(tabl_data),])
+  tabl_overlay = overlay[,c('dataset','color')]
+  tabl_overlay = as.data.frame(tabl_overlay[!duplicated(tabl_overlay),])
+  tabl = rbind(tabl_data, tabl_overlay)
+  
+  # set colors
+  global_colors <- setNames(tabl$color, tabl$dataset)
+  
+  return(global_colors)
+  
+}
 

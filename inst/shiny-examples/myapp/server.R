@@ -2553,7 +2553,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   a_integrated_plot_gg <- reactive({
     p = a_vp_gg()
     
-    #if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') browser()
+   
     if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()))
     if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
@@ -2561,6 +2561,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()))
     p$overlay <- collapse_labels(p$overlay)
     p
+    
   })
   
   # convert into plotly graphics
@@ -2569,7 +2570,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     p <- make_interactive(p, source = "Multi_VolcanoPlot")
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction,  sig_type = input$a_significance_type)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    p <- add_layout_html_axes_volcano(p, 500, 625) # error in searching overlay here when layout width/height supplied. 
+    p <- add_layout_html_axes_volcano(p, 550, 650) # error in searching overlay here when layout width/height supplied. 
     p
   })
   

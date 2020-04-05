@@ -83,6 +83,20 @@ body <- dashboardBody(
                                       
                                     ),
                                     box(
+                                      title = tagList('gnomAD'), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
+                                      fluidRow(
+                                        column(4,uiOutput('a_select_gnomad_pli_type_ui')),
+                                        column(8, 
+                                               uiOutput('a_slide_gnomad_pli_threshold_ui'),
+                                               uiOutput('a_gnomad_colorscale_text_ui'),
+                                               plotOutput('a_gnomad_colorscale_ui', width = "275px", height = '100px')
+                                        )
+                                      ),
+                                      br(),
+                                      fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
+                                      fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
+                                    ),
+                                    box(
                                      title ='Upload SNPs', width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
                                      fluidRow(
                                        column(12, uiOutput("a_SNP_file"))
@@ -101,20 +115,6 @@ body <- dashboardBody(
                                        column(8, uiOutput("a_label_genes_upload_ui"))
                                        #column(4, uiOutput("a_reset_genes_upload_ui"))
                                      )
-                                  ),
-                                  box(
-                                    title = tagList(img(src='icon_gnomad.png',width='50px')), width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
-                                    fluidRow(
-                                      column(4,uiOutput('a_select_gnomad_pli_type_ui')),
-                                      column(8, 
-                                             uiOutput('a_slide_gnomad_pli_threshold_ui'),
-                                             uiOutput('a_gnomad_colorscale_text_ui'),
-                                             plotOutput('a_gnomad_colorscale_ui', width = "275px", height = '100px')
-                                      )
-                                    ),
-                                    br(),
-                                    fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
-                                    fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                   ),
                                   box(
                                     title = "Display settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE,
@@ -155,34 +155,36 @@ body <- dashboardBody(
                                            column(11, plotlyOutput("Multi_VolcanoPlot")),
                                          )
                                     ),
-                                    box(
-                                      title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
-                                      fluidRow(
-                                        column(5, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
-                                        column(5, uiOutput("a_inweb_venn_verbatim_ui")),
-                                        column(2, '')
-                                       ),
-                                       fluidRow(
-                                        column(5, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
-                                        column(5, uiOutput('a_select_venn_genes_upload_ui')),
-                                        column(2, uiOutput(''))
-                                       ),
-                                       fluidRow(
-                                        column(5, plotOutput('a_snp_all_venn_ui', width = "220px", height = "220px")),
-                                        column(5, 
-                                               uiOutput('a_select_venn_snp_ui'),
-                                               uiOutput('a_select_venn_snp_loci_ui')
-                                               ),
-                                        column(2, '')
-                                       ),
-                                      fluidRow(
-                                        column(5, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
-                                        column(4, uiOutput('a_select_venn_gwas_catalogue_loci_ui')),
-                                        column(3, '')
-                                      ),
-                                      fluidRow(
-                                        column(5, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px"))
-                                        
+                                    tabBox(
+                                      title = tagList(img(src='icon_venn_a.png',width='22px'), 'Venn diagrams'),  width = 12, #status = 'success', collapsible = TRUE,
+                                      tabPanel('tabzz',
+                                        fluidRow(
+                                          column(5, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
+                                          column(5, uiOutput("a_inweb_venn_verbatim_ui")),
+                                          column(2, '')
+                                         ),
+                                         fluidRow(
+                                          column(5, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
+                                          column(5, uiOutput('a_select_venn_genes_upload_ui')),
+                                          column(2, uiOutput(''))
+                                         ),
+                                         fluidRow(
+                                          column(5, plotOutput('a_snp_all_venn_ui', width = "220px", height = "220px")),
+                                          column(5, 
+                                                 uiOutput('a_select_venn_snp_ui'),
+                                                 uiOutput('a_select_venn_snp_loci_ui')
+                                                 ),
+                                          column(2, '')
+                                         ),
+                                        fluidRow(
+                                          column(5, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
+                                          column(4, uiOutput('a_select_venn_gwas_catalogue_loci_ui')),
+                                          column(3, '')
+                                        ),
+                                        fluidRow(
+                                          column(5, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px"))
+                                          
+                                        )
                                       )
                                     )
                                 )
