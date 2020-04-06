@@ -167,7 +167,7 @@ body <- dashboardBody(
                                           column(4, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
                                           column(5, br(), br(), br(), br(),
                                                     uiOutput("a_inweb_venn_verbatim_ui")),
-                                          column(3, DT::dataTableOutput("a_inweb_venn_table_ui"))
+                                          column(3, ''),
                                          ),
                                       ),
                                       tabPanel('Genes upload',
@@ -194,9 +194,13 @@ body <- dashboardBody(
                                       ),
                                       tabPanel('gnomAD',
                                         fluidRow(
-                                          column(12, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px"))
+                                          column(4, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px")),
+                                          column(5, br(), br(), br(), br(),
+                                                 uiOutput("a_gnomad_venn_verbatim_ui")),
+                                          column(3, ''),
                                         )
-                                      )
+                                       )
+                                      
                                     )
                                 )
                         ),

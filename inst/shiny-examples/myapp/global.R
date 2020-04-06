@@ -10,7 +10,6 @@ library(ggrepel)
 library(plyr)
 library(VennDiagram)
 library(colourpicker)
-library(DT)
 
 # load genoppi if not attcahed
 if (!'genoppi' %in% .packages()) devtools::load_all()

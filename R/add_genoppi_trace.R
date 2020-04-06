@@ -7,7 +7,7 @@
 #' @note global variable 'global_colors' must be specified using setNames().
 #' @export
 
-add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2, legend = F){
+add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2, legend = F, legend_group = NULL){
   
   # pass previous environment to function
   x = parameters$x
@@ -40,6 +40,7 @@ add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2,
                   hoverinfo = "text", 
                   hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3),'<br>',ifelse(!is.na(data$alt_label), alt_label, dataset), sep = "<br>")),
                   textposition = ~ifelse(logFC>0,"top right","top left"),
+                  legendgroup = legend_group,
                   showlegend = legend)
   
   return(p1)

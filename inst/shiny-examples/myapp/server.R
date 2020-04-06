@@ -1370,10 +1370,19 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     gnomad = gnomad[bool_threshold,]
     gnomad$col_significant = 'red'
     gnomad$col_other = 'grey'
-    #gnomad$col_significant = ifelse(bool_threshold, 'red', 'green')
-    #gnomad$col_other = ifelse(bool_threshold, 'grey', 'grey')
     return(gnomad)
   })
+  
+  # for calculating hypergeometric p-value
+  # ideally, this should be a function in the future
+  a_gnomad_sig_list <- reactive({
+    req(a_pulldown(), input$a_slide_gnomad_pli_threshold)
+    pulldown = a_pulldown_significant()
+    threshold = gnomad_table$gene %in% pulldown$gene & gnomad_table$pLI >= input$a_slide_gnomad_pli_threshold
+    threshold[is.na(threshold)] = FALSE
+    return(data.frame(gene=gnomad_table$gene, significant=threshold))
+  })
+  
   
   # continious colors scale
   #a_gnomad_mapping_continuous <- reactive({
@@ -1532,7 +1541,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   })
   
   
-  output$a_inweb_venn_table_ui <- DT::renderDataTable({
+  output$a_inweb_venn_table_ui <- reactive({
     req(a_pulldown_significant(), a_inweb_calc_hyper())
     hyper = a_inweb_calc_hyper() #$genes$InWeb$successInSample_genes
     x = as.character(hyper$venn$Pulldown)
@@ -1541,9 +1550,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     genes[genes$gene %in% x,]$dataset <- 'Pulldown'
     genes[genes$gene %in% y, ]$dataset <- 'InWeb'
     genes[genes$gene %in% x & genes$gene %in% y, ]$dataset <- 'Overlap'
-    
-    DT::datatable(genes, options = list(dom = 'ft', pageLength = 4))
-
   })
   
   # print to ui
@@ -1669,20 +1675,17 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # hypergeometric overlap gnomAD
   a_gnomad_calc_hyper <- reactive({
-    req(a_gnomad_mapping_threshold(), a_pulldown_significant())
+    req(a_gnomad_sig_list(), a_pulldown_significant())
     
     # get data for overlap calculation
     pulldown = a_pulldown_significant()
-    gnomad = a_gnomad_mapping_threshold()['gene']
-    gnomad$listName = 'gnomad'
-    gnomad$significant = TRUE
-    intersect=data.frame(listName='gnomad', intersectN=TRUE)
+    gnomad = data.frame(listName='gnomAD',a_gnomad_sig_list())
+    intersect=data.frame(listName='gnomAD', intersectN=TRUE)
     
     # compile venn diagram information
-    #hyper = calc_hyper(pulldown, gnomad, intersect)
-    hyper = list()
-    hyper[['venn' ]][['gnomAD']] <- gnomad$gene
-    hyper[['venn']][['Pulldown']] <- pulldown$gene[pulldown$significant]
+    hyper = calc_hyper(pulldown, gnomad, intersect)
+    hyper[['venn' ]][['gnomAD']] <- hyper$genes$gnomAD$success_genes
+    hyper[['venn']][['Pulldown']] <- hyper$genes$gnomAD$sample_genes
     return(hyper)
   })
   
@@ -1690,14 +1693,31 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   output$a_gnomad_venn_ui <- renderPlot({
     req(a_pulldown_significant(), a_gnomad_calc_hyper())
     hyper = a_gnomad_calc_hyper()
-    v = draw_genoppi_venn(hyper$venn, color = c('blue','red'), main = paste0('P-value = (Discuss)'))
+    v = draw_genoppi_venn(hyper$venn, color = c('blue','red'), main = paste0('P-value = ',format(hyper$statistics$pvalue, digits = 3)))
     grid::grid.newpage()
     grid::grid.draw(v)
   })
   
+  # plot below venn diagram inweb
+  a_gnomad_venn_verbatim <- reactive({
+    req(a_pulldown_significant(), a_gnomad_calc_hyper())
+    tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    hyper = a_gnomad_calc_hyper()
+    A <- HTML(paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;"))
+    B <- HTML(paste0("B = gnomAD database genes with pLI ≥", input$a_slide_gnomad_pli_threshold,'',input$a_pli ," &#40;", bold(hyper$statistics$sample_count), "&#41;"))
+    total <- HTML(paste0("N = pull down &cap; gnomAD &#40;", bold(hyper$statistics$population_count), "&#41;"))
+    return(list(A=A, B=B, total=total))
+  })
+  
+  # print to ui
+  output$a_gnomad_venn_verbatim_ui <- renderUI({
+    output <- a_gnomad_venn_verbatim()
+    HTML(paste(output$total, output$A, output$B, sep = "<br/>"))
+  })
+  
   
   #---------------------------------------------------------------
-  # gnomad integration
+  # gnomad plot clicking integration
   
   a_table_gnomad_constraints <- reactive({
     hover_index = event_data("plotly_click", source = "Multi_VolcanoPlot")
@@ -2598,10 +2618,8 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # generate plot in ggformat
   a_integrated_plot_gg <- reactive({
     p = a_vp_gg()
-    
-   
     if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()))
-    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep != '') p = plot_overlay(p, list(inweb=a_inweb_mapping()))
+    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep %in% keys(inweb_hash)) p = plot_overlay(p, list(inweb=a_inweb_mapping()))
     if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
     if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(upload=a_genes_upload()$data))}
     if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()))
@@ -2689,7 +2707,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     return(unique(a_pathway_mapping_initial()))
   })
   
-  
   # make mapping
   a_pathway_mapping <- reactive({
     req(a_pathway_mapping_initial())
@@ -2719,7 +2736,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # make the ggplot
   a_pathway_plot_gg <- reactive({
-    req(a_pulldown_significant())
+    req(a_pulldown_significant(), a_pathway_mapping())
       p <- a_vp_gg()
       p <- plot_overlay(p, list(pathway=a_pathway_mapping()))
       p
@@ -2727,6 +2744,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # convert to plotly
   a_pathway_plot <- reactive({
+    req(a_pathway_plot_gg())
     p <- a_pathway_plot_gg()
     p <- make_interactive(p, legend = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
@@ -2898,92 +2916,92 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     p1
   })
   
-  a_multi_vp_count <- reactive({
-    
-    stop('a_multi_vp_count is deprecated!')
-    multi_vp <- a_multi_vp()
-    vp_data <- a_pulldown()
-    current_subset <- nrow(subset(vp_data, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))
-    orig_count <- data.frame(paste0(current_subset, " (total = ", nrow(vp_data), ")"))
-    row.names(orig_count) <- c("pull down")
-    colnames(orig_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
-    
-    # InWeb, SNP to gene, and genes upload
-    if(!is.null(a_bait_gene_layer())){
-      if(nrow(multi_vp$d_in)>0){
-        pop <- subset(vp_data, vp_data$gene %in% inweb_combined$V1)
-        sample <- sample() 
-        inweb_count <- nrow(subset(multi_vp$d_in, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))
-        success_pop <- subset(pop, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2]))
-        success_samp <- subset(sample, sample$gene %in% success_pop$gene)
-        rownames(success_samp) <- NULL
-        samp_l <- length(unique(sample$gene))
-        pop_l <- length(unique(pop$gene))
-        success_pop_l <- length(unique(success_pop$gene))
-        success_samp_l <- length(unique(success_samp$gene))
-        pvalue <- phyper((success_samp_l-1), samp_l, (pop_l-samp_l), success_pop_l, lower.tail = F)
-        pvalue <- signif(pvalue, 4)
-        i_count <- data.frame(paste0(inweb_count, " (total = ", nrow(multi_vp$d_in), ", pvalue = ", pvalue, ")")) #, nrow(multi_vp$d_in)
-        row.names(i_count) <- c("InWeb")
-        colnames(i_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
-        orig_count <- do.call("rbind", list(orig_count, i_count))
-      } else if(nrow(multi_vp$d_in)==0){
-        orig_count
-      }
-    }
-    
-    if(!is.null(SNP_to_gene())){
-      if(nrow(multi_vp$d_snp)>0){
-        snp_count <- nrow(subset(multi_vp$d_snp, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))
-        s_count <- data.frame(snp_count) 
-        row.names(s_count) <- c("SNP")
-        colnames(s_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
-        orig_count <- do.call("rbind", list(orig_count, s_count))
-      } else {
-        orig_count
-      }
-    }
-    
-    if(!is.null(a_upload_genes())){
-      if(length(multi_vp$d_g2s)>0){
-        df <- ldply(multi_vp$d_g2s, data.frame)
-        df1 <- split(df, df$.id)
-        pop <- subset(vp_data, vp_data$gene %in% toupper(human_genome$HGNCsymbol)) 
-        sample <- lapply(a_genes_uploaded(), function(x) subset(pop, gene %in% x) )  
-        success_pop <- subset(pop, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2]))
-        success_samp <- lapply(sample, function(x) subset(x, gene %in% success_pop$gene))
-        rownames(success_samp) <- NULL
-        samp_l <- lapply(sample, function(x) length(unique(x$gene)))
-        pop_l <- length(unique(pop$gene))
-        success_pop_l <- length(unique(success_pop$gene))
-        success_samp_l <- lapply(success_samp, function(x) length(unique(x$gene)))
-        p_l <- rep(list(pop_l), length(samp_l))
-        sp_l <- rep(list(success_pop_l), length(samp_l))
-        pvalue <- mapply(function(p, sp, s, ss) {signif(phyper((ss-1), s, (p-s), sp, lower.tail = F), 4)}, p=p_l, sp=sp_l, s=samp_l, ss=success_samp_l)
-        
-        gene_count <- lapply(df1, function(x) subset(x, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))  
-        gene_count1 <- lapply(gene_count, function(x) nrow(x))
-        df1_count <- lapply(df1, function(x) nrow(x))
-        gene_count_fin <- ldply(gene_count1, data.frame)
-        df1_total <- ldply(df1_count, data.frame)
-        pval_total <- ldply(pvalue, data.frame)
-        g_count <- data.frame(paste0(gene_count_fin$X..i.., " (total = ", df1_total$X..i.., ", pvalue = ", pval_total$X..i.., ")")) #, df1_total$X..i..
-        row.names(g_count) <- df1_total$.id
-        colnames(g_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
-        orig_count <- do.call("rbind", list(orig_count, g_count))
-      } else {
-        orig_count
-      }
-    }
-    orig_count
-  })
+  #a_multi_vp_count <- reactive({
+  #  
+  #  stop('a_multi_vp_count is deprecated!')
+  #  multi_vp <- a_multi_vp()
+  #  vp_data <- a_pulldown()
+  #  current_subset <- nrow(subset(vp_data, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))
+  #  orig_count <- data.frame(paste0(current_subset, " (total = ", nrow(vp_data), ")"))
+  #  row.names(orig_count) <- c("pull down")
+  #  colnames(orig_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
+  #  
+  #  # InWeb, SNP to gene, and genes upload
+  #  if(!is.null(a_bait_gene_layer())){
+  #    if(nrow(multi_vp$d_in)>0){
+  #      pop <- subset(vp_data, vp_data$gene %in% inweb_combined$V1)
+  #      sample <- sample() 
+  #      inweb_count <- nrow(subset(multi_vp$d_in, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))
+  #      success_pop <- subset(pop, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2]))
+  #      success_samp <- subset(sample, sample$gene %in% success_pop$gene)
+  #      rownames(success_samp) <- NULL
+  #      samp_l <- length(unique(sample$gene))
+  #      pop_l <- length(unique(pop$gene))
+  #      success_pop_l <- length(unique(success_pop$gene))
+  #      success_samp_l <- length(unique(success_samp$gene))
+  #      pvalue <- phyper((success_samp_l-1), samp_l, (pop_l-samp_l), success_pop_l, lower.tail = F)
+  #      pvalue <- signif(pvalue, 4)
+  #      i_count <- data.frame(paste0(inweb_count, " (total = ", nrow(multi_vp$d_in), ", pvalue = ", pvalue, ")")) #, nrow(multi_vp$d_in)
+  #      row.names(i_count) <- c("InWeb")
+  #      colnames(i_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
+  #      orig_count <- do.call("rbind", list(orig_count, i_count))
+  #    } else if(nrow(multi_vp$d_in)==0){
+  #      orig_count
+  #    }
+  #  }
+  #  
+  #  if(!is.null(SNP_to_gene())){
+  #    if(nrow(multi_vp$d_snp)>0){
+  #      snp_count <- nrow(subset(multi_vp$d_snp, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))
+  #      s_count <- data.frame(snp_count) 
+  #      row.names(s_count) <- c("SNP")
+  #      colnames(s_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
+  #      orig_count <- do.call("rbind", list(orig_count, s_count))
+  #    } else {
+  #      orig_count
+  #    }
+  #  }
+  #  
+  #  if(!is.null(a_upload_genes())){
+  #    if(length(multi_vp$d_g2s)>0){
+  #      df <- ldply(multi_vp$d_g2s, data.frame)
+  #      df1 <- split(df, df$.id)
+  #      pop <- subset(vp_data, vp_data$gene %in% toupper(human_genome$HGNCsymbol)) 
+  #      sample <- lapply(a_genes_uploaded(), function(x) subset(pop, gene %in% x) )  
+  #      success_pop <- subset(pop, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2]))
+  #      success_samp <- lapply(sample, function(x) subset(x, gene %in% success_pop$gene))
+  #      rownames(success_samp) <- NULL
+  #      samp_l <- lapply(sample, function(x) length(unique(x$gene)))
+  #      pop_l <- length(unique(pop$gene))
+  #      success_pop_l <- length(unique(success_pop$gene))
+  #      success_samp_l <- lapply(success_samp, function(x) length(unique(x$gene)))
+  #      p_l <- rep(list(pop_l), length(samp_l))
+  #      sp_l <- rep(list(success_pop_l), length(samp_l))
+  #      pvalue <- mapply(function(p, sp, s, ss) {signif(phyper((ss-1), s, (p-s), sp, lower.tail = F), 4)}, p=p_l, sp=sp_l, s=samp_l, ss=success_samp_l)
+  #      
+  #      gene_count <- lapply(df1, function(x) subset(x, (FDR <= input$a_fdr_thresh) & (pvalue <= input$a_pval_thresh) & (logFC >= input$a_logFC_thresh[1]) & (logFC <= input$a_logFC_thresh[2])))  
+  #      gene_count1 <- lapply(gene_count, function(x) nrow(x))
+  #      df1_count <- lapply(df1, function(x) nrow(x))
+  #      gene_count_fin <- ldply(gene_count1, data.frame)
+  #      df1_total <- ldply(df1_count, data.frame)
+  #      pval_total <- ldply(pvalue, data.frame)
+  #      g_count <- data.frame(paste0(gene_count_fin$X..i.., " (total = ", df1_total$X..i.., ", pvalue = ", pval_total$X..i.., ")")) #, df1_total$X..i..
+  #      row.names(g_count) <- df1_total$.id
+  #      colnames(g_count) <- c(paste0("FDR<", input$a_fdr_thresh, ", pvalue<", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "<logFC<", input$a_logFC_thresh[2]))
+  #      orig_count <- do.call("rbind", list(orig_count, g_count))
+  #    } else {
+  #      orig_count
+  #    }
+  #  }
+  #  orig_count
+  #})
   
-  a_multi_vp_count_text <- reactive({
-    if(!is.null(a_multi_vp_count())){
-      enriched <- c(paste0("FDR&le;", input$a_fdr_thresh, ", pvalue&le;", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "&le;logFC&le;", input$a_logFC_thresh[2]))
-      enriched
-    }
-  })
+  #a_multi_vp_count_text <- reactive({
+  #  if(!is.null(a_multi_vp_count())){
+  #    enriched <- c(paste0("FDR&le;", input$a_fdr_thresh, ", pvalue&le;", input$a_pval_thresh, ", ", input$a_logFC_thresh[1], "&le;logFC&le;", input$a_logFC_thresh[2]))
+  #    enriched
+  #  }
+  #})
   
   # a_multi_sp_layer <- reactive({
   #   multi_sp <- a_multi_vp()
@@ -3155,476 +3173,476 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #   p1
   # })
   
-  output$a_VD_sig_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', "")
-    )
-    HTML("<b>User-defined significance thresholds:</b>")
-  })
+  #output$a_VD_sig_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "")
+  #  )
+  #  HTML("<b>User-defined significance thresholds:</b>")
+  #})
   
-  a_venndiagram <- reactive({
-    bait <- a_bait_gene_vennd()
-    success_pop <- success_population_bait()
-    s_p <- unique(sort(success_pop$gene))
-    pop <- population_bait()
-    p <- unique(sort(pop$gene))
-    samp <- sample_bait()
-    s <- unique(sort(samp$gene))
-    success_samp <- success_sample_bait()
-    s_s <- unique(sort(success_samp$gene))
-    success_pop_l <- length(s_p)
-    pop_l <- length(p)
-    samp_l <- length(s)
-    success_samp_l <- length(s_s)
-    pvalue <- phyper((success_samp_l-1), samp_l, (pop_l-samp_l), success_pop_l, lower.tail = F)
-    mycolours3 = c("cornflowerblue", "yellow1")
-    
-    x <- list()
-    x[["A"]] <- success_pop$gene
-    x[["B"]] <- samp$gene
-    
-    v0 <- venn.diagram(x,
-                       col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
-                       main = paste("p value = ", format(pvalue, digits = 4)),
-                       sub = " ", sub.pos = c(0, 0), scaled = F,
-                       cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05),
-                       fontfamily = 'sans', cat.fontfamily = 'sans', main.fontfamily = 'sans')
-    
-    v0
-  })
+  #a_venndiagram <- reactive({
+  #  bait <- a_bait_gene_vennd()
+  #  success_pop <- success_population_bait()
+  #  s_p <- unique(sort(success_pop$gene))
+  #  pop <- population_bait()
+  #  p <- unique(sort(pop$gene))
+  #  samp <- sample_bait()
+  #  s <- unique(sort(samp$gene))
+  #  success_samp <- success_sample_bait()
+  #  s_s <- unique(sort(success_samp$gene))
+  #  success_pop_l <- length(s_p)
+  #  pop_l <- length(p)
+  #  samp_l <- length(s)
+  #  success_samp_l <- length(s_s)
+  #  pvalue <- phyper((success_samp_l-1), samp_l, (pop_l-samp_l), success_pop_l, lower.tail = F)
+  #  mycolours3 = c("cornflowerblue", "yellow1")
+  #  
+  #  x <- list()
+  #  x[["A"]] <- success_pop$gene
+  #  x[["B"]] <- samp$gene
+  #  
+  #  v0 <- venn.diagram(x,
+  #                     col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
+  #                     main = paste("p value = ", format(pvalue, digits = 4)),
+  #                     sub = " ", sub.pos = c(0, 0), scaled = F,
+  #                     cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05),
+  #                     fontfamily = 'sans', cat.fontfamily = 'sans', main.fontfamily = 'sans')
+  #  
+  #  v0
+  #})
   
-  a_venndiagram_text <- reactive({
-    bait <- a_bait_gene_vennd()
-    pop <- population_bait()
-    success_pop <- success_population_bait()
-    samp <- sample_bait()
-    subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
-                           ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
-                           " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
-                           " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
-    inweb_name <- paste0("B = InWeb_IM interactors of ", bait, " &#40;", length(unique(sort(samp$gene))), "&#41;")
-    total <- paste0("pull down &cap; InWeb_IM database &#40;", length(unique(sort(pop$gene))), "&#41;")
-    list(a=subset_limit, b=inweb_name, c=total)
-  })
+  #a_venndiagram_text <- reactive({
+  #  bait <- a_bait_gene_vennd()
+  #  pop <- population_bait()
+  #  success_pop <- success_population_bait()
+  #  samp <- sample_bait()
+  #  subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
+  #                         ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
+  #                         " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
+  #                         " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
+  #  inweb_name <- paste0("B = InWeb_IM interactors of ", bait, " &#40;", length(unique(sort(samp$gene))), "&#41;")
+  #  total <- paste0("pull down &cap; InWeb_IM database &#40;", length(unique(sort(pop$gene))), "&#41;")
+  #  list(a=subset_limit, b=inweb_name, c=total)
+  #})
   
-  output$a_vd_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(input$a_bait_vennd != '', "")
-    )
-    output <- a_venndiagram_text()
-    HTML(paste(output$c, output$a, output$b, sep = "<br/>"))
-  })
+  #output$a_vd_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(input$a_bait_vennd != '', "")
+  #  )
+  #  output <- a_venndiagram_text()
+  #  HTML(paste(output$c, output$a, output$b, sep = "<br/>"))
+  #})
   
-  a_venndiagram_GOI <- reactive({
-    success_pop <- success_population_GOI()
-    s_p <- unique(sort(success_pop$gene))
-    pop <- population_GOI()
-    p <- unique(sort(pop$gene))
-    samp <- sample_GOI()
-    samp_total <- as.data.frame(data.table::rbindlist(samp))
-    samp <- c(samp, list(total = samp_total))
-    list_num <- input$a_goi_num_inputs
-    s <- unique(sort(samp[[list_num]]$gene))
-    success_samp <- success_sample_GOI()
-    s_s <- unique(sort(success_samp$gene))
-    success_pop_l <- length(s_p)
-    pop_l <- length(p)
-    samp_l <- length(s)
-    success_samp_l <- length(s_s)
-    pvalue <- phyper((success_samp_l-1), samp_l, (pop_l-samp_l), success_pop_l, lower.tail = F)
-    mycolours3 = c("cornflowerblue", "#fdb462")
-    
-    x <- list()
-    x[["A"]] <- success_pop$gene
-    x[["B"]] <- samp[[list_num]]$gene
-    
-    v0 <- venn.diagram(x, 
-                       col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
-                       main = paste("p value = ", format(pvalue, digits = 4)), 
-                       sub = " ", sub.pos = c(0, 0), scaled = F,
-                       cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
-    for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
-    
-    v0
-  })
+  #a_venndiagram_GOI <- reactive({
+  #  success_pop <- success_population_GOI()
+  #  s_p <- unique(sort(success_pop$gene))
+  #  pop <- population_GOI()
+  #  p <- unique(sort(pop$gene))
+  #  samp <- sample_GOI()
+  #  samp_total <- as.data.frame(data.table::rbindlist(samp))
+  #  samp <- c(samp, list(total = samp_total))
+  #  list_num <- input$a_goi_num_inputs
+  #  s <- unique(sort(samp[[list_num]]$gene))
+  #  success_samp <- success_sample_GOI()
+  #  s_s <- unique(sort(success_samp$gene))
+  #  success_pop_l <- length(s_p)
+  #  pop_l <- length(p)
+  #  samp_l <- length(s)
+  #  success_samp_l <- length(s_s)
+  #  pvalue <- phyper((success_samp_l-1), samp_l, (pop_l-samp_l), success_pop_l, lower.tail = F)
+  #  mycolours3 = c("cornflowerblue", "#fdb462")
+  #  
+  #  x <- list()
+  #  x[["A"]] <- success_pop$gene
+  #  x[["B"]] <- samp[[list_num]]$gene
+  #  
+  #  v0 <- venn.diagram(x, 
+  #                     col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
+  #                     main = paste("p value = ", format(pvalue, digits = 4)), 
+  #                     sub = " ", sub.pos = c(0, 0), scaled = F,
+  #                     cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
+  #  for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
+  #  
+  #  v0
+  #})
   
-  a_venndiagram_GOI_text <- reactive({ 
-    pop <- population_GOI()
-    success_pop <- success_population_GOI()
-    samp <- sample_GOI()
-    samp_total <- as.data.frame(data.table::rbindlist(samp))
-    samp <- c(samp, list(total = samp_total))
-    list_num <- input$a_goi_num_inputs
-    subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
-                           ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
-                           " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
-                           " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
-    inweb_name <- paste0("B = Genes of interest in HGNC database", " &#40;", length(unique(sort(samp[[list_num]]$gene))), "&#41;") #   nrow(samp[[list_num]])
-    total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
-    list(a=subset_limit, b=inweb_name, c=total)
-  })
+  #a_venndiagram_GOI_text <- reactive({ 
+  #  pop <- population_GOI()
+  #  success_pop <- success_population_GOI()
+  #  samp <- sample_GOI()
+  #  samp_total <- as.data.frame(data.table::rbindlist(samp))
+  #  samp <- c(samp, list(total = samp_total))
+  #  list_num <- input$a_goi_num_inputs
+  #  subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
+  #                         ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
+  #                         " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
+  #                         " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
+  #  inweb_name <- paste0("B = Genes of interest in HGNC database", " &#40;", length(unique(sort(samp[[list_num]]$gene))), "&#41;") #   nrow(samp[[list_num]])
+  #  total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
+  #  list(a=subset_limit, b=inweb_name, c=total)
+  #})
   
-  output$a_vd_GOI_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(!is.null(input$a_file_genes_vennd), "")
-    )
-    output <- a_venndiagram_GOI_text()
-    HTML(paste(output$c, output$a, output$b, sep = "<br/>"))
-  })
+  #output$a_vd_GOI_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(!is.null(input$a_file_genes_vennd), "")
+  #  )
+  #  output <- a_venndiagram_GOI_text()
+  #  HTML(paste(output$c, output$a, output$b, sep = "<br/>"))
+  #})
   
-  a_venndiagram_SNP <- reactive({
-    success_pop <- success_population_GOI()
-    s_p <- unique(sort(success_pop$gene))
-    pop <- population_GOI()
-    p <- unique(sort(pop$gene))
-    samp <- sample_SNP()
-    s <- unique(sort(samp$gene))
-    success_samp <- success_sample_SNP()
-    s_s <- unique(sort(success_samp$gene))
-    success_pop_l <- length(s_p)
-    pop_l <- length(p)
-    samp_l <- length(s)
-    success_samp_l <- length(s_s)
-    mycolours3 = c("cornflowerblue", "salmon")
-    
-    x <- list()
-    x[["A"]] <- success_pop$gene
-    x[["B"]] <- samp$gene
-    
-    v0 <- venn.diagram(x, 
-                       col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
-                       main = "all SNPs", 
-                       sub = " ", sub.pos = c(0, 0), scaled = F,
-                       cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
-    for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
-    v0
-  })
+  #a_venndiagram_SNP <- reactive({
+  #  success_pop <- success_population_GOI()
+  #  s_p <- unique(sort(success_pop$gene))
+  #  pop <- population_GOI()
+  #  p <- unique(sort(pop$gene))
+  #  samp <- sample_SNP()
+  #  s <- unique(sort(samp$gene))
+  #  success_samp <- success_sample_SNP()
+  #  s_s <- unique(sort(success_samp$gene))
+  #  success_pop_l <- length(s_p)
+  #  pop_l <- length(p)
+  #  samp_l <- length(s)
+  #  success_samp_l <- length(s_s)
+  #  mycolours3 = c("cornflowerblue", "salmon")
+  #  
+  #  x <- list()
+  #  x[["A"]] <- success_pop$gene
+  #  x[["B"]] <- samp$gene
+  #  
+  #  v0 <- venn.diagram(x, 
+  #                     col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
+  #                     main = "all SNPs", 
+  #                     sub = " ", sub.pos = c(0, 0), scaled = F,
+  #                     cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
+  #  for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
+  #  v0
+  #})
   
-  a_venndiagram_SNP_text <- reactive({
-    pop <- population_GOI()
-    success_pop <- success_population_GOI()
-    samp <- sample_SNP()
-    subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
-                           ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
-                           " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
-                           " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
-    inweb_name <- paste0("B = SNPs in 1K Genome database", " &#40;", length(unique(sort(samp$gene))), "&#41;")
-    total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
-    list(a=subset_limit, b=inweb_name, c=total)
-  })
+  #a_venndiagram_SNP_text <- reactive({
+  #  pop <- population_GOI()
+  #  success_pop <- success_population_GOI()
+  #  samp <- sample_SNP()
+  #  subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
+  #                         ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
+  #                         " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
+  #                         " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
+  #  inweb_name <- paste0("B = SNPs in 1K Genome database", " &#40;", length(unique(sort(samp$gene))), "&#41;")
+  #  total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
+  #  list(a=subset_limit, b=inweb_name, c=total)
+  #})
   
-  output$a_vd_SNP_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(!is.null(input$a_file_SNP_vennd), "")
-    )
-    output <- a_venndiagram_SNP_text()
-    HTML(paste(output$a, output$b, sep = "<br/>"))
-  })
+  #output$a_vd_SNP_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(!is.null(input$a_file_SNP_vennd), "")
+  #  )
+  #  output <- a_venndiagram_SNP_text()
+  #  HTML(paste(output$a, output$b, sep = "<br/>"))
+  #})
   
-  a_venndiagram_SNP_SGL <- reactive({
-    success_pop <- success_population_GOI()
-    s_p <- unique(sort(success_pop$gene))
-    pop <- population_GOI()
-    p <- unique(sort(pop$gene))
-    samp <- sample_SNP_SGL()
-    s <- unique(sort(samp$gene))
-    success_samp <- success_sample_SNP_SGL()
-    s_s <- unique(sort(success_samp$gene))
-    success_pop_l <- length(s_p)
-    pop_l <- length(p)
-    samp_l <- length(s)
-    success_samp_l <- length(s_s)
-    mycolours3 = c("cornflowerblue", "#80cdc1")
-    
-    x <- list()
-    x[["A"]] <- success_pop$gene
-    x[["B"]] <- samp$gene
-    
-    v0 <- venn.diagram(x, 
-                       col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
-                       main = "Single-gene-loci SNPs", 
-                       sub = " ", sub.pos = c(0, 0), scaled = F,
-                       cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
-    for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
-    v0
-  })
+  #a_venndiagram_SNP_SGL <- reactive({
+  #  success_pop <- success_population_GOI()
+  #  s_p <- unique(sort(success_pop$gene))
+  #  pop <- population_GOI()
+  #  p <- unique(sort(pop$gene))
+  #  samp <- sample_SNP_SGL()
+  #  s <- unique(sort(samp$gene))
+  #  success_samp <- success_sample_SNP_SGL()
+  #  s_s <- unique(sort(success_samp$gene))
+  #  success_pop_l <- length(s_p)
+  #  pop_l <- length(p)
+  #  samp_l <- length(s)
+  #  success_samp_l <- length(s_s)
+  #  mycolours3 = c("cornflowerblue", "#80cdc1")
+  #  
+  #  x <- list()
+  #  x[["A"]] <- success_pop$gene
+  #  x[["B"]] <- samp$gene
+  #  
+  #  v0 <- venn.diagram(x, 
+  #                     col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
+  #                     main = "Single-gene-loci SNPs", 
+  #                     sub = " ", sub.pos = c(0, 0), scaled = F,
+  #                     cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
+  #  for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
+  #  v0
+  #})
   
-  a_venndiagram_SNP_SGL_text <- reactive({
-    pop <- population_GOI()
-    success_pop <- success_population_GOI()
-    samp <- sample_SNP_SGL()
-    subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
-                           ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
-                           " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
-                           " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
-    inweb_name <- paste0("B = SGL SNPs in 1K Genome database", " &#40;", length(unique(sort(samp$gene))), "&#41;")
-    total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
-    list(a=subset_limit, b=inweb_name, c=total)
-  })
+  #a_venndiagram_SNP_SGL_text <- reactive({
+  #  pop <- population_GOI()
+  #  success_pop <- success_population_GOI()
+  #  samp <- sample_SNP_SGL()
+  #  subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
+  #                         ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
+  #                         " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
+  #                         " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
+  #  inweb_name <- paste0("B = SGL SNPs in 1K Genome database", " &#40;", length(unique(sort(samp$gene))), "&#41;")
+  #  total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
+  #  list(a=subset_limit, b=inweb_name, c=total)
+  #})
   
-  output$a_vd_SNP_SGL_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(!is.null(input$a_file_SNP_vennd), "")
-    )
-    output <- a_venndiagram_SNP_SGL_text()
-    HTML(paste(output$a, output$b, sep = "<br/>"))
-  })
+  #output$a_vd_SNP_SGL_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(!is.null(input$a_file_SNP_vennd), "")
+  #  )
+  #  output <- a_venndiagram_SNP_SGL_text()
+  #  HTML(paste(output$a, output$b, sep = "<br/>"))
+  #})
   
-  a_venndiagram_SNP_MGL <- reactive({ 
-    success_pop <- success_population_GOI()
-    s_p <- unique(sort(success_pop$gene))
-    pop <- population_GOI()
-    p <- unique(sort(pop$gene))
-    samp <- sample_SNP_MGL()
-    s <- unique(sort(samp$gene))
-    success_samp <- success_sample_SNP_MGL()
-    s_s <- unique(sort(success_samp$gene))
-    success_pop_l <- length(s_p)
-    pop_l <- length(p)
-    samp_l <- length(s)
-    success_samp_l <- length(s_s)
-    mycolours3 = c("cornflowerblue", "#c2a5cf")
-    
-    x <- list()
-    x[["A"]] <- success_pop$gene
-    x[["B"]] <- samp$gene
-    
-    v0 <- venn.diagram(x, 
-                       col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
-                       main = "Multi-genes-loci SNPs", 
-                       sub = " ", sub.pos = c(0, 0), scaled = F,
-                       cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
-    for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
-    v0
-  })
+  #a_venndiagram_SNP_MGL <- reactive({ 
+  #  success_pop <- success_population_GOI()
+  #  s_p <- unique(sort(success_pop$gene))
+  #  pop <- population_GOI()
+  #  p <- unique(sort(pop$gene))
+  #  samp <- sample_SNP_MGL()
+  #  s <- unique(sort(samp$gene))
+  #  success_samp <- success_sample_SNP_MGL()
+  #  s_s <- unique(sort(success_samp$gene))
+  #  success_pop_l <- length(s_p)
+  #  pop_l <- length(p)
+  #  samp_l <- length(s)
+  #  success_samp_l <- length(s_s)
+  #  mycolours3 = c("cornflowerblue", "#c2a5cf")
+  #  
+  #  x <- list()
+  #  x[["A"]] <- success_pop$gene
+  #  x[["B"]] <- samp$gene
+  #  
+  #  v0 <- venn.diagram(x, 
+  #                     col = mycolours3, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
+  #                     main = "Multi-genes-loci SNPs", 
+  #                     sub = " ", sub.pos = c(0, 0), scaled = F,
+  #                     cat.cex = 1.1, cex = 2, cat.pos = c(180,180), cat.dist = c(0.05,0.05))
+  #  for (i in 1:length(v0)){ v0[[i]]$gp$fontfamily <- 'Arial' }
+  #  v0
+  #})
   
-  a_venndiagram_SNP_MGL_text <- reactive({
-    pop <- population_GOI()
-    success_pop <- success_population_GOI()
-    samp <- sample_SNP_MGL()
-    subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
-                           ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
-                           " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
-                           " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
-    inweb_name <- paste0("B = MGL SNPs in 1K Genome database", " &#40;", length(unique(sort(samp$gene))), "&#41;")
-    total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
-    list(a=subset_limit, b=inweb_name, c=total)
-  })
+  #a_venndiagram_SNP_MGL_text <- reactive({
+  #  pop <- population_GOI()
+  #  success_pop <- success_population_GOI()
+  #  samp <- sample_SNP_MGL()
+  #  subset_limit <- paste0("A = pull down subset of ", input$a_FDR_range[1], "&le;FDR&le;", input$a_FDR_range[2], 
+  #                         ", ", input$a_logFC_range[1], "&le;logFC&le;", input$a_logFC_range[2], 
+  #                         " and ", input$a_pvalue_range[1], "&le;pvalue&le;", input$a_pvalue_range[2],
+  #                         " &#40;", length(unique(sort(success_pop$gene))), "&#41;")
+  #  inweb_name <- paste0("B = MGL SNPs in 1K Genome database", " &#40;", length(unique(sort(samp$gene))), "&#41;")
+  #  total <- paste0("pull down &cap; HGNC database &#40;", length(unique(sort(pop$gene))), "&#41;")
+  #  list(a=subset_limit, b=inweb_name, c=total)
+  #})
   
-  output$a_vd_SNP_MGL_text <- renderUI({
-    validate(
-      need(input$a_file_pulldown_r != '', ""),
-      need(!is.null(input$a_file_SNP_vennd), "")
-    )
-    output <- a_venndiagram_SNP_MGL_text()
-    HTML(paste(output$a, output$b, sep = "<br/>"))
-  })
+  #output$a_vd_SNP_MGL_text <- renderUI({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', ""),
+  #    need(!is.null(input$a_file_SNP_vennd), "")
+  #  )
+  #  output <- a_venndiagram_SNP_MGL_text()
+  #  HTML(paste(output$a, output$b, sep = "<br/>"))
+  #})
   
-  a_BPF_marker <- reactive({
-    inBPFmarker <- input$a_BPF_option
-    if (inBPFmarker == "change_m_BPF") {
-      marker <- "change"
-    } else {
-      marker <- "no_change"
-    }
-  })
+  #a_BPF_marker <- reactive({
+  #  inBPFmarker <- input$a_BPF_option
+  #  if (inBPFmarker == "change_m_BPF") {
+  #    marker <- "change"
+  #  } else {
+  #    marker <- "no_change"
+  #  }
+  #})
   
-  a_bpf_data <- eventReactive(input$a_make_bpf, {
-    validate(
-      need(input$a_file_pulldown_r != '', "Upload file")
-    )
-    data_selection <- a_pf_data_selection()
-    filter_option <- a_pf_viz_selection()
-    withProgress(message = 'This may take a while', 
-                 detail = 'Hold please', value = 0, {
-                   bpf <- a_pulldown()
-                   
-                   makePlotFamilies_1quadrant <- function(data, bait){
-                     if(filter_option == "volcano_viz"){
-                       im <- subset(data, 
-                                    (pvalue <= input$a_BPF_pvalue_range[2] & pvalue >= input$a_BPF_pvalue_range[1]) & 
-                                      (FDR <= input$a_BPF_FDR_range[2] & FDR >= input$a_BPF_FDR_range[1]) &
-                                      (logFC <= input$a_BPF_logFC_range[2] & logFC >= input$a_BPF_logFC_range[1]))
-                     } else if(filter_option == "scatter_viz"){
-                       im <- subset(data, 
-                                    (rep1 <= input$a_BPF_rep1_range[2] & rep1 >= input$a_BPF_rep1_range[1]) & 
-                                      (rep2 <= input$a_BPF_rep2_range[2] & rep2 >= input$a_BPF_rep2_range[1]))
-                     }
-                     incProgress(0.6)
-                     enM_families <- assignFamily_inc_doubles(im, data_selection)
-                     # enM_gna <- addNames(im)
-                     incProgress(0.8)
-                     ### replace logFC and pvalue in di* by these from dpm
-                     # enM_families$logFC <- data$logFC[match(enM_families$gene, data$gene)]
-                     # enM_families$pvalue <- data$pvalue[match(enM_families$gene, data$gene)]
+  #a_bpf_data <- eventReactive(input$a_make_bpf, {
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "Upload file")
+  #  )
+  #  data_selection <- a_pf_data_selection()
+  #  filter_option <- a_pf_viz_selection()
+  #  withProgress(message = 'This may take a while', 
+  #               detail = 'Hold please', value = 0, {
+  #                 bpf <- a_pulldown()
+  #                 
+  #                 makePlotFamilies_1quadrant <- function(data, bait){
+  #                   if(filter_option == "volcano_viz"){
+  #                     im <- subset(data, 
+  #                                  (pvalue <= input$a_BPF_pvalue_range[2] & pvalue >= input$a_BPF_pvalue_range[1]) & 
+  #                                    (FDR <= input$a_BPF_FDR_range[2] & FDR >= input$a_BPF_FDR_range[1]) &
+  #                                    (logFC <= input$a_BPF_logFC_range[2] & logFC >= input$a_BPF_logFC_range[1]))
+  #                   } else if(filter_option == "scatter_viz"){
+  #                     im <- subset(data, 
+  #                                  (rep1 <= input$a_BPF_rep1_range[2] & rep1 >= input$a_BPF_rep1_range[1]) & 
+  #                                    (rep2 <= input$a_BPF_rep2_range[2] & rep2 >= input$a_BPF_rep2_range[1]))
+  #                   }
+  #                   incProgress(0.6)
+  #                   enM_families <- assignFamily_inc_doubles(im, data_selection)
+  #                   # enM_gna <- addNames(im)
+  #                   incProgress(0.8)
+  #                   ### replace logFC and pvalue in di* by these from dpm
+  #                   # enM_families$logFC <- data$logFC[match(enM_families$gene, data$gene)]
+  #                   # enM_families$pvalue <- data$pvalue[match(enM_families$gene, data$gene)]
                      # enM_gna$logFC <- data$logFC[match(enM_gna$gene, data$gene)]
                      # enM_gna$pvalue <- data$pvalue[match(enM_gna$gene, data$gene)]
                      # 
                      # mybait <- data[grepl(bait,data$gene),]
                      
-                     howmany <- length(unique(enM_families$overlay))
-                     bpfmsizing <- a_BPF_marker()
-                     increase_size <- input$a_BPF_marker_freq
-                     
-                     incProgress(0.9)
-                     bpf_list <- list("list" = bpf, "list" = enM_families, "integer" = howmany, bpfmsizing, increase_size) #"list" = enM_gna, 
-                     return(bpf_list)
-                   }
-                   makePlotFamilies_1quadrant(bpf)
-                 })
-  }) 
+  #                   howmany <- length(unique(enM_families$overlay))
+  #                   bpfmsizing <- a_BPF_marker()
+  #                   increase_size <- input$a_BPF_marker_freq
+  #                   
+  #                   incProgress(0.9)
+  #                   bpf_list <- list("list" = bpf, "list" = enM_families, "integer" = howmany, bpfmsizing, increase_size) #"list" = enM_gna, 
+  #                   return(bpf_list)
+  #                 }
+  #                 makePlotFamilies_1quadrant(bpf)
+  #               })
+  #}) 
   
-  a_bpf_families <- reactive({
-    bpf_data <- a_bpf_data()
-    enM_families <- bpf_data[[2]]
-    families <- cbind(enM_families$gene, enM_families$overlay, enM_families$frequency)
-    colnames(families) <- c("gene", "overlay", "frequency")
-    families
-  })
+  #a_bpf_families <- reactive({
+  #  bpf_data <- a_bpf_data()
+  #  enM_families <- bpf_data[[2]]
+  #  families <- cbind(enM_families$gene, enM_families$overlay, enM_families$frequency)
+  #  colnames(families) <- c("gene", "overlay", "frequency")
+  #  families
+  #})
   
-  a_bpf_families1 <- reactive({
-    bpf_data <- a_bpf_data()
-    enM_families <- bpf_data[[2]]
-    enM_families
-  })
+  #a_bpf_families1 <- reactive({
+  #  bpf_data <- a_bpf_data()
+  #  enM_families <- bpf_data[[2]]
+  #  enM_families
+  #})
   
-  a_bpf <- reactive({
-    bpf_data <- a_bpf_data()
-    pfsort <- a_PF_sorting()
-    viz_type <- a_pf_viz_selection()
-    bpf <- bpf_data[[1]]
-    enM_families <- bpf_data[[2]]
-    howmany <- bpf_data[[3]]
-    bpfmsizing <- bpf_data[[4]]
-    increase_size <- bpf_data[[5]]
-    
-    if(pfsort == "sort_f"){
-      enM_families$overlay <- paste0(enM_families$frequency, "-", enM_families$overlay)
-      enM_families$frequency <- as.numeric(enM_families$frequency)
-      enM_families <- enM_families[with(enM_families, order(-frequency)), ]
-    } else if(pfsort == "sort_a"){
-      enM_families$overlay <- paste0(enM_families$overlay, " (", enM_families$frequency, ")")
-      enM_families <- enM_families[with(enM_families, order(overlay, decreasing = F)),]
-    }
-    
-    if (bpfmsizing == "change"){
-      if(nrow(enM_families)==0){
-        validate(
-          need(nrow(enM_families)>0, "No match in protein families assignment")
-        )
-      } else if(nrow(enM_families)>0){
-        if(viz_type == "volcano_viz"){
-          p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
-            #background
-            add_markers(data = bpf, x = ~logFC, y = ~-log10(pvalue), opacity = 0.6,
-                        marker = list(color = 'rgba(176,196,222,08)'),
-                        text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
+  #a_bpf <- reactive({
+  #  bpf_data <- a_bpf_data()
+  #  pfsort <- a_PF_sorting()
+  #  viz_type <- a_pf_viz_selection()
+  #  bpf <- bpf_data[[1]]
+  #  enM_families <- bpf_data[[2]]
+  #  howmany <- bpf_data[[3]]
+  #  bpfmsizing <- bpf_data[[4]]
+  #  increase_size <- bpf_data[[5]]
+  #  
+  #  if(pfsort == "sort_f"){
+  #    enM_families$overlay <- paste0(enM_families$frequency, "-", enM_families$overlay)
+  #    enM_families$frequency <- as.numeric(enM_families$frequency)
+  #    enM_families <- enM_families[with(enM_families, order(-frequency)), ]
+  #  } else if(pfsort == "sort_a"){
+  #    enM_families$overlay <- paste0(enM_families$overlay, " (", enM_families$frequency, ")")
+  #    enM_families <- enM_families[with(enM_families, order(overlay, decreasing = F)),]
+  #  }
+  #  
+  #  if (bpfmsizing == "change"){
+  #    if(nrow(enM_families)==0){
+  #      validate(
+  #        need(nrow(enM_families)>0, "No match in protein families assignment")
+  #      )
+  #    } else if(nrow(enM_families)>0){
+  #      if(viz_type == "volcano_viz"){
+  #        p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
+  #          #background
+  #          add_markers(data = bpf, x = ~logFC, y = ~-log10(pvalue), opacity = 0.6,
+  #                      marker = list(color = 'rgba(176,196,222,08)'),
+  #                      text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
           # if(nrow(enM_gna)>0){
           #   p <- add_markers(p, data = enM_gna, x = ~logFC, y = ~-log10(pvalue),
           #                    marker = list(size = 6, symbol = 2, color = c('white'), opacity = 0.8, line = list(width=0.9, color = "black")),
           #                    text = ~paste(gene, name, sep = "  "), hoverinfo="text",
           #                    name="Unassigned genes")
           # }
-          if(nrow(enM_families)>0){
-            p <- add_markers(p, data = enM_families, x = ~logFC, y = ~-log10(pvalue),
-                             marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = ~increase_size*frequency),
-                             color = ~factor(overlay),
-                             text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
-          }
-          p
-        } else if(viz_type == "scatter_viz"){
-          p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
-            #background
-            add_markers(data = bpf, x = ~rep1, y = ~rep2, opacity = 0.6,
-                        marker = list(color = 'rgba(176,196,222,08)'),
-                        text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
+   #       if(nrow(enM_families)>0){
+  #          p <- add_markers(p, data = enM_families, x = ~logFC, y = ~-log10(pvalue),
+  #                           marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = ~increase_size*frequency),
+  #                           color = ~factor(overlay),
+  #                           text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
+  #        }
+  #        p
+  #      } else if(viz_type == "scatter_viz"){
+  #        p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
+  #          #background
+  #          add_markers(data = bpf, x = ~rep1, y = ~rep2, opacity = 0.6,
+  #                      marker = list(color = 'rgba(176,196,222,08)'),
+  #                      text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
           # if(nrow(enM_gna)>0){
           #   p <- add_markers(p, data = enM_gna, x = ~logFC, y = ~-log10(pvalue),
           #                    marker = list(size = 6, symbol = 2, color = c('white'), opacity = 0.8, line = list(width=0.9, color = "black")),
           #                    text = ~paste(gene, name, sep = "  "), hoverinfo="text",
           #                    name="Unassigned genes")
           # }
-          if(nrow(enM_families)>0){
-            p <- add_markers(p, data = enM_families, x = ~rep1, y = ~rep2,
-                             marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = ~increase_size*frequency),
-                             color = ~factor(overlay),
-                             text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
-          }
-          p
-        }
-        
-        
-      }
-    } else{
-      if(nrow(enM_families)==0){
-        validate(
-          need(nrow(enM_families)>0, "No match in protein families assignment")
-        )
-      } else if(nrow(enM_families)>0){
-        if(viz_type == "volcano_viz"){
-          p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
-            #background
-            add_markers(data = bpf, x = ~logFC, y = ~-log10(pvalue), opacity = 0.6,
-                        marker = list(color = 'rgba(176,196,222,08)'),
-                        text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
+  #        if(nrow(enM_families)>0){
+  #          p <- add_markers(p, data = enM_families, x = ~rep1, y = ~rep2,
+  #                           marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = ~increase_size*frequency),
+  #                           color = ~factor(overlay),
+  #                           text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
+  #        }
+  #        p
+  #      }
+  #      
+  #      
+  #    }
+  #  } else{
+  #    if(nrow(enM_families)==0){
+  #      validate(
+  #        need(nrow(enM_families)>0, "No match in protein families assignment")
+  #      )
+  #    } else if(nrow(enM_families)>0){
+  #      if(viz_type == "volcano_viz"){
+  #        p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
+  #          #background
+  #          add_markers(data = bpf, x = ~logFC, y = ~-log10(pvalue), opacity = 0.6,
+  #                      marker = list(color = 'rgba(176,196,222,08)'),
+  #                      text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
           # if(nrow(enM_gna)>0){
           #   p <- add_markers(p, data = enM_gna, x = ~logFC, y = ~-log10(pvalue), 
           #                    marker = list(size = 6, symbol = 2, color = c('white'), opacity = 0.8, line = list(width=0.9, color = "black")),
           #                    text = ~paste(gene, name, sep = "  "), hoverinfo="text", 
           #                    name="Unassigned genes")
           # }
-          if(nrow(enM_families)>0){
-            p <- add_markers(p, data = enM_families, x = ~logFC, y = ~-log10(pvalue),
-                             marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = 12),
-                             color = ~factor(overlay), 
-                             text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
-          }
-          p
-        } else if(viz_type == "scatter_viz"){
-          p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
-            #background
-            add_markers(data = bpf, x = ~rep1, y = ~rep2, opacity = 0.6,
-                        marker = list(color = 'rgba(176,196,222,08)'),
-                        text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
+  #        if(nrow(enM_families)>0){
+  #          p <- add_markers(p, data = enM_families, x = ~logFC, y = ~-log10(pvalue),
+  #                           marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = 12),
+  #                           color = ~factor(overlay), 
+  #                           text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
+  #        }
+  #        p
+  #      } else if(viz_type == "scatter_viz"){
+  #        p <- plot_ly(colors = rainbow(howmany), width = 1200, height = 800) %>%
+  #          #background
+  #          add_markers(data = bpf, x = ~rep1, y = ~rep2, opacity = 0.6,
+  #                      marker = list(color = 'rgba(176,196,222,08)'),
+  #                      text = ~paste(gene), hoverinfo = "text", showlegend = FALSE)
           # if(nrow(enM_gna)>0){
           #   p <- add_markers(p, data = enM_gna, x = ~logFC, y = ~-log10(pvalue), 
           #                    marker = list(size = 6, symbol = 2, color = c('white'), opacity = 0.8, line = list(width=0.9, color = "black")),
           #                    text = ~paste(gene, name, sep = "  "), hoverinfo="text", 
           #                    name="Unassigned genes")
           # }
-          if(nrow(enM_families)>0){
-            p <- add_markers(p, data = enM_families, x = ~rep1, y = ~rep2,
-                             marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = 12),
-                             color = ~factor(overlay), 
-                             text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
-          }
-          p
-        }
-      }
-    }
-    p
-  })
+   #       if(nrow(enM_families)>0){
+   #         p <- add_markers(p, data = enM_families, x = ~rep1, y = ~rep2,
+   #                          marker = list(symbol = c('square'), opacity = 0.8, line = list(width=0.6, color = "black"), size = 12),
+   #                          color = ~factor(overlay), 
+  #                           text = ~paste(gene, overlay, frequency, sep = "  "), hoverinfo = "text")
+  #        }
+  #        p
+  #      }
+  #    }
+  ##  }
+  #  p
+  #})
   
-  a_bpf_plus <- reactive({
-    validate(
-      need(!is.null(a_search_gene()), "")
-    )
-    p <- a_bpf()
-    goi <- a_search_gene()
-    orig_data <- a_pulldown()
-    viz_type <- a_pf_viz_selection()
-    searchgene <- orig_data[grepl(goi,orig_data$gene),]
-    if(viz_type == "volcano_viz"){
-      p1 <- search_volcano(p, searchgene)
-    } else if(viz_type == "scatter_viz"){
-      p1 <- search_scatter(p, searchgene)
-    }
-    p1
-  })
+  #a_bpf_plus <- reactive({
+  #  validate(
+  #    need(!is.null(a_search_gene()), "")
+  #  )
+  #  p <- a_bpf()
+  #  goi <- a_search_gene()
+  #  orig_data <- a_pulldown()
+  #  viz_type <- a_pf_viz_selection()
+  #  searchgene <- orig_data[grepl(goi,orig_data$gene),]
+  #  if(viz_type == "volcano_viz"){
+  #    p1 <- search_volcano(p, searchgene)
+  #  } else if(viz_type == "scatter_viz"){
+  #    p1 <- search_scatter(p, searchgene)
+  #  }
+  #  p1
+  #})
   
   # a_BPF_marker_sp <- reactive({
   #   inBPFmarker <- input$a_BPF_option_sp
@@ -3647,31 +3665,34 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #   p1
   # })
   
-  a_bpf_sp_preview <- reactive({
-    d <- a_pulldown()
-    p <- plot_ly(showlegend = FALSE) 
-    req(input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[2], input$a_BPF_rep2_range[1], input$a_BPF_rep2_range[2])
-    line1 <- data.frame("a" = c(input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[2], input$a_BPF_rep1_range[2]), 
-                        "b" = c(input$a_BPF_rep2_range[2], input$a_BPF_rep2_range[2], input$a_BPF_rep2_range[1]))
-    line2 <- data.frame("a" = c(input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[2]), 
-                        "b" = c(input$a_BPF_rep2_range[2], input$a_BPF_rep2_range[1], input$a_BPF_rep2_range[1]))
-    p <- add_lines(p, data = d, x = ~c((min(rep1, rep2)), (max(rep1, rep2))), y = ~c((min(rep1, rep2)), (max(rep1, rep2))),
-                   text = "x=y", hoverinfo = "text",
-                   line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
-    p <- add_markers(p, data = d, x = ~rep1, y = ~rep2, 
-                     marker = list(color = 'rgba(176,196,222,08)', size = 7, cmin = 0, cmax = 1, line = list(width=0.2, color = "grey89")), 
-                     opacity = 0.9, 
-                     text = ~paste0(gene, ", rep1=", rep1, ", rep2=", rep2), hoverinfo = "text", name = "pull down")
-    p <- add_lines(p, data = line1, x = ~a, y = ~b, line = list(width = 0.7, color = "#e41a1c"),
-                   name = '', showlegend = F)
-    p <- add_lines(p, data = line2, x = ~a, y = ~b, line = list(width = 0.7, color = "#e41a1c"),
-                   name = '', showlegend = F)
-    p <- p %>%
-      layout(xaxis = list(title = "rep1", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
-             yaxis = list(title = "rep2", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1))) 
-    
-  })
+  #a_bpf_sp_preview <- reactive({
+  #  d <- a_pulldown()
+  #  p <- plot_ly(showlegend = FALSE) 
+  #  req(input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[2], input$a_BPF_rep2_range[1], input$a_BPF_rep2_range[2])
+  #  line1 <- data.frame("a" = c(input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[2], input$a_BPF_rep1_range[2]), 
+  #                      "b" = c(input$a_BPF_rep2_range[2], input$a_BPF_rep2_range[2], input$a_BPF_rep2_range[1]))
+  #  line2 <- data.frame("a" = c(input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[1], input$a_BPF_rep1_range[2]), 
+  #                      "b" = c(input$a_BPF_rep2_range[2], input$a_BPF_rep2_range[1], input$a_BPF_rep2_range[1]))
+  #  p <- add_lines(p, data = d, x = ~c((min(rep1, rep2)), (max(rep1, rep2))), y = ~c((min(rep1, rep2)), (max(rep1, rep2))),
+  #                 text = "x=y", hoverinfo = "text",
+  #                 line = list(dash = "dash", width = 1, color = "#252525"), showlegend = FALSE)
+  #  p <- add_markers(p, data = d, x = ~rep1, y = ~rep2, 
+  #                   marker = list(color = 'rgba(176,196,222,08)', size = 7, cmin = 0, cmax = 1, line = list(width=0.2, color = "grey89")), 
+  #                   opacity = 0.9, 
+  #                   text = ~paste0(gene, ", rep1=", rep1, ", rep2=", rep2), hoverinfo = "text", name = "pull down")
+  #  p <- add_lines(p, data = line1, x = ~a, y = ~b, line = list(width = 0.7, color = "#e41a1c"),
+  #                 name = '', showlegend = F)
+  #  p <- add_lines(p, data = line2, x = ~a, y = ~b, line = list(width = 0.7, color = "#e41a1c"),
+  #                 name = '', showlegend = F)
+  #  p <- p %>%
+  #    layout(xaxis = list(title = "rep1", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1)), 
+  #           yaxis = list(title = "rep2", range=~c((min(d$rep1, d$rep2))-1, (max(d$rep1, d$rep2))+1))) 
+  #  
+  #})
   
+  
+  
+  # plot colors bars
   output$FDR_colorbar <- renderPlot({
     validate(need(input$a_file_pulldown_r != '', ""))
     a_vp_colorbar()
@@ -3682,9 +3703,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     a_vp_colorbar()
   })
   
-  
-  
-  
+
   # the actual volcano plot outputted to the user
   output$VolcanoPlot <- renderPlotly({
     validate(need(input$a_file_pulldown_r != '', "Upload file"))
@@ -3720,39 +3739,39 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   })
   
   
-  output$ScatterPlotOld <- renderPlotly({
-    validate(
-      need(input$a_file_pulldown_r != '', "Upload file")
-    )
-    input_file <- a_in_pulldown()
-    d_col <- colnames(input_file)
-    if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col &
-       "rep1" %in% d_col & "rep2" %in% d_col){
-      if(is.null(a_pf_db())){
-        if(is.null(a_search_gene())){
-          a_sp()
-        } else{
-          a_sp_plus()
-        }
-      } else if(!is.null(a_pf_db())){
-        a_sp_pf_db()
-      }
-    } else if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col){
-      validate(
-        need("rep1" %in% d_col & "rep2" %in% d_col, "Must have rep1 and rep2 values.")
-      )
-    } else if("rep1" %in% d_col & "rep2" %in% d_col){
-      if(is.null(a_pf_db())){
-        if(is.null(a_search_gene())){
-          a_sp()
-        } else{
-          a_sp_plus()
-        }
-      } else if(!is.null(a_pf_db())){
-        a_sp_pf_db()
-      }
-    }
-  })
+  #output$ScatterPlotOld <- renderPlotly({
+  #  validate(
+  #    need(input$a_file_pulldown_r != '', "Upload file")
+  #  )
+  #  input_file <- a_in_pulldown()
+  #  d_col <- colnames(input_file)
+  #  if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col &
+  #     "rep1" %in% d_col & "rep2" %in% d_col){
+  #    if(is.null(a_pf_db())){
+  #      if(is.null(a_search_gene())){
+  #        a_sp()
+  #      } else{
+  #        a_sp_plus()
+  #      }
+  #    } else if(!is.null(a_pf_db())){
+  #      a_sp_pf_db()
+  #    }
+  #  } else if("logFC" %in% d_col & "FDR" %in% d_col & "pvalue" %in% d_col){
+  #    validate(
+  #      need("rep1" %in% d_col & "rep2" %in% d_col, "Must have rep1 and rep2 values.")
+  #    )
+  #  } else if("rep1" %in% d_col & "rep2" %in% d_col){
+   #   if(is.null(a_pf_db())){
+   #     if(is.null(a_search_gene())){
+  #        a_sp()
+  #      } else{
+  #        a_sp_plus()
+  #      }
+  #    } else if(!is.null(a_pf_db())){
+  #      a_sp_pf_db()
+  #    }
+  #  }
+  #})
   
   output$multi_FDR_colorbar <- renderPlot({
     validate(
