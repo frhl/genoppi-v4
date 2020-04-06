@@ -4,12 +4,21 @@
 \alias{make_interactive}
 \title{Make ggplot interactive using plotly}
 \usage{
-make_interactive(p, x = NULL, y = NULL, source = NULL)
+make_interactive(
+  p,
+  x = NULL,
+  y = NULL,
+  source = NULL,
+  legend = T,
+  sig_text = ""
+)
 }
 \arguments{
 \item{x}{string. The x-column to be used from \code{p$data} and \code{p$overlay}.}
 
 \item{y}{string. The y-column to be used from \code{p$data} and \code{p$overlay}.}
+
+\item{legend}{boolean. Show legend for significant interactors?}
 
 \item{volcano}{boolean. If True, will convert y-axis to \code{y=-log10(y)}.}
 }

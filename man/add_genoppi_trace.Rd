@@ -8,9 +8,9 @@ add_genoppi_trace(
   p,
   data,
   parameters,
-  size = 7,
   stroke_width = 0.2,
-  legend = F
+  legend = F,
+  legend_group = NULL
 )
 }
 \arguments{

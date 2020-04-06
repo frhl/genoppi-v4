@@ -121,7 +121,7 @@ body <- dashboardBody(
                                      )
                                   ),
                                   box(
-                                    title = "Display settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE,
+                                    title = "Settings", width = NULL, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
                                     fluidRow(column(12, h5('InWeb'))),
                                     fluidRow(
                                       column(4, uiOutput("a_color_inweb_sig_ui")),
@@ -187,8 +187,9 @@ body <- dashboardBody(
                                       ),
                                       tabPanel('GWAS catalog',
                                         fluidRow(
-                                          column(5, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
-                                          column(4, uiOutput('a_select_venn_gwas_catalogue_loci_ui')),
+                                          column(4, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
+                                          column(5, br(), br(), br(), br(),
+                                                    uiOutput('a_gwas_catalogue_venn_verbatim_ui')),
                                           column(3, '')
                                         ),
                                       ),
@@ -288,7 +289,7 @@ body <- dashboardBody(
                         #           column(4, uiOutput("a_vd_SNP_MGL_text"))
                         #         )
                         #),
-                        tabPanel("Pathway annotations", value = "p4",
+                        tabPanel("Gene set annotations", value = "p4",
                                  br(),
                                  column(4,
                                     box(
@@ -308,7 +309,7 @@ body <- dashboardBody(
                                  ),
                                  column(8,
                                         box(
-                                          title = tagList("Pathway annotations"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                          title = tagList("Gene set annotation"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(style = "padding-bottom:125px",
                                             column(12, plotlyOutput('VolcanoPlotPathway'))
                                           )

@@ -19,9 +19,13 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
   
+  # this following code needs to be reworked and corresponding functions
+  # made more easy to understand and use.
   # change the dataset column so that it takes 'significant'
   p$data$dataset = 'Pulldown'
   data = list_to_df(list(A=combine_dataset_and_significance(p$data))) # list_to_df func should be re-worked
+  data$size <- 7
+  
   overlay = combine_dataset_and_significance(p$overlay, sig_text = sig_text)
   overlay$color = ifelse(overlay$significant, 
                          as.character(overlay$col_significant), 
@@ -42,8 +46,8 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
   if (nrow(overlay) > 0){
     
     p1 = p1 %>% 
-      add_genoppi_trace(overlay[overlay$significant, ], params, size = 9, stroke_width = 0.9, legend = legend) %>%
-      add_genoppi_trace(overlay[!overlay$significant, ], params, size = 9, stroke_width = 0.9, legend = F) 
+      add_genoppi_trace(overlay[overlay$significant, ], params, stroke_width = 0.9, legend = legend) %>%
+      add_genoppi_trace(overlay[!overlay$significant, ], params, stroke_width = 0.9, legend = F) 
     p1$overlay = p$overlay
   }
   

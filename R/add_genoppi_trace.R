@@ -7,7 +7,7 @@
 #' @note global variable 'global_colors' must be specified using setNames().
 #' @export
 
-add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2, legend = F, legend_group = NULL){
+add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = F, legend_group = NULL){
   
   # pass previous environment to function
   x = parameters$x
@@ -17,6 +17,7 @@ add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2,
   
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
+  
   
   # add trace
   p1 <- add_trace(p, data = data, 
@@ -31,10 +32,10 @@ add_genoppi_trace <- function(p, data, parameters, size = 7, stroke_width = 0.2,
                   text = ~gene,
                   opacity = 0.9,
                   symbol = data$symbol,
-                  marker = list(size = size,
-                                cmin = 0,
+                  marker = list(cmin = 0,
                                 cmax = 1, 
                                 line = list(width=stroke_width, color = "black"), 
+                                size = data$size,
                                 opacity = data$opacity,
                                 symbol = data$symbol), # note that the order matters!
                   hoverinfo = "text", 

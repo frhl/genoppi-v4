@@ -325,7 +325,7 @@ output$a_select_gnomad_pli_type_ui <- renderUI({
 output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #validate(need(input$a_file_pulldown_r != '', ""))
   validate(need(input$a_select_gnomad_pli_type == 'threshold', ""))
-  sliderInput(inputId = "a_slide_gnomad_pli_threshold", label = 'Color interactors by pLI threshold', 
+  sliderInput(inputId = "a_slide_gnomad_pli_threshold", label = 'Subset interactors by pLI threshold', 
               min = 0, max = 1, value = 0.5, step = 0.01)
 })
 
@@ -630,7 +630,14 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
                                                      "GO molecular function"="mf", 
                                                      "GO cellular components"="cc", 
                                                      "GO biological process"="bp", 
-                                                     "MSigDB"="msigdb"), selectize=FALSE)
+                                                     "MSigDB H"="h",
+                                                     "MSigDB C1" = 'c1',
+                                                     "MSigDB C2" = 'c2',
+                                                     "MSigDB C3" = 'c3',
+                                                     "MSigDB C4" = 'c4',
+                                                     "MSigDB C5" = 'c5',
+                                                     "MSigDB C6" = 'c6',
+                                                     "MSigDB C7" = 'c7'), selectize=FALSE)
   })
   
   output$a_pathway_mapping_freq_slider_ui <- renderUI({
@@ -1535,7 +1542,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
     hyper = a_inweb_calc_hyper()
     A <- HTML(paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;"))
-    B <- HTML(paste0("B = Interactors of in InWeb database", " &#40;", bold(hyper$statistics$sample_count), "&#41;"))
+    B <- HTML(paste0("B = InWeb interactors in pulldown", " &#40;", bold(hyper$statistics$sample_count), "&#41;"))
     total <- HTML(paste0("N = pull down &cap; InWeb &#40;", bold(hyper$statistics$population_count), "&#41;"))
     return(list(A=A, B=B, total=total))
   })
@@ -1650,29 +1657,47 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # subset all snps for gwas catalog
   a_gwas_catalogue_mapping_venn <- reactive({
     req(a_gwas_catalogue_mapping(), a_pulldown_significant())
+    
+    # get datasets
+    pulldown = a_pulldown_significant()
     mapping = a_gwas_catalogue_mapping()
-    subset = subset_snp_loci(mapping)
-    subset
+    mapping = subset_snp_loci(mapping)
+    
+    # only use all gene for GWAS cat
+    loci = 'allGeneDf' # paste0(input$a_select_venn_gwas_catalogue_loci, 'GeneDf') 
+    diagram = list(pulldown=pulldown[pulldown$significant,]$gene, genelist=mapping[[loci]]$gene)
+    names(diagram) = c('pulldown', 'GWAS')
+    return(diagram)
   })
   
   # gwas catalogue
   output$a_gwas_catalogue_venn_all_ui <- renderPlot({
-    req(a_gwas_catalogue_mapping_venn, input$a_select_venn_gwas_catalogue_loci)
-    
-    # get mapping
-    pulldown = a_pulldown_significant()
-    mapping = a_gwas_catalogue_mapping_venn()
-    loci = paste0(input$a_select_venn_gwas_catalogue_loci, 'GeneDf') 
-    
-    # draw venn diagram
-    diagram = list(pulldown=pulldown[pulldown$significant,]$gene, genelist=mapping[[loci]]$gene)
-    names(diagram) = c('pulldown', 'GWAS catalog')
-    venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = 'All genes (SNPs)')
+    req(a_gwas_catalogue_mapping_venn)
+    diagram = a_gwas_catalogue_mapping_venn()
+    venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = '</title>')
     grid::grid.newpage()
     grid::grid.draw(venn)
   })
-
   
+  # get venn diagram text
+  a_gwas_catalogue_venn_verbatim <- reactive({
+    req(a_pulldown_significant(), a_gwas_catalogue_mapping_venn())
+    catf('NOTE: discuss gwas cat total count with Yu-Han\n')
+    tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    diagram = a_gwas_catalogue_mapping_venn()
+    A <- paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(length(diagram$pulldown)), "&#41;")
+    B <- paste0("B = GWAS catalog (mapped) traits &#40;", bold(length(diagram$`GWAS`)), "&#41;")
+    total <- paste0("N = pull down &cap; selected traits &#40;", bold(length(unique(c(diagram$`GWAS`,diagram$pulldown)))), "&#41;")
+    return(list(A=A, B=B, total=total))
+  })
+  
+  # print to ui
+  output$a_gwas_catalogue_venn_verbatim_ui <- renderUI({
+    output <- a_gwas_catalogue_venn_verbatim()
+    HTML(paste(output$total, output$A, output$B, sep = "<br/>"))
+  })
+  
+
   # hypergeometric overlap gnomAD
   a_gnomad_calc_hyper <- reactive({
     req(a_gnomad_sig_list(), a_pulldown_significant())
@@ -1703,9 +1728,9 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     req(a_pulldown_significant(), a_gnomad_calc_hyper())
     tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
     hyper = a_gnomad_calc_hyper()
-    A <- HTML(paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;"))
-    B <- HTML(paste0("B = gnomAD database genes with pLI ≥", input$a_slide_gnomad_pli_threshold,'',input$a_pli ," &#40;", bold(hyper$statistics$sample_count), "&#41;"))
-    total <- HTML(paste0("N = pull down &cap; gnomAD &#40;", bold(hyper$statistics$population_count), "&#41;"))
+    A <- paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;")
+    B <- paste0("B = gnomAD database genes in pulldown with pLI ≥", input$a_slide_gnomad_pli_threshold,'',input$a_pli ," &#40;", bold(hyper$statistics$sample_count), "&#41;")
+    total <- paste0("N = pull down &cap; gnomAD &#40;", bold(hyper$statistics$population_count), "&#41;")
     return(list(A=A, B=B, total=total))
   })
   

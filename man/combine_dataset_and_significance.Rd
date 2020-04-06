@@ -4,7 +4,7 @@
 \alias{combine_dataset_and_significance}
 \title{Combine data set and significance}
 \usage{
-combine_dataset_and_significance(data, sig_text = "(Y)", insig_text = "(N)")
+combine_dataset_and_significance(data, sig_text = "", insig_text = "(N)")
 }
 \arguments{
 \item{data}{a data or overlay data.frame with \code{dataset} as column.}
