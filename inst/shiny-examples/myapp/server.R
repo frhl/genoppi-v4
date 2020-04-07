@@ -213,6 +213,12 @@ shinyServer(function(input, output, session){
     checkboxInput("a_label_snp", label = "Toggle labels", value = TRUE)
   })
   
+  # integrated plot, snp
+  output$a_overlay_snp_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    checkboxInput("a_overlay_snp", label = "Toggle overlay", value = TRUE)
+  })
+  
   # integrated plot, snp,
   output$a_reset_snp_ui <- renderUI({
     actionButton('a_reset_snp','clear')
@@ -244,6 +250,12 @@ shinyServer(function(input, output, session){
   output$a_label_genes_upload_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     checkboxInput("a_label_genes_upload", label = "Toggle labels", value = TRUE)
+  })
+  
+  # integrated plot, genes upload
+  output$a_overlay_genes_upload_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    checkboxInput("a_overlay_genes_upload", label = "Toggle overlay", value = TRUE)
   })
   
   # integrated plot, reset
@@ -501,7 +513,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #})
   
   output$a_SNP_file <- renderUI({
-    req(a_pulldown_significant())
+    #req(a_pulldown_significant())
     fileInput('a_file_SNP_rep', 'File containing list of SNPs, one ID per line',
               accept = c(
                 'text/csv',
@@ -1440,7 +1452,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   
   #---------------------------------------------------------------
-  # download different mappings
+  # download different mappings and hide/show download buttons
   
   # download inweb mapping
   output$a_inweb_mapping_download <- downloadHandler(
@@ -1492,6 +1504,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     }
   )
   
+  # gwas catalogue mapping download
   output$a_gwas_catalogue_mapping_download <- downloadHandler(
     filename = function() {
       paste("gwas-catalogue-mapping",".csv", sep="")
@@ -1529,6 +1542,34 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       write.csv(mymerge, file, row.names = F)
     }
   )
+  
+  
+  reqhide
+  
+  # show/hide data download buttons
+  observeEvent(input$a_file_pulldown_r, {toggle(id="a_mttest_mapping_download", condition=!is.null(input$a_file_pulldown_r))})
+  observeEvent(input$a_bait_rep, {toggle(id="a_inweb_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
+  observe({toggle(id="a_snp_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_SNP_rep$datapath))})
+  observe({toggle(id="a_gene_upload_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_genes_rep))})
+  observe({toggle(id="a_gwas_catalogue_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
+  observe({toggle(id="a_gnomad_mapping_download", condition=!is.null(a_pulldown_significant()) & input$a_select_gnomad_pli_type == 'threshold')})
+  observe({toggle(id="a_pathway_mapping_download", condition=!is.null(a_pulldown_significant()))})
+  
+  # show/hide plot download buttons
+  observeEvent(!is.null(a_pulldown_significant()),{
+    shinyjs::show("a_volcano_plot_download")
+    shinyjs::show("a_scatter_plot_download")
+    shinyjs::show("a_integrated_plot_download")
+  })
+  
+  #observe({toggle(id="a_volcano_plot_download", condition=!is.null(a_pulldown_significant()))})
+  #observe({toggle(id="a_scatter_plot_download", condition=!is.null(a_pulldown_significant()))})
+  #observe({toggle(id="a_volcano_plot_download", condition=!is.null(a_pulldown_significant()))})
+  #observe({toggle(id="a_volcano_plot_download", condition=!is.null(a_pulldown_significant()))})
+  
+  
+  
+  
   
   #--------------------------------------------------------
   # venn digrams and hypergeometric testing
@@ -2670,9 +2711,9 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   a_integrated_plot_gg <- reactive({
     p = a_vp_gg()
     if (!is.null(input$a_gwas_catalogue)) if (input$a_gwas_catalogue != '') p = plot_overlay(p, list(gwas=a_gwas_catalogue_mapping()))
-    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep %in% keys(inweb_hash)) p = plot_overlay(p, list(inweb=a_inweb_mapping()))
-    if (!is.null(input$a_file_SNP_rep)){p = plot_overlay(p, list(snps=a_snp_mapping()))}
-    if (!is.null(input$a_file_genes_rep)){p = plot_overlay(p, list(upload=a_genes_upload()$data))}
+    if (!is.null(input$a_bait_rep)) if (input$a_bait_rep %in% hash::keys(inweb_hash)) p = plot_overlay(p, list(inweb=a_inweb_mapping()))
+    if (!is.null(input$a_file_SNP_rep)) if (input$a_overlay_snp) {p = plot_overlay(p, list(snps=a_snp_mapping()))}
+    if (!is.null(input$a_file_genes_rep)) if (input$a_overlay_genes_upload) {p = plot_overlay(p, list(upload=a_genes_upload()$data))}
     if (!is.null(input$a_select_gnomad_pli_type)) if (input$a_select_gnomad_pli_type == 'threshold') p = plot_overlay(p, list(gnomad=a_gnomad_mapping_threshold()))
     p$overlay <- collapse_labels(p$overlay)
     p

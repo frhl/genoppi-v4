@@ -36,15 +36,22 @@ body <- dashboardBody(
                                           ),
                                           fluidRow(
                                             br(),
-                                            column(12, myDownloadButton("a_mttest_mapping_download", 'Pulldown data', icon("download")))
+                                            column(12, shinyjs::hidden(myDownloadButton("a_mttest_mapping_download", 'Pulldown data', icon("download"))))
                                           )
-                                        )
+                                        ),
+                                        
+                                        shinyjs::hidden(box(
+                                          id = 'box1', title = "Gene mapping", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
+                                          fluidRow(
+                                            h3('Explore mapping of accession to gene symbol')
+                                          )
+                                        ))
                                  ),
                                  column(width = 8,
                                         box(
                                           title = tagList(shiny::icon('chart-area'), "Volcano plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE,
                                           fluidRow(
-                                            column(11, myDownloadButton("a_volcano_plot_download", 'Volcano plot'))
+                                            column(11, shinyjs::hidden(myDownloadButton("a_volcano_plot_download", 'Volcano plot')))
                                           ),
                                           fluidRow(style = "padding-bottom:75px",
                                             column(1, plotOutput("FDR_colorbar", width = "50px")),
@@ -54,7 +61,7 @@ body <- dashboardBody(
                                         box(
                                           title = tagList(img(src='icon_scatter.png',width='22px'), "Scatter plot"), width = NULL, solidHeader = TRUE, status = 'success', collapsible = TRUE, collapsed = FALSE,
                                           fluidRow(
-                                            column(11, myDownloadButton("a_scatter_plot_download", 'Scatter plot'))
+                                            column(11, shinyjs::hidden(myDownloadButton("a_scatter_plot_download", 'Scatter plot')))
                                           ),
                                           fluidRow(
                                             column(11, plotlyOutput("ScatterPlot")) #, width = "550px", height = "550px"
@@ -72,7 +79,7 @@ body <- dashboardBody(
                                      ),
                                      fluidRow(
                                        column(8, uiOutput("a_label_inweb_ui")),
-                                       column(4, myDownloadButton("a_inweb_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                       column(4, shinyjs::hidden(myDownloadButton("a_inweb_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome"))))
                                      ),
                                     ),
                                     box(
@@ -82,7 +89,7 @@ body <- dashboardBody(
                                       ),
                                       fluidRow(
                                         column(8, uiOutput("a_label_gwas_cat_ui")),
-                                        column(4, myDownloadButton("a_gwas_catalogue_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                        column(4, shinyjs::hidden(myDownloadButton("a_gwas_catalogue_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome"))))
                                        ),
                                       
                                     ),
@@ -93,14 +100,13 @@ body <- dashboardBody(
                                         column(8, 
                                                uiOutput('a_slide_gnomad_pli_threshold_ui'),
                                                uiOutput('a_gnomad_colorscale_text_ui'),
-                                               plotOutput('a_gnomad_colorscale_ui', width = "275px", height = '100px')
+                                               #plotOutput('a_gnomad_colorscale_ui', width = "275px", height = '100px')
                                         )
                                       ),
                                       fluidRow(
                                         column(8, ''),
-                                        column(4, myDownloadButton("a_gnomad_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                        column(4, shinyjs::hidden(myDownloadButton("a_gnomad_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome"))))
                                       ),
-                                      br(),
                                       fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
                                       fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                     ),
@@ -110,8 +116,9 @@ body <- dashboardBody(
                                        column(12, uiOutput("a_SNP_file"))
                                      ),
                                      fluidRow(
-                                       column(8, uiOutput("a_label_snp_ui")),
-                                       column(4, myDownloadButton("a_snp_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                       column(4, uiOutput("a_overlay_snp_ui")),
+                                       column(4, uiOutput("a_label_snp_ui")),
+                                       column(4, shinyjs::hidden(myDownloadButton("a_snp_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome"))))
                                      )
                                    ),
                                   box(
@@ -120,8 +127,9 @@ body <- dashboardBody(
                                         column(12, uiOutput("a_genes_file")),
                                      ),
                                      fluidRow(
-                                       column(8, uiOutput("a_label_genes_upload_ui")),
-                                       column(4, myDownloadButton("a_gene_upload_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                       column(4, uiOutput("a_overlay_genes_upload_ui")),
+                                       column(4, uiOutput("a_label_genes_upload_ui")),
+                                       column(4, shinyjs::hidden(myDownloadButton("a_gene_upload_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome"))))
                                      )
                                   ),
                                   box(
@@ -157,7 +165,7 @@ body <- dashboardBody(
                                       title = tagList(shiny::icon('chart-area'), "Volcano plot"), solidHeader = TRUE, status = 'success', collapsible = TRUE, width = 12,
                                       # height = '800px'
                                           fluidRow(
-                                            column(12, myDownloadButton("a_integrated_plot_download",'Volcano plot'))
+                                            column(12, shinyjs::hidden(myDownloadButton("a_integrated_plot_download",'Volcano plot')))
                                           ),
                                           fluidRow(style = "padding-bottom:100px",
                                            column(1, br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
@@ -311,7 +319,7 @@ body <- dashboardBody(
                                       ),
                                       fluidRow(
                                         column(8,''),
-                                        column(4, myDownloadButton("a_pathway_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                        column(4, shinyjs::hidden(myDownloadButton("a_pathway_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome"))))
                                       )
                                    )
                                  ),
