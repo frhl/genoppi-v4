@@ -1465,6 +1465,20 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     }
   )
   
+  # download gene upload mapping
+  output$a_gene_upload_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("gene-upload-mapping",".csv", sep="")
+    },
+    content = function(file) {
+      pulldown = a_pulldown_significant()
+      upload = a_genes_upload()$data[,c('gene','listName')]
+      mymerge = merge(pulldown, upload, by = 'gene')
+      write.csv(mymerge, file, row.names = F)
+    }
+  )
+  
+  
   # download snp mapping
   output$a_snp_mapping_download <- downloadHandler(
     filename = function() {
@@ -1497,12 +1511,24 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     },
     content = function(file) {
       pulldown = a_pulldown_significant()
-      gnomad = a_gnomad_mapping()[,c('gene','pLI','oe_lof','oe_lof_lower','oe_lof_upper','gene_id')]
-      mymerge = merge(pulldown, gwas, by = 'gene')
+      gnomad = a_gnomad_mapping_threshold()[,c('gene','pLI','oe_lof','oe_lof_lower','oe_lof_upper','gene_id')]
+      mymerge = merge(pulldown, gnomad, by = 'gene')
       write.csv(mymerge, file, row.names = F)
     }
    )
   
+  # download protein family mapping? gene annotations
+  output$a_pathway_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("gene-set-annotations-mapping",".csv", sep="")
+    },
+    content = function(file) {
+      pulldown = a_pulldown_significant()
+      pathway = a_pathway_mapping()[,c('gene','pathway','Freq')]
+      mymerge = merge(pulldown, pathway, by = 'gene')
+      write.csv(mymerge, file, row.names = F)
+    }
+  )
   
   #--------------------------------------------------------
   # venn digrams and hypergeometric testing

@@ -96,6 +96,10 @@ body <- dashboardBody(
                                                plotOutput('a_gnomad_colorscale_ui', width = "275px", height = '100px')
                                         )
                                       ),
+                                      fluidRow(
+                                        column(8, ''),
+                                        column(4, myDownloadButton("a_gnomad_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
+                                      ),
                                       br(),
                                       fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
                                       fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
@@ -116,8 +120,8 @@ body <- dashboardBody(
                                         column(12, uiOutput("a_genes_file")),
                                      ),
                                      fluidRow(
-                                       column(8, uiOutput("a_label_genes_upload_ui"))
-                                       #column(4, uiOutput("a_reset_genes_upload_ui"))
+                                       column(8, uiOutput("a_label_genes_upload_ui")),
+                                       column(4, myDownloadButton("a_gene_upload_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
                                      )
                                   ),
                                   box(
@@ -304,6 +308,10 @@ body <- dashboardBody(
                                       ),
                                       fluidRow(
                                         column(12, uiOutput("a_pathway_mapping_search_ui"))
+                                      ),
+                                      fluidRow(
+                                        column(8,''),
+                                        column(4, myDownloadButton("a_pathway_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome")))
                                       )
                                    )
                                  ),
