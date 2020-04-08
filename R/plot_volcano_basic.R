@@ -8,7 +8,7 @@
 #' @param col_other the color of non-significnt proteins/rows.
 #' @param size_point the size of the points. 
 #' @export
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot geom_point geom_hline geom_vline xlab ylab theme aes_ aes aes_string geom_text
 #' @examples
 #' \dontrun{
 #' # artifical data 

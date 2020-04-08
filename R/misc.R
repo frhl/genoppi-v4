@@ -56,7 +56,6 @@ color_gradient <- function(x, colors=c("green", 'red'), colsteps=100) {
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
 #' @export
 color_distinct <- function(){
-  #return(grDevices::colors()[grep('gr(a|e)y', grDevices::colors(), invert = T)])
   palette = brewer.pal.info[brewer.pal.info$category == 'qual',]
   return(rep(unlist(mapply(brewer.pal, palette$maxcolors, rownames(palette))),10))
 }
@@ -91,7 +90,6 @@ italics <- function(x){paste('<i>',x,'</i>', sep='')}
 #' @param directory string, directory
 #' @keywords internal
 #' @note for debugging r-package.
-#' @export
 findit <- function(what = 'name', directory = 'R'){
   files = list.files(directory)
   lst = lapply(files, function(x){
@@ -106,4 +104,39 @@ findit <- function(what = 'name', directory = 'R'){
 }
 
 
+#' @title find namespace
+#' @description find all scrips containing namespace objects
+#' @param directory string, directory
+#' @keywords internal
+#' @note for debugging r-package.
+findnamespace <- function(ns = ls(getNamespace('ggplot2')), directory = 'R'){
+  files = list.files(directory, pattern='\\.R')
+  if (length(files) == 0) stop(paste('no R files in directory:', directory))
+  ns = gsub('\\.','\\\\.',ns)
+  lst = lapply(files, function(x){
+    lines = suppressWarnings(readLines(file.path(directory, x)))
+    nslst = lapply(ns, function(x) if (any(grepl(x, lines))) return(x) else return(''))
+    names(nslst) = ns
+    nslst[nchar(unlist(nslst)) == 0] <- NULL
+    return(nslst)
+  })
+  names(lst) = files
+  lst = null_omit(lst)
+  return(lst)
+}
+
+
+#findit('ggplot2')s
+#nsgg = ls(getNamespace('ggplot2'))
+#nsgg = nsgg[15:length(nsgg)] # remove special chars
+#unique(unlist(findnamespace(nsgg)))
+
+#findit('ggplot2')
+#nsgg = ls(getNamespace('VennDiagram')) # remove special chars
+#nsgg = nsgg[15:length(nsgg)] # remove special chars
+
+#nsgg = nsgg[!grepl('\\[|\\]', nsgg)]
+
+#x = findnamespace(nsgg, directory = 'inst/shiny-examples/myapp/')
+#x = findnamespace(nsgg)
 

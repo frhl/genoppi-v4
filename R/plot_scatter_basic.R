@@ -8,7 +8,7 @@
 #' @param col_significant color for significant protein interactors.
 #' @param col_other color for other protein interactors.
 #' @return a gg scatter plot.
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot geom_point geom_abline labs theme_minimal
 #' @export
 
 plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col_signficant = "#41AB5D", col_other = 'grey'){
@@ -42,7 +42,6 @@ plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col
 #' @param col_significant color for significant protein interactors.
 #' @param col_other color for other protein interactors.
 #' @return a list of gg scatter plots.
-#' @import ggplot2
 #' @export
 plot_scatter_basic_all <- function(df, size_point = 3, col_signficant = "#41AB5D", col_other = 'grey'){
   

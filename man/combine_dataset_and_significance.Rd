@@ -4,7 +4,11 @@
 \alias{combine_dataset_and_significance}
 \title{Combine data set and significance}
 \usage{
-combine_dataset_and_significance(data, sig_text = "", insig_text = "(N)")
+combine_dataset_and_significance(
+  data,
+  sig_text = "(enriched)",
+  insig_text = "(not enriched)"
+)
 }
 \arguments{
 \item{data}{a data or overlay data.frame with \code{dataset} as column.}

@@ -4,16 +4,18 @@
 \alias{add_layout_html_axes_volcano}
 \title{layout for volcano plot.}
 \usage{
-add_layout_html_axes_volcano(p, height = NULL, width = NULL)
+add_layout_html_axes_volcano(
+  p,
+  height = NULL,
+  width = NULL,
+  legend_title = bold("Overlay")
+)
 }
 \arguments{
 \item{p}{a ggplot}
 }
 \description{
 Format axes.
-}
-\note{
-internal
 }
 \seealso{
 Other shiny: 

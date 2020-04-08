@@ -5,7 +5,7 @@
 #' @param y string. The y-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param volcano boolean. If True, will convert y-axis to \code{y=-log10(y)}.
 #' @param legend boolean. Show legend for significant interactors?
-#' @importFrom plotly add_markers add_annotations plot_ly
+#' @importFrom plotly add_markers add_annotations plot_ly plotly
 #' @export
 
 make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_text = ''){

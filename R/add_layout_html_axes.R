@@ -1,8 +1,9 @@
 #' @title layout for scatterplot
 #' @description format axes.
 #' @param p a ggplot
-#' @note internal
+#' @importFrom plotly layout
 #' @family shiny
+#' @export
 add_layout_html_axes_scatterplot <- function(p, repA, repB, title='', legend_title = bold('Overlay')){
   
   toreplicate <- function(x) gsub('(R|r)ep','Replicate ', x)
@@ -18,8 +19,8 @@ add_layout_html_axes_scatterplot <- function(p, repA, repB, title='', legend_tit
 #' @title layout for volcano plot.
 #' @description Format axes.
 #' @param p a ggplot
-#' @note internal
 #' @family shiny
+#' @export
 add_layout_html_axes_volcano <- function(p, height = NULL, width = NULL, legend_title = bold('Overlay')){
   stopifnot(!is.null(p$data))
   p <- p %>% layout(xaxis = list(title = "log<sub>2</sub>(Fold change)", range=~c(min(p$data$logFC)-0.5, max(p$data$logFC)+0.5)),

@@ -1,21 +1,23 @@
 # this will be loaded before ui/server loads.
 # these should be present in NAMESPACE.
+
 library(shiny)
-library(shinyjs)
-library(shinydashboard)
-library(hash)
-library(plotly)
-library(data.table)
-library(ggrepel)
-library(plyr)
 library(VennDiagram)
-library(colourpicker)
+#library(shinyjs)
+#library(shinydashboard)
+#library(hash)
+#library(plotly)
+#library(data.table)
+#library(ggrepel)
+#library(plyr) #unsure about plyr dependency.. test for now.
+#library(VennDiagram)
+#library(colourpicker)
 
 # load genoppi if not attcahed
 if (!'genoppi' %in% .packages()) devtools::load_all()
 # load aprils functions for now
 #source("~/Projects/04_genoppi/Genoppi-master/functions.R")
-source('aprils_functions.R')
+#source('aprils_functions.R')
 
 ## modules // these are Aprils.. for now we load.
 #load("data/InWeb_combined_Oct2018.RData")

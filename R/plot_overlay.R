@@ -3,7 +3,8 @@
 #' @param p a plot object returned from ggplot.
 #' @param reference a list of named data.frames.
 #' @param point_expansion percentage expansion of genelist points.
-#' @import ggplot2 ggrepel
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggrepel geom_text_repel
 #' @export
 #' @examples
 #' \dontrun{
@@ -39,7 +40,6 @@ plot_overlay <- function(p, reference, x=NULL, y=NULL, point_expansion = 1.05){
   # convert list to data.frame
   reference = validate_reference(list_to_df(reference))
   mymerge = merge(p$data[,unique(c('gene', 'logFC', 'pvalue','FDR','significant', x, y))], reference, by = 'gene')
-  
   
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
