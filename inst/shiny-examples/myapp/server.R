@@ -149,7 +149,7 @@ shinyServer(function(input, output, session){
   
   
   # track significance threshols for FDR and P-value
-  monitor_significance_tresholds <- reactive({
+  monitor_significance_thresholds <- reactive({
     sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', '<i>P</>-value')
     sig_value = ifelse(sig_type == 'FDR', input$a_fdr_thresh, input$a_pval_thresh)
     fc_sign = ifelse(input$a_logfc_direction, '<', '≥')
@@ -175,30 +175,30 @@ shinyServer(function(input, output, session){
   # basic plot
   output$a_color_theme_indv_sig <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c('Colors for ',monitor_significance_tresholds()$sig, 'and', monitor_logfc_threshold()$sig)))
-    colourpicker::colourInput('a_color_indv_sig', label, value = '#41AB5D', showColour = 'text', 
+    label = HTML(paste(c('Colors for ',monitor_significance_thresholds()$sig, 'and', monitor_logfc_threshold()$sig)))
+    colourpicker::colourInput('a_color_indv_sig', label, value = '#41AB5D', showColour = 'both', 
                   palette = c( "limited"), allowedCols = allowed_colors)
   })
     
   # basic plot
   output$a_color_theme_indv_insig <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c('Colors for ',monitor_significance_tresholds()$insig, 'and', monitor_logfc_threshold()$insig)))
-    colourpicker::colourInput('a_color_indv_insig', label, value = '#808080', showColour = 'text', 
+    label = HTML(paste(c('Colors for ',monitor_significance_thresholds()$insig, 'and', monitor_logfc_threshold()$insig)))
+    colourpicker::colourInput('a_color_indv_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   
   # intgrated plot, snp
   output$a_color_snp_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
     colourpicker::colourInput('a_color_snp_sig', label, value = 'blue', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   # intgrated plot, snp
   output$a_color_snp_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
     colourpicker::colourInput('a_color_snp_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
@@ -228,14 +228,14 @@ shinyServer(function(input, output, session){
   # intgrated plot, genes upload
   output$a_color_genes_upload_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
     colourpicker::colourInput('a_color_genes_upload_sig', label, value = 'blue', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   # intgrated plot, genes upload
   output$a_color_genes_upload_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
     colourpicker::colourInput('a_color_genes_upload_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
@@ -271,14 +271,14 @@ shinyServer(function(input, output, session){
   # intgrated plot, inweb
   output$a_color_inweb_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
     colourpicker::colourInput('a_color_inweb_sig', label, value = 'yellow', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   # intgrated plot, inweb
   output$a_color_inweb_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
     colourpicker::colourInput('a_color_inweb_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
@@ -297,14 +297,14 @@ shinyServer(function(input, output, session){
   # intgrated plot, gwas catalogue
   output$a_color_gwas_cat_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
     colourpicker::colourInput('a_color_gwas_cat_sig', label, value = 'cyan', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   # intgrated plot, gwas catalogue
   output$a_color_gwas_cat_insig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
-    label = HTML(paste(c(monitor_significance_tresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    label = HTML(paste(c(monitor_significance_thresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
     colourpicker::colourInput('a_color_gwas_cat_insig', label, value = '#808080', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
@@ -492,18 +492,18 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     selectInput('a_select_venn_list_snp_loci',
                 'Select loci type', 
                 choices = c('All loci' = 'all', 
-                            'Multi loci' = 'multi', 
-                            'Single loci' = 'single'))
+                            'Multi-gene loci' = 'multi', 
+                            'Single-gene loci' = 'single'))
   })
   
-  output$a_select_venn_gwas_catalogue_loci_ui <- renderUI({
-    req(a_gwas_catalogue_mapping())
-    selectInput('a_select_venn_gwas_catalogue_loci',
-                'Select loci type', 
-                choices = c('All loci' = 'all', 
-                            'Multi loci' = 'multi', 
-                            'Single loci' = 'single'))
-  })
+  #output$a_select_venn_gwas_catalogue_loci_ui <- renderUI({
+  #  req(a_gwas_catalogue_mapping())
+  #  selectInput('a_select_venn_gwas_catalogue_loci',
+  #              'Select loci type', 
+  #              choices = c('All loci' = 'all', 
+  #                          'Multi loci' = 'multi', 
+  #                          'Single loci' = 'single'))
+  #})
   
   #output$a_text_label <- renderUI({
   #  radioButtons('a_marker_text', 'Turn on/off labels',
@@ -639,17 +639,17 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   output$a_pf_loc_selection <- renderUI({
     #req(input$a_file_pulldown_r())
     selectInput('a_pf_loc_option', 'Data options', c("HGNC gene groups"="hgnc", 
-                                                     "GO molecular function"="mf", 
-                                                     "GO cellular components"="cc", 
-                                                     "GO biological process"="bp", 
-                                                     "MSigDB H"="h",
-                                                     "MSigDB C1" = 'c1',
-                                                     "MSigDB C2" = 'c2',
-                                                     "MSigDB C3" = 'c3',
-                                                     "MSigDB C4" = 'c4',
-                                                     "MSigDB C5" = 'c5',
-                                                     "MSigDB C6" = 'c6',
-                                                     "MSigDB C7" = 'c7'), selectize=FALSE)
+                                                     "GO terms: molecular function"="mf", 
+                                                     "GO terms: cellular component"="cc", 
+                                                     "GO terms: biological process"="bp", 
+                                                     "MSigDB H: hallmark gene sets"="h",
+                                                     "MsigDB C1: positional gene sets" = 'c1',
+                                                     "MSigDB C2: curated gene sets" = 'c2',
+                                                     "MSigDB C3: regulatory target gene sets" = 'c3',
+                                                     "MSigDB C4: computational gene sets" = 'c4',
+                                                     "MSigDB C5: GO terms" = 'c5',
+                                                     "MSigDB C6: oncogenic signatures" = 'c6',
+                                                     "MSigDB C7: immunologic signatures" = 'c7'), selectize=FALSE)
   })
   
   output$a_pathway_mapping_freq_slider_ui <- renderUI({
@@ -1543,9 +1543,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     }
   )
   
-  
-  reqhide
-  
   # show/hide data download buttons
   observeEvent(input$a_file_pulldown_r, {toggle(id="a_mttest_mapping_download", condition=!is.null(input$a_file_pulldown_r))})
   observeEvent(input$a_bait_rep, {toggle(id="a_inweb_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
@@ -1560,16 +1557,8 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     shinyjs::show("a_volcano_plot_download")
     shinyjs::show("a_scatter_plot_download")
     shinyjs::show("a_integrated_plot_download")
+    shinyjs::show("a_pathway_plot_download")
   })
-  
-  #observe({toggle(id="a_volcano_plot_download", condition=!is.null(a_pulldown_significant()))})
-  #observe({toggle(id="a_scatter_plot_download", condition=!is.null(a_pulldown_significant()))})
-  #observe({toggle(id="a_volcano_plot_download", condition=!is.null(a_pulldown_significant()))})
-  #observe({toggle(id="a_volcano_plot_download", condition=!is.null(a_pulldown_significant()))})
-  
-  
-  
-  
   
   #--------------------------------------------------------
   # venn digrams and hypergeometric testing
@@ -1586,8 +1575,8 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       data = a_pulldown_significant()
       # compile venn diagram information
       hyper = calc_hyper(data, inweb_list, inweb_intersect, bait = input$a_bait_search_rep)
-      hyper[['venn']][['Pulldown']] <- hyper$genes$InWeb$success_genes
-      hyper[['venn' ]][['InWeb']] <- hyper$genes$InWeb$sample_genes
+      hyper[['venn']][['A']] <- hyper$genes$InWeb$success_genes # pulldown
+      hyper[['venn' ]][['B']] <- hyper$genes$InWeb$sample_genes # inweb
       return(hyper)
     } else {NULL}
   })
@@ -1606,7 +1595,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # plot below venn diagram inweb
   a_inweb_venn_verbatim <- reactive({
     req(a_pulldown_significant(), a_inweb_calc_hyper())
-    tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    tresholds = paste(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
     hyper = a_inweb_calc_hyper()
     A <- HTML(paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;"))
     B <- HTML(paste0("B = InWeb interactors in pulldown", " &#40;", bold(hyper$statistics$sample_count), "&#41;"))
@@ -1635,13 +1624,14 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   ## GENES UPLOAD
   # hypergeometric overlap gene upload
   a_genes_upload_calc_hyper <- reactive({
-    req(a_genes_upload(), a_pulldown_significant())
+    req(a_genes_upload(), a_pulldown_significant(), input$a_select_venn_list_genes_upload)
 
     # get data for overlap calculation
     pulldown = a_pulldown_significant()
     genes_uploaded = a_genes_upload()
     genes = genes_uploaded$data
     intersect = genes_uploaded$intersect
+    intersect$intersectN = F # ask yu-han (why does this always return intersectN = TRUE)
     genelist = input$a_select_venn_list_genes_upload
     
     # compile venn diagram information
@@ -1657,28 +1647,52 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     return(unique(as.character(a_genes_upload()$data$listName)))
   })
   
-  # draw venn diagram for genes upload
-  output$a_genes_upload_venn_ui <- renderPlot({
+  # instructions for creating the venn diagram
+  a_genes_upload_venn <- reactive({
     req(a_genes_upload_calc_hyper(), input$a_select_venn_list_genes_upload)
-    
     # get data and variables for genelist
     genelist = input$a_select_venn_list_genes_upload
     mapping = a_genes_upload_calc_hyper()
-    
     if (!is.null(mapping$genes)){
-      
-      # ready venn diagram
       diagram = list(
         pulldown = mapping$genes[[1]]$success_genes,
         geneslist = mapping$genes[[1]]$sample_genes)
-      names(diagram) <- c('pulldown', genelist)
-      
-      # plot venn diagram
-      v = draw_genoppi_venn(diagram,color = c('blue','cyan'), main = paste0('P-value = ', format(mapping$statistics$pvalue, digits = 3)))
-      grid::grid.newpage()
-      grid::grid.draw(v)
+      names(diagram) <- c('A', 'B')
+      return(diagram)
     } else {NULL}
   })
+  
+  # Reactive for drawing the actual venn in the UI
+  output$a_genes_upload_venn_ui <- renderPlot({
+    req(a_genes_upload_venn(), a_genes_upload_calc_hyper())
+    diagram = a_genes_upload_venn()
+    mapping = a_genes_upload_calc_hyper()
+    v = draw_genoppi_venn(diagram,color = c('blue','cyan'), main = paste0('P-value = ', format(mapping$statistics$pvalue, digits = 3)))
+    grid::grid.newpage()
+    grid::grid.draw(v)
+  })
+  
+  # Collect all the information next to venn diagram
+  a_genes_upload_venn_verbatim <- reactive({
+    req(a_pulldown_significant(), a_genes_upload_venn(), input$a_select_venn_list_genes_upload)
+    selected = input$a_select_venn_list_genes_upload
+    pulldown = a_pulldown_significant()
+    thresholds = paste(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    diagram = a_genes_upload_venn()
+    A <- paste0("A = Pulldown subsetted by ", thresholds, " &#40;", bold(length(diagram[[1]])), "&#41;")
+    B <- paste0("B = Genes in ",italics(selected)," &#40;", bold(length(unique(diagram[[2]]))), "&#41;")
+    total <- paste0("Total population = pulldown &#40;", bold(nrow(pulldown)), "&#41;")
+    return(list(A=A, B=B, total=total))
+  })
+  
+  # Send to UI
+  output$a_genes_upload_venn_verbatim_ui <- renderUI({
+    output <- a_genes_upload_venn_verbatim()
+    HTML(paste(output$total, output$A, output$B, sep = "<br/>"))
+  })
+  
+  
+  
   
   # SNPS UPLOAD
   # get available snp lists
@@ -1700,8 +1714,9 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     return(list(venn=mapping))
   })
   
-  # draw venn diagram for genes upload
-  output$a_snp_all_venn_ui <- renderPlot({
+  
+  # make venn diagram instructions
+  a_snp_venn <- reactive({
     req(a_snp_draw_venn(), a_pulldown_significant(), input$a_select_venn_list_snp_loci)
     
     # variables and data for drawing venn
@@ -1713,14 +1728,48 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     # draw venn digram if mapping is valid
     if (!is.null(mapping)){
       diagram = list(pulldown=pulldown[pulldown$significant,]$gene,
-                  genelist=as.character(mapping$venn[[loci]]$gene))
-      names(diagram) = c('pulldown', snplist)
-      venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = 'All genes (SNPs)')
-      grid::grid.newpage()
-      grid::grid.draw(venn)
-  }else {NULL}
+                     genelist=as.character(mapping$venn[[loci]]$gene))
+      names(diagram) = c('A','B')
+      return(diagram)
+    } else {NULL}
+  })
+  
+  # draw venn diagram for genes upload
+  output$a_snp_venn_ui <- renderPlot({
+    req(a_snp_venn())
+    diagram = a_snp_venn()
+    loci = paste0(input$a_select_venn_list_snp_loci,'GeneDf')
+    venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main =  '')
+    grid::grid.newpage()
+    grid::grid.draw(venn)
   })
 
+  # get venn diagram text
+  a_snp_venn_verbatim <- reactive({
+    req(a_pulldown_significant(), a_snp_venn())
+    pulldown = a_pulldown_significant()
+    thresholds = paste(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    selected = input$a_select_venn_list_snp
+    diagram = a_snp_venn()
+    loci = input$a_select_venn_list_snp_loci
+    loci = gsub('all','All mapped loci',loci)
+    loci = gsub('multi','Mapped multi-gene loci',loci)
+    loci = gsub('single','Mapped single-gene loci',loci)
+    A <- paste0("A = pulldown subsetted by ", thresholds, " &#40;", bold(length(diagram[[1]])), "&#41;")
+    B <- paste0("B = ", loci," from ",italics(selected),"&#40;", bold(length(unique(diagram[[2]]))), "&#41;")
+    total <- paste0("Total population in pulldown", " &#40;", bold(nrow(pulldown)), "&#41;")
+    return(list(A=A, B=B, total=total))
+  })
+  
+  # print to ui
+  output$a_snp_venn_verbatim_ui <- renderUI({
+    output <- a_snp_venn_verbatim()
+    HTML(paste(output$total, output$A, output$B, sep = "<br/>"))
+  })
+  
+  
+  
+  ## GWAS catalog
   # subset all snps for gwas catalog
   a_gwas_catalogue_mapping_venn <- reactive({
     req(a_gwas_catalogue_mapping(), a_pulldown_significant())
@@ -1733,7 +1782,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     # only use all gene for GWAS cat
     loci = 'allGeneDf' # paste0(input$a_select_venn_gwas_catalogue_loci, 'GeneDf') 
     diagram = list(pulldown=pulldown[pulldown$significant,]$gene, genelist=mapping[[loci]]$gene)
-    names(diagram) = c('pulldown', 'GWAS')
+    names(diagram) = c('A', 'B')
     return(diagram)
   })
   
@@ -1741,7 +1790,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   output$a_gwas_catalogue_venn_all_ui <- renderPlot({
     req(a_gwas_catalogue_mapping_venn)
     diagram = a_gwas_catalogue_mapping_venn()
-    venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = '</title>')
+    venn = draw_genoppi_venn(diagram,  color = c('blue', 'red'), main = '')
     grid::grid.newpage()
     grid::grid.draw(venn)
   })
@@ -1749,12 +1798,12 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # get venn diagram text
   a_gwas_catalogue_venn_verbatim <- reactive({
     req(a_pulldown_significant(), a_gwas_catalogue_mapping_venn())
-    catf('NOTE: discuss gwas cat total count with Yu-Han\n')
-    tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    pulldown = a_pulldown_significant()
+    thresholds = paste(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
     diagram = a_gwas_catalogue_mapping_venn()
-    A <- paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(length(diagram$pulldown)), "&#41;")
-    B <- paste0("B = GWAS catalog (mapped) traits &#40;", bold(length(diagram$`GWAS`)), "&#41;")
-    total <- paste0("N = pull down &cap; selected traits &#40;", bold(length(unique(c(diagram$`GWAS`,diagram$pulldown)))), "&#41;")
+    A <- paste0("A = pulldown subsetted by ", thresholds, " &#40;", bold(length(diagram[[1]])), "&#41;")
+    B <- paste0("B = Genes mapped from GWAS catalog &#40;", bold(length(unique(diagram[[2]]))), "&#41;")
+    total <- paste0("Total population = pulldown", " &#40;", bold(nrow(pulldown)), "&#41;")
     return(list(A=A, B=B, total=total))
   })
   
@@ -1768,7 +1817,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # hypergeometric overlap gnomAD
   a_gnomad_calc_hyper <- reactive({
     req(a_gnomad_sig_list(), a_pulldown_significant())
-    
     # get data for overlap calculation
     pulldown = a_pulldown_significant()
     gnomad = data.frame(listName='gnomAD',a_gnomad_sig_list())
@@ -1776,8 +1824,8 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     
     # compile venn diagram information
     hyper = calc_hyper(pulldown, gnomad, intersect)
-    hyper[['venn' ]][['gnomAD']] <- hyper$genes$gnomAD$success_genes
-    hyper[['venn']][['Pulldown']] <- hyper$genes$gnomAD$sample_genes
+    hyper[['venn']][['A']] <- hyper$genes$gnomAD$success_genes # pulldown
+    hyper[['venn' ]][['B']] <- hyper$genes$gnomAD$sample_genes # gnomAD genes
     return(hyper)
   })
   
@@ -1793,10 +1841,10 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   # plot below venn diagram inweb
   a_gnomad_venn_verbatim <- reactive({
     req(a_pulldown_significant(), a_gnomad_calc_hyper())
-    tresholds = paste(monitor_significance_tresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    tresholds = paste(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
     hyper = a_gnomad_calc_hyper()
     A <- paste0("A = pulldown subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;")
-    B <- paste0("B = gnomAD database genes in pulldown with pLI ≥", input$a_slide_gnomad_pli_threshold,'',input$a_pli ," &#40;", bold(hyper$statistics$sample_count), "&#41;")
+    B <- paste0("B = gnomAD genes with pLI ≥", input$a_slide_gnomad_pli_threshold,'',input$a_pli ," &#40;", bold(hyper$statistics$sample_count), "&#41;")
     total <- paste0("N = pull down &cap; gnomAD &#40;", bold(hyper$statistics$population_count), "&#41;")
     return(list(A=A, B=B, total=total))
   })
@@ -1950,7 +1998,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   ## ggplot automatically generated and reactive color bars
   a_vp_colorbar <- reactive({
     req(input$a_color_indv_sig, input$a_color_indv_insig)
-    thresholds = monitor_significance_tresholds()
+    thresholds = monitor_significance_thresholds()
     
     # generate matrix with colors
     d <- data.frame(limit = rep('x', 101), value = seq(0, 1, 0.01))
@@ -2400,7 +2448,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   a_vp_count_text <- reactive({
     if(!is.null(a_verbatim_count())){
-      enriched <- paste(c('Enrichment threshold:',monitor_significance_tresholds()$sig, 'and', monitor_logfc_threshold()$sig))
+      enriched <- paste(c('Enrichment threshold:',monitor_significance_thresholds()$sig, 'and', monitor_logfc_threshold()$sig))
       HTML(enriched)
     }
   })
@@ -2722,7 +2770,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # convert into plotly graphics
   a_integrated_plot <- reactive({
-    sig_label = HTML(paste0(monitor_significance_tresholds()$sig)) #, ', ', monitor_logfc_threshold()$sig))
+    sig_label = HTML(paste0(monitor_significance_thresholds()$sig)) #, ', ', monitor_logfc_threshold()$sig))
     p <- a_integrated_plot_gg()
     p <- make_interactive(p, source = "Multi_VolcanoPlot", legend = T, sig_text = sig_label)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction,  sig_type = input$a_significance_type)
@@ -2742,6 +2790,19 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       }
       ggsave(file, plot =  input_integrated_plot_gg(), device = device)
     })
+  
+  # download pathway annoation plot
+ input_pathway_plot_gg <- function(){a_pathway_plot_gg()}
+  output$a_pathway_plot_download = downloadHandler(
+    filename = 'gene-set-annotation-volcano-plot.png',
+    content = function(file) {
+      device <- function(..., width, height) {
+        grDevices::png(..., width = width, height = height,
+                       res = 300, units = "in")
+      }
+      ggsave(file, plot =  input_pathway_plot_gg(), device = device)
+    })
+  
   
   # download basic scatter plot
   input_sp_gg <- function(){a_sp_gg()}
@@ -2767,30 +2828,39 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
       ggsave(file, plot =  input_vp_gg(), device = device)
     })
   
+  
+  
 
   #---------------------------------------------------------------------
   # integrated plotting
   
+  # assign frequency 
+  a_pathway_mapping_assign_freq <- reactive({
+    req(a_pulldown_significant(), input$a_pf_loc_option, )
+    db = input$a_pf_loc_option
+    pulldown <- a_pulldown_significant()
+    pulldown <- pulldown[pulldown$significant, ]
+    overlap <- get_pathways(db, pulldown$gene)
+    overlap <- assign_freq(overlap, 'pathway')
+    overlap = merge(overlap, pulldown)
+    overlap
+  })
+  
   # load in data and preset colors in a seperate
   # reactive to reduce overhead time
   a_pathway_mapping_initial <- reactive({
-    req(a_pulldown_significant())
-    db = input$a_pf_loc_option
-    if (!is.null(db)){
-      # get raw data and assign frequency count
-      pulldown <- a_pulldown_significant()
-      overlap <- get_pathways(db, pulldown$gene)
-      overlap <- assign_freq(overlap, 'pathway')
-      # assign color scheme
-      colors = as.data.frame(overlap[,c('pathway','Freq')])
-      colors = colors[!duplicated(colors), ]
-      colors$color = ifelse(colors$Freq <= 5, 'grey', NA)
-      colors$color[is.na(colors$color)] <- color_distinct()[1:sum(is.na(colors$color))]
-      # merge with overlap
-      overlap = merge(overlap, colors[,c('pathway','color')], by = 'pathway')
-      overlap = merge(overlap, pulldown)
-      return(overlap)
-    } else {NULL}
+    req(a_pulldown_significant(), a_pathway_mapping_assign_freq())
+    
+    #  # get raw data and assign frequency count
+    overlap <- a_pathway_mapping_assign_freq()
+    # assign color scheme
+    colors = as.data.frame(overlap[,c('pathway','Freq')])
+    colors = colors[!duplicated(colors), ]
+    colors$color = ifelse(colors$Freq <= 5, 'grey', NA)
+    colors$color[is.na(colors$color)] <- color_distinct()[1:sum(is.na(colors$color))]
+    # merge with overlap
+    overlap = merge(overlap, colors[,c('pathway','color')], by = 'pathway')
+    return(overlap)
   })
   
   # get frequency
@@ -2799,18 +2869,17 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     return(unique(a_pathway_mapping_initial()))
   })
   
+  # make data table
+  output$a_pathway_data_table_ui <- DT::renderDataTable({
+    req(a_pathway_mapping_initial())
+    DT::datatable(a_pathway_mapping_initial()[,c('gene','pathway','Freq')])
+  })
+  
   # make mapping
   a_pathway_mapping <- reactive({
     req(a_pathway_mapping_initial())
     # get data and subset
     overlay = a_pathway_mapping_initial()
-    # subset by slider
-    overlay = overlay[overlay$Freq >= input$a_pathway_mapping_freq_slider[1] & 
-                      overlay$Freq <= input$a_pathway_mapping_freq_slider[2], ]
-    # subset by search bar
-    subset = input$a_pathway_mapping_search
-    if (!is.null(subset)){ overlay = overlay[overlay$pathway %in% subset,]}
-
     if (nrow(overlay) > 0){
       overlay$dataset = overlay$pathway
       overlay$alt_label = overlay$pathway
@@ -2826,24 +2895,40 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     } else {NULL}
   })
   
+  # reactive for subsetting my frequency
+  a_pathway_mapping_subset <- reactive({
+    req(a_pathway_mapping())
+    overlay = a_pathway_mapping()
+    overlay = overlay[overlay$Freq >= input$a_pathway_mapping_freq_slider[1] & 
+                        overlay$Freq <= input$a_pathway_mapping_freq_slider[2], ]
+    return(overlay)
+  })
+  
   # make the ggplot
   a_pathway_plot_gg <- reactive({
-    req(a_pulldown_significant(), a_pathway_mapping())
+    req(a_pulldown_significant())
       p <- a_vp_gg()
-      p <- plot_overlay(p, list(pathway=a_pathway_mapping()))
+      if (nrow(a_pathway_mapping_subset()) > 0) p <- plot_overlay(p, list(pathway=a_pathway_mapping_subset()))
       p
   })
   
   # convert to plotly
   a_pathway_plot <- reactive({
-    req(a_pathway_plot_gg())
+    req(a_pulldown_significant(), a_pathway_plot_gg(), a_pathway_mapping_initial())
     p <- a_pathway_plot_gg()
     p <- make_interactive(p, legend = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
+    if (!is.null(input$a_pathway_mapping_search)) p <- add_markers_search_pathway(p, 
+                                                                                  input$a_pathway_mapping_search, 
+                                                                                  mapping = a_pathway_mapping_initial(),
+                                                                                  volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
     p <- add_layout_html_axes_volcano(p, 500, 875)
     return(p)
   })
+  
+  
+  
   
   #a_multi_vp_layer <- reactive({
   #  stop('a_multi_vp_layer is deprecated!!')

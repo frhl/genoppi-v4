@@ -29,6 +29,7 @@ internal
 Other shiny: 
 \code{\link{add_layout_html_axes_scatterplot}()},
 \code{\link{add_layout_html_axes_volcano}()},
+\code{\link{add_markers_search_pathway}()},
 \code{\link{add_markers_search}()}
 }
 \concept{shiny}

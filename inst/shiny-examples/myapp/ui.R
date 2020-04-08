@@ -54,8 +54,8 @@ body <- dashboardBody(
                                             column(11, shinyjs::hidden(myDownloadButton("a_volcano_plot_download", 'Volcano plot')))
                                           ),
                                           fluidRow(style = "padding-bottom:75px",
-                                            column(1, plotOutput("FDR_colorbar", width = "50px")),
-                                            column(11, plotlyOutput("VolcanoPlot")) #, width = "550px", height = "550px"
+                                            #column(1, plotOutput("FDR_colorbar", width = "50px")),
+                                            column(12, plotlyOutput("VolcanoPlot")) #, width = "550px", height = "550px"
                                           ),
                                         ),
                                         box(
@@ -168,8 +168,8 @@ body <- dashboardBody(
                                             column(12, shinyjs::hidden(myDownloadButton("a_integrated_plot_download",'Volcano plot')))
                                           ),
                                           fluidRow(style = "padding-bottom:100px",
-                                           column(1, br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
-                                           column(11, plotlyOutput("Multi_VolcanoPlot")),
+                                           #column(1, br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
+                                           column(12, plotlyOutput("Multi_VolcanoPlot")),
                                          )
                                     ),
                                     tabBox(
@@ -184,17 +184,19 @@ body <- dashboardBody(
                                       ),
                                       tabPanel('Genes upload',
                                          fluidRow(
-                                          column(5, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
-                                          column(5, uiOutput('a_select_venn_genes_upload_ui')),
-                                          column(2, uiOutput(''))
+                                          column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
+                                          column(5, br(), br(), br(), br(),
+                                                    uiOutput('a_genes_upload_venn_verbatim_ui')),
+                                          column(3, uiOutput('a_select_venn_genes_upload_ui')),
                                          ),
                                       ),
                                       tabPanel('SNP upload',
                                          fluidRow(
-                                          column(5, plotOutput('a_snp_all_venn_ui', width = "220px", height = "220px")),
-                                          column(5, uiOutput('a_select_venn_snp_ui'),
-                                                    uiOutput('a_select_venn_snp_loci_ui')),
-                                          column(2, '')
+                                          column(4, plotOutput('a_snp_venn_ui', width = "220px", height = "220px")),
+                                          column(5, br(), br(), br(), br(),
+                                                    uiOutput('a_snp_venn_verbatim_ui')),
+                                          column(3, uiOutput('a_select_venn_snp_ui'),
+                                                    uiOutput('a_select_venn_snp_loci_ui'))
                                          )
                                       ),
                                       tabPanel('GWAS catalog',
@@ -326,8 +328,17 @@ body <- dashboardBody(
                                  column(8,
                                         box(
                                           title = tagList("Gene set annotation"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                          fluidRow(
+                                            column(11, shinyjs::hidden(myDownloadButton("a_pathway_plot_download", 'Gene sets plot')))
+                                          ),
                                           fluidRow(style = "padding-bottom:125px",
                                             column(12, plotlyOutput('VolcanoPlotPathway'))
+                                          )
+                                        ),
+                                        box(
+                                          title = tagList("Gene sets"), width = 12, solidHeader = TRUE, status = 'success', collapsible = TRUE,
+                                          fluidRow(
+                                                   column(12, DT::dataTableOutput('a_pathway_data_table_ui'))
                                           )
                                         )
                                  )

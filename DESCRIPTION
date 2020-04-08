@@ -35,6 +35,7 @@ Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
     'add_genoppi_trace.R'
+    'add_markers_search.R'
     'add_hover_lines_volcano.R'
     'add_layout_html_axes.R'
     'calc_fisher.R'

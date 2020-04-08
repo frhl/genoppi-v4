@@ -4,10 +4,23 @@
 \alias{collapse_labels}
 \title{collaps overlay data}
 \usage{
-collapse_labels(overlay)
+collapse_labels(
+  overlay,
+  dataset = "dataset",
+  collapse = "alt_label",
+  collapse_by = "gene",
+  dataset_collapse_sep = ": ",
+  item_sep = " <br>"
+)
 }
 \arguments{
 \item{overlay}{a data.frame}
+
+\item{dataset}{the main dataset name that is to be combined.}
+
+\item{collapse}{the column that will contain the collapsed entries.}
+
+\item{collapse_by}{what identifying colummn is the data to be collapsed by?}
 }
 \description{
 a data.frame used to overlay items in genoppi
