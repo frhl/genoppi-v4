@@ -5,7 +5,7 @@
 #' @param y string. The y-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param volcano boolean. If True, will convert y-axis to \code{y=-log10(y)}.
 #' @param legend boolean. Show legend for significant interactors?
-#' @import plotly
+#' @importFrom plotly add_markers add_annotations plot_ly
 #' @export
 
 make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_text = ''){
@@ -22,7 +22,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
   # this following code needs to be reworked and corresponding functions
   # made more easy to understand and use.
   # change the dataset column so that it takes 'significant'
-  p$data$dataset = 'Pulldown'
+  p$data$dataset = 'Pulldown (Enriched)'
   data = list_to_df(list(A=combine_dataset_and_significance(p$data))) # list_to_df func should be re-worked
   data$size <- 7
   
@@ -57,6 +57,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
     p1 <- add_annotations(p1,
                           x = overlay_label[[x]],
                           y = yf(overlay_label[[y]]),
+                          #font = list(size = 14), make font size interactive
                           color = 'black',
                           xref = "x",
                           yref = "y",
@@ -70,31 +71,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
 }
 
 
-#' @title search volcano plots
-#' @description takes a ggplot and genelist as input 
-#' and searches the volcano plot.
-#' @param p a ggplot
-#' @param genes a vector of genes
-#' @note internal
-#' @import plotly
-#' @family shiny
 
-add_markers_search <- function(p, genes, x='logFC', y='pvalue', volcano = F){
-  
-  
-  # function for mapping -log10
-  yf <- function(x) if (volcano) return(-log10(x)) else return(x)
-  
-  # search data
-  p$search = p$data[grepl(genes, p$data$gene), ]
-  if (nrow(p$search) > 0){
-    p <- add_markers(p, data = p$search, x = ~logFC, y = ~yf(pvalue),
-                     marker = list(color = "#f7f4f9", size = 10, line = list(width=1.3, color = "#3f007d")),
-                     textposition = ~ifelse(logFC>0, "middle right", "middle left"), textfont = list(color='black', size = 10),
-                     hoverinfo="text+x+y", text = ~paste(gene), showlegend = FALSE)
-  }
-  p
-}
 
 #' @title Combine data set and significance
 #' @description In order to correctly draw plotly points
