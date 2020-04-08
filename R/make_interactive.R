@@ -22,7 +22,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
   # this following code needs to be reworked and corresponding functions
   # made more easy to understand and use.
   # change the dataset column so that it takes 'significant'
-  p$data$dataset = 'Pulldown (Enriched)'
+  p$data$dataset = 'Pulldown'
   data = list_to_df(list(A=combine_dataset_and_significance(p$data))) # list_to_df func should be re-worked
   data$size <- 7
   
@@ -81,7 +81,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
 #' @param sig_text what should be the significance text?
 #' @param insig_text what should be the insignificance text?
 #' @export
-combine_dataset_and_significance <- function(data, sig_text = '', insig_text = '(N)'){
+combine_dataset_and_significance <- function(data, sig_text = '(enriched)', insig_text = '(not enriched)'){
   stopifnot(sig_text != insig_text)
   stopifnot('dataset' %in% colnames(data))
   data$sigtext = ifelse(data$significant, as.character(sig_text), as.character(insig_text))

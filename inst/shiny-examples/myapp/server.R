@@ -167,7 +167,6 @@ shinyServer(function(input, output, session){
     if (fc_dir == 'both') {fc_sig = paste("|log<sub>2</sub>FC|&ge;", fc); fc_insig = paste("|log<sub>2</sub>FC|&lt;", fc) }
     return(list(sig=fc_sig, insig=fc_insig))
   })
-  
 
   #----------------------------------------------------------
   # sliders for selecting color, symbols and labels of plots
@@ -229,7 +228,7 @@ shinyServer(function(input, output, session){
   output$a_color_genes_upload_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))
     label = HTML(paste(c(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
-    colourpicker::colourInput('a_color_genes_upload_sig', label, value = 'blue', showColour = 'both', 
+    colourpicker::colourInput('a_color_genes_upload_sig', label, value = '#A52A2A', showColour = 'both', 
                               palette = c( "limited"), allowedCols = allowed_colors)
   })
   # intgrated plot, genes upload
@@ -319,30 +318,51 @@ shinyServer(function(input, output, session){
     checkboxInput("a_label_gwas_cat", label = "Toggle labels", value = TRUE)
   })
   
-# integrated plot, gnomad labels
-#output$a_label_gnomad_ui <- renderUI({
-#  validate(need(input$a_file_pulldown_r != '', ""))
-#  checkboxInput("a_label_gnomad", label = "Toggle labels", value = TRUE)
-#})
-
-# integrated plot, gnomad labels
-output$a_select_gnomad_pli_type_ui <- renderUI({
-  validate(need(input$a_file_pulldown_r != '', ""))
-  radioButtons("a_select_gnomad_pli_type", label = 'Select pLI type', 
-               choiceNames = list('None','Threshold'),
-               choiceValues = list('none','threshold'))
-})
-
-# integrated plot, gnomad slider
-output$a_slide_gnomad_pli_threshold_ui <- renderUI({
-  #validate(need(input$a_file_pulldown_r != '', ""))
-  validate(need(input$a_select_gnomad_pli_type == 'threshold', ""))
-  sliderInput(inputId = "a_slide_gnomad_pli_threshold", label = 'Subset interactors by pLI threshold', 
-              min = 0, max = 1, value = 0.5, step = 0.01)
-})
-
-
   
+  # intgrated plot, gnomad
+  output$a_color_gnomad_sig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig), collapse =', '))
+    colourpicker::colourInput('a_color_gnomad_sig', label, value = '#FF00FF', showColour = 'both', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
+  })
+  # intgrated plot, gnomad
+  output$a_color_gnomad_insig_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    label = HTML(paste(c(monitor_significance_thresholds()$insig, monitor_logfc_threshold()$insig), collapse =', '))
+    colourpicker::colourInput('a_color_gnomad_insig', label, value = '#808080', showColour = 'both', 
+                              palette = c( "limited"), allowedCols = allowed_colors)
+  })
+  # intgrated plot, gnomad
+  output$a_symbol_gnomad_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    selectInput('a_symbol_gnomad', 'Symbol', choices = allowed_plotly_symbols)
+  })
+  
+  # intgrated plot, gnomad
+  output$a_label_gnomad_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    checkboxInput("a_label_gnomad", label = "Toggle labels", value = FALSE)
+  })
+
+  # integrated plot, gnomad 
+  output$a_select_gnomad_pli_type_ui <- renderUI({
+    validate(need(input$a_file_pulldown_r != '', ""))
+    radioButtons("a_select_gnomad_pli_type", label = 'Select pLI type', 
+                 choiceNames = list('None','Threshold'),
+                 choiceValues = list('none','threshold'))
+  })
+  
+  # integrated plot, gnomad slider
+  output$a_slide_gnomad_pli_threshold_ui <- renderUI({
+    #validate(need(input$a_file_pulldown_r != '', ""))
+    validate(need(input$a_select_gnomad_pli_type == 'threshold', ""))
+    sliderInput(inputId = "a_slide_gnomad_pli_threshold", label = 'Subset interactors by pLI threshold', 
+                min = 0, max = 1, value = 0.5, step = 0.01)
+  })
+  
+  
+    
   
   #output$a_color_setting_text <- renderUI({
   #  validate(
@@ -1376,7 +1396,6 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     gnomad = merge(pulldown, gnomad_table, by = 'gene')
     gnomad$dataset = 'gnomAD'
     gnomad$alt_label = paste0('pLI=',gnomad$pLI)
-    gnomad$label = FALSE
     gnomad
   })
   
@@ -1387,8 +1406,10 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     bool_threshold = gnomad$pLI >= input$a_slide_gnomad_pli_threshold
     bool_threshold[is.na(bool_threshold)] <- FALSE
     gnomad = gnomad[bool_threshold,]
-    gnomad$col_significant = 'red'
-    gnomad$col_other = 'grey'
+    gnomad$col_significant = input$a_color_gnomad_sig 
+    gnomad$col_other = input$a_color_gnomad_insig 
+    gnomad$symbol = input$a_symbol_gnomad
+    gnomad$label = input$a_label_gnomad
     return(gnomad)
   })
   
@@ -2026,6 +2047,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   #  p
   #}
   
+  # basic volcano plot
   a_vp_gg <- reactive({
     d <- a_pulldown_significant()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
@@ -2034,15 +2056,15 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
     return(p)
   })
   
+  # basic volcano plot
   a_vp_layerx <- reactive({
     p <- a_vp_gg()
-    p <- make_interactive(p, legend = F)
+    p <- make_interactive(p, legend = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
     p <- add_layout_html_axes_volcano(p, 500*0.8, 625*0.8)
     return(p)
   })
-  
   
 
   
@@ -2770,7 +2792,7 @@ output$a_slide_gnomad_pli_threshold_ui <- renderUI({
   
   # convert into plotly graphics
   a_integrated_plot <- reactive({
-    sig_label = HTML(paste0(monitor_significance_thresholds()$sig)) #, ', ', monitor_logfc_threshold()$sig))
+    sig_label = '(enriched)' #paste0(monitor_significance_thresholds()$sig) #, ', ', monitor_logfc_threshold_non_html()$sig)
     p <- a_integrated_plot_gg()
     p <- make_interactive(p, source = "Multi_VolcanoPlot", legend = T, sig_text = sig_label)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction,  sig_type = input$a_significance_type)

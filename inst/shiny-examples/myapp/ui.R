@@ -32,6 +32,9 @@ body <- dashboardBody(
                                           ),
                                           fluidRow(
                                             br(),
+                                            column(12, tagList(h5(HTML(bold('Replicate corrlation(s):'))))),
+                                          ),
+                                          fluidRow(
                                             column(12, tableOutput("a_replicate_summary_table_ui"))
                                           ),
                                           fluidRow(
@@ -104,11 +107,11 @@ body <- dashboardBody(
                                         )
                                       ),
                                       fluidRow(
-                                        column(8, ''),
+                                        column(8, uiOutput("a_label_gnomad_ui")),
                                         column(4, shinyjs::hidden(myDownloadButton("a_gnomad_mapping_download",'Mapping', img=icon('file-alt', lib = "font-awesome"))))
-                                      ),
-                                      fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
-                                      fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
+                                      )
+                                      #fluidRow(column(12, uiOutput('a_gnomad_constraints_available_ui'))),
+                                      #fluidRow(column(12, tableOutput("a_table_gnomad_constraints_ui")))
                                     ),
                                     box(
                                      title ='Upload SNPs', width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = TRUE,
@@ -146,6 +149,12 @@ body <- dashboardBody(
                                       column(4, uiOutput("a_color_gwas_cat_insig_ui")),
                                       column(4, uiOutput("a_symbol_gwas_cat_ui"))
                                     ),
+                                    fluidRow(column(12, h5('gnomAD'))),
+                                    fluidRow(
+                                      column(4, uiOutput("a_color_gnomad_sig_ui")),
+                                      column(4, uiOutput("a_color_gnomad_insig_ui")),
+                                      column(4, uiOutput("a_symbol_gnomad_ui"))
+                                    ),
                                     fluidRow(column(12, h5('SNP upload'))),
                                     fluidRow(
                                       column(4, uiOutput("a_color_snp_sig_ui")),
@@ -167,7 +176,7 @@ body <- dashboardBody(
                                           fluidRow(
                                             column(12, shinyjs::hidden(myDownloadButton("a_integrated_plot_download",'Volcano plot')))
                                           ),
-                                          fluidRow(style = "padding-bottom:100px",
+                                          fluidRow(style = "padding-bottom:130px",
                                            #column(1, br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
                                            column(12, plotlyOutput("Multi_VolcanoPlot")),
                                          )
@@ -182,13 +191,21 @@ body <- dashboardBody(
                                           column(3, ''),
                                          ),
                                       ),
-                                      tabPanel('Genes upload',
-                                         fluidRow(
-                                          column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
-                                          column(5, br(), br(), br(), br(),
-                                                    uiOutput('a_genes_upload_venn_verbatim_ui')),
-                                          column(3, uiOutput('a_select_venn_genes_upload_ui')),
-                                         ),
+                                      tabPanel('GWAS catalog',
+                                               fluidRow(
+                                                 column(4, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
+                                                 column(5, br(), br(), br(), br(),
+                                                        uiOutput('a_gwas_catalogue_venn_verbatim_ui')),
+                                                 column(3, '')
+                                               ),
+                                      ),
+                                      tabPanel('gnomAD',
+                                               fluidRow(
+                                                 column(4, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px")),
+                                                 column(5, br(), br(), br(), br(),
+                                                        uiOutput("a_gnomad_venn_verbatim_ui")),
+                                                 column(3, ''),
+                                               )
                                       ),
                                       tabPanel('SNP upload',
                                          fluidRow(
@@ -199,23 +216,14 @@ body <- dashboardBody(
                                                     uiOutput('a_select_venn_snp_loci_ui'))
                                          )
                                       ),
-                                      tabPanel('GWAS catalog',
-                                        fluidRow(
-                                          column(4, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
-                                          column(5, br(), br(), br(), br(),
-                                                    uiOutput('a_gwas_catalogue_venn_verbatim_ui')),
-                                          column(3, '')
-                                        ),
-                                      ),
-                                      tabPanel('gnomAD',
-                                        fluidRow(
-                                          column(4, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px")),
-                                          column(5, br(), br(), br(), br(),
-                                                 uiOutput("a_gnomad_venn_verbatim_ui")),
-                                          column(3, ''),
-                                        )
-                                       )
-                                      
+                                      tabPanel('Genes upload',
+                                               fluidRow(
+                                                 column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
+                                                 column(5, br(), br(), br(), br(),
+                                                        uiOutput('a_genes_upload_venn_verbatim_ui')),
+                                                 column(3, uiOutput('a_select_venn_genes_upload_ui')),
+                                               ),
+                                      )
                                     )
                                 )
                         ),

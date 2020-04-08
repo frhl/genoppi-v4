@@ -28,7 +28,7 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                   y = yf(data[[y]]), 
                   color = ~dataset, 
                   colors = global_colors,
-                  key = ~dataset,
+                  key = ~gene,
                   name = ~dataset,
                   text = ~gene,
                   opacity = 0.9,

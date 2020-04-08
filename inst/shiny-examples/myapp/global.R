@@ -30,7 +30,7 @@ source('aprils_functions.R')
 main = '../../..'
 marker_cols <- read.table(file.path(main, 'inst/extdata/colors.txt'))
 add_marker_cols <- read.table(file.path(main, 'inst/extdata/colors_markers.txt'))
-allowed_colors = unique(c('#41AB5D', 'red','green','#808080', 'blue', 'brown', 'yellow', 'cyan'))
+allowed_colors = unique(c('#41AB5D', 'red','green','#808080', 'blue', 'yellow', 'cyan', '#FF00FF', '#A52A2A'))
 plotly_symbols = schema(F)$traces$scatter$attributes$marker$symbol$values
 allowed_plotly_symbols = plotly_symbols[!grepl('^[0-9]+$', plotly_symbols)]
 
