@@ -176,7 +176,7 @@ body <- dashboardBody(
                                           fluidRow(
                                             column(12, shinyjs::hidden(myDownloadButton("a_integrated_plot_download",'Volcano plot')))
                                           ),
-                                          fluidRow(style = "padding-bottom:130px",
+                                          fluidRow(style = "padding-bottom:150px",
                                            #column(1, br(), br(), br(), br(), plotOutput("FDR_colorbar_integrated", width = "50px")),
                                            column(12, plotlyOutput("Multi_VolcanoPlot")),
                                          )

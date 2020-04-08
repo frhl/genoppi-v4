@@ -4,7 +4,7 @@
 #' @param reference a list of named data.frames.
 #' @param point_expansion percentage expansion of genelist points.
 #' @importFrom ggplot2 geom_point
-#' @importFrom ggrepel geom_text_repel
+#' @import ggrepel
 #' @export
 #' @examples
 #' \dontrun{

@@ -8,8 +8,7 @@
 get_inweb_list <- function(bait){
   inwebDf <- NULL
   
-  require(hash)
-  if (bait %in% keys(inweb_hash)){
+  if (bait %in% hash::keys(inweb_hash)){
     inwebDf <- data.frame(gene=keys(inweb_hash))
     inwebDf$significant <- inwebDf$gene %in% inweb_hash[[bait]]
   }

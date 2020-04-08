@@ -4,12 +4,14 @@
 #' @param colors color scheme.
 #' @param main title, typically a p-value.
 #' @importFrom VennDiagram venn.diagram
-#' @importFrom grid grid.newpage grid.draw
 #' @importFrom futile.logger flog.threshold ERROR
+#' @import grid 
 #' @export
 
 
 draw_genoppi_venn <- function(x,main='',colors = c("cornflowerblue", "yellow1")){
+  
+  # @importFrom grid grid.newpage grid.draw unit arrow
   
   # check input
   stopifnot(length(x) == 2)
