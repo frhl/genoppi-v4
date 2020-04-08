@@ -2,7 +2,7 @@
 # these should be present in NAMESPACE.
 
 library(shiny)
-library(VennDiagram)
+#library(VennDiagram)
 #library(shinyjs)
 #library(shinydashboard)
 #library(hash)

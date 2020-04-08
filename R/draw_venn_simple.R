@@ -5,6 +5,7 @@
 #' @param main title, typically a p-value.
 #' @importFrom VennDiagram venn.diagram
 #' @importFrom grid grid.newpage grid.draw
+#' @importFrom futile.logger flog.threshold ERROR
 #' @export
 
 
