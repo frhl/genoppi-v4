@@ -675,7 +675,7 @@ shinyServer(function(input, output, session){
     req(a_pulldown_significant())
     freq = a_pathway_mapping_values()$Freq
     fmax = ifelse(is.null(freq), 1, max(freq))
-    fmin = ifelse(is.null(freq), 1, min(freq))
+    fmin = ifelse(is.null(freq), 1, a_pathway_mapping_freq_lowest_allowed()) #ifelse(is.null(freq), 1, min(freq)) 
     sliderInput("a_pathway_mapping_freq_slider", "Subset by frequency",
                 min = fmin, max = fmax, value = c(fmin, fmax), step = 1)
   })
@@ -2877,7 +2877,8 @@ shinyServer(function(input, output, session){
     # assign color scheme
     colors = as.data.frame(overlap[,c('pathway','Freq')])
     colors = colors[!duplicated(colors), ]
-    colors$color = ifelse(colors$Freq <= 5, 'grey', NA)
+    colors$color = NA
+    #colors$color = ifelse(colors$Freq <= 1, 'grey', NA)
     colors$color[is.na(colors$color)] <- color_distinct()[1:sum(is.na(colors$color))]
     # merge with overlap
     overlap = merge(overlap, colors[,c('pathway','color')], by = 'pathway')
@@ -2888,6 +2889,26 @@ shinyServer(function(input, output, session){
   a_pathway_mapping_values <- reactive({
     req(a_pathway_mapping_initial())
     return(unique(a_pathway_mapping_initial()))
+  })
+  
+  # calculate how many times a certain pathway appears
+  a_pathway_mapping_freq_revcumsum <- reactive({
+    req(a_pathway_mapping_initial())
+    overlay = a_pathway_mapping_initial()
+    counts = data.frame(pathway=overlay$pathway, Freq=overlay$Freq)
+    counts = counts[!duplicated(counts),]
+    revcumsum = cumsum(rev(table(counts$Freq)))
+    return(revcumsum)
+  })
+  
+  # calculate the lowest allowed frequency of pathway
+  # that may appear in the plot
+  a_pathway_mapping_freq_lowest_allowed <- reactive({
+    req(a_pathway_mapping_freq_revcumsum())
+    revcumsum = a_pathway_mapping_freq_revcumsum()
+    lowest_allowed_freq = as.numeric(names(revcumsum[revcumsum > 100])[1])
+    if (is.na(lowest_allowed_freq)) lowest_allowed_freq <- min(as.numeric(names(revcumsum)))
+    return(lowest_allowed_freq)
   })
   
   # make data table
@@ -2916,10 +2937,18 @@ shinyServer(function(input, output, session){
     } else {NULL}
   })
   
+  
   # reactive for subsetting my frequency
   a_pathway_mapping_subset <- reactive({
     req(a_pathway_mapping())
+    
+    # subset data by lowest allowed frequency
+    lowest_allowed_freq = a_pathway_mapping_freq_lowest_allowed()
+    print(lowest_allowed_freq)
     overlay = a_pathway_mapping()
+    #if ('ALONSO_METASTASIS_DN' %in% overlay$pathway) browser()
+    overlay = overlay[overlay$Freq >= lowest_allowed_freq,]
+    # subset data further by user defined threshold
     overlay = overlay[overlay$Freq >= input$a_pathway_mapping_freq_slider[1] & 
                         overlay$Freq <= input$a_pathway_mapping_freq_slider[2], ]
     return(overlay)
