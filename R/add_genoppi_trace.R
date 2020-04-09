@@ -15,11 +15,11 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
   y = parameters$y
   volcano = parameters$volcano
   global_colors = parameters$global_colors
+  global_symbols = parameters$global_symbol
   
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
-  
-  
+
   # add trace
   p1 <- add_trace(p, data = data, 
                   type = 'scatter',
@@ -28,17 +28,17 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                   y = yf(data[[y]]), 
                   color = ~dataset, 
                   colors = global_colors,
+                  symbol = ~dataset, 
+                  symbols = global_symbols,
                   key = ~gene,
                   name = ~dataset,
                   text = ~gene,
                   opacity = 0.9,
-                  symbol = data$symbol,
                   marker = list(cmin = 0,
                                 cmax = 1, 
                                 line = list(width=stroke_width, color = "black"), 
                                 size = data$size,
-                                opacity = data$opacity,
-                                symbol = data$symbol), # note that the order matters!
+                                opacity = data$opacity),
                   hoverinfo = "text", 
                   hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3),'<br>',ifelse(!is.na(data$alt_label), alt_label, dataset), sep = "<br>")),
                   textposition = ~ifelse(logFC>0,"top right","top left"),

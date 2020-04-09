@@ -292,7 +292,6 @@ shinyServer(function(input, output, session){
     checkboxInput("a_label_inweb", label = "Toggle labels", value = TRUE)
   })
   
-  
   # intgrated plot, gwas catalogue
   output$a_color_gwas_cat_sig_ui <- renderUI({
     validate(need(input$a_file_pulldown_r != '', ""))

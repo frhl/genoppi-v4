@@ -1,10 +1,13 @@
 #' @title Make ggplot interactive using plotly
 #' @description Takes a ggplot and turns it into 
 #' an interactive plot.
+#' 
 #' @param x string. The x-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param y string. The y-column to be used from \code{p$data} and \code{p$overlay}.
 #' @param volcano boolean. If True, will convert y-axis to \code{y=-log10(y)}.
 #' @param legend boolean. Show legend for significant interactors?
+#' 
+#' @family interactivity
 #' @importFrom plotly add_markers add_annotations plot_ly plotly
 #' @export
 
@@ -35,7 +38,9 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
   data$symbol <- as.character(data$symbol)
   overlay$symbol <- as.character(overlay$symbol)
   
-  global_colors = get_global_colors(data, overlay) 
+  #if (length(unique(overlay$dataset)) > 3) browser() 
+  global_colors = set_names_by_dataset(data, overlay) 
+  global_symbol = set_names_by_dataset(data, overlay, 'symbol') 
   params = environment()
   
   # add basic plot
@@ -53,6 +58,7 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
   
   # add annotations
   if (nrow(overlay) > 0 & any(overlay$label)){
+    
     overlay_label = overlay[overlay$label, ]
     p1 <- add_annotations(p1,
                           x = overlay_label[[x]],
@@ -91,30 +97,4 @@ combine_dataset_and_significance <- function(data, sig_text = '(enriched)', insi
 }
 
 
-#' @title get global colors
-#' @description the colors supplied to plotly must be in a global colors
-#' scheme with appropiate names (similar to a dict). This function generated
-#' this mapping, so that the color scheme can be correctly plotted.
-#' @param data a data.frame object.
-#' @param overlay a data.frame object.
-#' @export
-get_global_colors <- function(data, overlay){
-  
-  # check
-  stopifnot(all(c('color', 'dataset') %in% colnames(data)))
-  stopifnot(all(c('color', 'dataset') %in% colnames(overlay)))
-  
-  # get pairs of colors
-  tabl_data = data[,c('dataset','color')]
-  tabl_data = as.data.frame(tabl_data[!duplicated(tabl_data),])
-  tabl_overlay = overlay[,c('dataset','color')]
-  tabl_overlay = as.data.frame(tabl_overlay[!duplicated(tabl_overlay),])
-  tabl = rbind(tabl_data, tabl_overlay)
-  
-  # set colors
-  global_colors <- setNames(tabl$color, tabl$dataset)
-  
-  return(global_colors)
-  
-}
 
