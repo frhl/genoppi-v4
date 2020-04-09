@@ -15,8 +15,8 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
   y = parameters$y
   volcano = parameters$volcano
   global_colors = parameters$global_colors
-  global_symbols = parameters$global_symbol
-  
+  global_symbols = parameters$global_symbols
+
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
 

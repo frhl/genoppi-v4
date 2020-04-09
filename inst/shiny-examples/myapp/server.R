@@ -2906,8 +2906,8 @@ shinyServer(function(input, output, session){
   a_pathway_mapping_freq_lowest_allowed <- reactive({
     req(a_pathway_mapping_freq_revcumsum())
     revcumsum = a_pathway_mapping_freq_revcumsum()
-    lowest_allowed_freq = as.numeric(names(revcumsum[revcumsum > 100])[1])
-    if (is.na(lowest_allowed_freq)) lowest_allowed_freq <- min(as.numeric(names(revcumsum)))
+    lowest_allowed_freq = as.numeric(names(rev(revcumsum[revcumsum < 100]))[1])
+    #if (is.na(lowest_allowed_freq)) lowest_allowed_freq <- min(as.numeric(names(revcumsum)))
     return(lowest_allowed_freq)
   })
   
