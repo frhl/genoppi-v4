@@ -26,3 +26,8 @@ make_interactive(
 Takes a ggplot and turns it into 
 an interactive plot.
 }
+\seealso{
+Other interactivity: 
+\code{\link{set_names_by_dataset}()}
+}
+\concept{interactivity}
