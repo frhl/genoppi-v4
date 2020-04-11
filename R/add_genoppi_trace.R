@@ -8,7 +8,7 @@
 #' @importFrom plotly add_trace
 #' @export
 
-add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = F, legend_group = NULL){
+add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = F, legend_group = ''){
   
   # pass previous environment to function
   x = parameters$x
@@ -20,7 +20,15 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
 
-  # add trace
+  #
+  #if ('InWeb (enriched)' %in% data$dataset) browser()
+  
+  # set legend order in trace
+  if (!any(is.na(data$legend_order))) data$dataset = factor(data$dataset, levels = unique(data$dataset[data$legend_order]))
+  
+  #if (!volcano) browser()
+  
+  # make trace
   p1 <- add_trace(p, data = data, 
                   type = 'scatter',
                   mode = 'markers',
@@ -30,6 +38,8 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                   colors = global_colors,
                   symbol = ~dataset, 
                   symbols = global_symbols,
+                  #size = ~size,
+                  sort = F,
                   key = ~gene,
                   name = ~dataset,
                   text = ~gene,
@@ -42,6 +52,7 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                   hoverinfo = "text", 
                   hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3),'<br>',ifelse(!is.na(data$alt_label), alt_label, dataset), sep = "<br>")),
                   textposition = ~ifelse(logFC>0,"top right","top left"),
+                  labels = ~gene,
                   legendgroup = legend_group,
                   showlegend = legend)
   

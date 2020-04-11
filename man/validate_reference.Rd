@@ -7,7 +7,7 @@
 validate_reference(
   df,
   valid = c("gene", "col_significant", "col_other", "shape", "dataset", "stroke",
-    "alt_label", "label", "size", "symbol", "pLI", "opacity", "size")
+    "alt_label", "label", "size", "symbol", "pLI", "opacity", "size", "legend_order")
 )
 }
 \arguments{

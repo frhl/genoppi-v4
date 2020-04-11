@@ -10,7 +10,7 @@ add_genoppi_trace(
   parameters,
   stroke_width = 0.2,
   legend = F,
-  legend_group = NULL
+  legend_group = ""
 )
 }
 \arguments{

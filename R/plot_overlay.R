@@ -39,7 +39,7 @@ plot_overlay <- function(p, reference, x=NULL, y=NULL, point_expansion = 1.05){
   
   # convert list to data.frame
   reference = validate_reference(list_to_df(reference))
-  mymerge = merge(p$data[,unique(c('gene', 'logFC', 'pvalue','FDR','significant', x, y))], reference, by = 'gene')
+  mymerge = merge(p$data[,unique(c('gene', 'logFC', 'pvalue','FDR','significant', x, y))], reference, by = 'gene') 
   
   # function for mapping -log10 when volcano = T
   yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
@@ -111,6 +111,7 @@ list_to_df <- function(lst){
     if ('symbol' %nin% cnames) df$symbol <- 'circle' # plotly specific
     if ('opacity' %nin% cnames) df$opacity <- 1
     if ('size' %nin% cnames) df$size <- 9
+    if ('legend_order' %nin% cnames) df$legend_order <- NA #df$legend_order <- 1:nrow(df)
 
     return(df)
   })
@@ -130,7 +131,7 @@ list_to_df <- function(lst){
 validate_reference <- function(df, valid = c('gene','col_significant','col_other',
                                              'shape','dataset','stroke','alt_label',
                                             'label','size', 'symbol','pLI', 'opacity', 
-                                            'size')){
+                                            'size', 'legend_order')){
   
   bool = colnames(df) %in% valid
   cols = colnames(df)[!bool]

@@ -34,20 +34,13 @@ make_interactive <- function(p, x=NULL, y=NULL, source = NULL, legend = T, sig_t
                          as.character(overlay$col_significant), 
                          as.character(overlay$col_other))
   
-  # rework this..
-  data$symbol <- as.character(data$symbol)
-  overlay$symbol <- as.character(overlay$symbol)
-  
   # get the global symbol and color mapping and save in local environemnt
   global_colors = set_names_by_dataset(data, overlay, marker = 'color') 
   global_symbols = set_names_by_dataset(data, overlay, marker= 'symbol') 
   params = environment()
   
-  #print(global_symbols)
-  #if (length(global_symbols) > 3) browser()
-  
   # add basic plot
-  p1 = plot_ly(source = source) %>% 
+  p1 = plot_ly(source = source, sort = F) %>% 
     add_genoppi_trace(data[data$gene %nin% overlay$gene,], params)
   
   # add overlay
