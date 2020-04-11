@@ -18,9 +18,10 @@ to_overlay_data <- function(df, dataset=NULL) {
   if ('col_other' %nin% cnames) df$col_other <- 'grey'
   if ('alt_label' %nin% cnames) df$alt_label <- NA
   if ('pLI' %nin% cnames) df$pLI <- NA
-  if ('shape' %nin% cnames) df$shape <- 1 
+  if ('shape' %nin% cnames) df$shape <- 21
   if ('symbol' %nin% cnames) df$symbol <- 'circle'
   if ('opacity' %nin% cnames) df$opacity <- 1
+  if ('gg.size' %nin% cnames) df$gg.size <- 3.5
   if ('size' %nin% cnames) df$size <- 9
   if ('legend_order' %nin% cnames) df$legend_order <- NA 
   return(as.data.frame(df))

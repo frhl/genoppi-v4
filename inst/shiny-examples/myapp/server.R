@@ -104,7 +104,7 @@ shinyServer(function(input, output, session){
   
   # track significance threshols for FDR and P-value
   monitor_significance_thresholds <- reactive({
-    sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', '<i>P</>-value')
+    sig_type = ifelse(input$a_significance_type == 'fdr', 'FDR', '<i>P</i>-value')
     sig_value = ifelse(sig_type == 'FDR', input$a_fdr_thresh, input$a_pval_thresh)
     fc_sign = ifelse(input$a_logfc_direction, '<', '≥')
     region_le <- c(paste0(sig_type,"≤", sig_value))
@@ -792,6 +792,7 @@ shinyServer(function(input, output, session){
     }
   )
   
+  
   # show/hide data download buttons
   observeEvent(input$a_file_pulldown_r, {toggle(id="a_mttest_mapping_download", condition=!is.null(input$a_file_pulldown_r))})
   observeEvent(input$a_bait_rep, {toggle(id="a_inweb_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
@@ -844,11 +845,11 @@ shinyServer(function(input, output, session){
   # plot below venn diagram inweb
   a_inweb_venn_verbatim <- reactive({
     req(a_pulldown_significant(), a_inweb_calc_hyper(), input$a_bait_rep)
-    tresholds = paste(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
+    thresholds = paste(monitor_significance_thresholds()$sig, monitor_logfc_threshold()$sig, sep =', ')
     hyper = a_inweb_calc_hyper()
-    A <- HTML(paste0("A = pull down subsetted by ", tresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;"))
-    B <- HTML(paste0("B = ", bold(input$a_bait_rep)," InWeb interactors", " &#40;", bold(hyper$statistics$sample_count), "&#41;"))
-    total <- HTML(paste0("Total population = pull down &cap; InWeb &#40;", bold(hyper$statistics$population_count), "&#41;"))
+    A <- paste0("A = pull down subsetted by ", thresholds, " &#40;", bold(hyper$statistics$success_count), "&#41;")
+    B <- paste0("B = ", bold(input$a_bait_rep)," InWeb interactors", " &#40;", bold(hyper$statistics$sample_count), "&#41;")
+    total <- paste0("Total population = pull down &cap; InWeb &#40;", bold(hyper$statistics$population_count), "&#41;")
     return(list(A=A, B=B, total=total))
   })
   
@@ -1435,7 +1436,6 @@ shinyServer(function(input, output, session){
     # see github issues for more details. In the future, this should be a reactive.
     p$overlay$legend_order = unlist(ifelse(input$a_pathway_mapping_type_sort == 'freq',
                                     list(rev(order(p$overlay$size))), list(order(p$overlay$dataset))))
-
 
     p <- make_interactive(p, legend = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)

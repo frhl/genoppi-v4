@@ -34,7 +34,11 @@ plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey
     theme(panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank(),
           panel.background = element_blank())
+  
   p$visual = list(volcano=T, x='logFC', y='pvalue')
+  #p$genoppi <- list(mapping = list(x='logFC', y='pvalue', volcano=TRUE))
+  
+  
   
   return(p)
 }

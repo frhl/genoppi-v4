@@ -1,5 +1,6 @@
 #' @title Perform moderated t-test
 #' @description Use moderated t-test implemented in limma package to calculate logFC, pvalue, and FDR.
+#' See \code{?limma::lmFit} and \code{?limma::eBayes} for more details.
 #' @param df data.frame containing gene and rep (replicate logFC)  columns
 #' @return data.frame containing containing df + logFC, pvalue, and FDR; sorted by decreasing logFC
 #' @importFrom limma topTable eBayes lmFit

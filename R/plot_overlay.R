@@ -150,50 +150,26 @@ validate_reference <- function(df, valid = c('gene','col_significant','col_other
 #' @description work in progress
 #' @keywords internal
 
-gg_overlay <- function(p, reference) {
-  
-  catf('deprecated.. work in progress.')
+plot_overlay_new <- function(p, reference) {
   
   # check for allowed input
-  if (is.null(p$visual)) stop('expected p$visual Found NULL. See ?gg_overlay for more info.')
-  if (is.null(p$data)) stop('expected p$data. Found NULL.')
-  if (is.ggplot(p)) stop('expected a ggplot object for gg_overlay input!')
-  
-  # set inherited parameters
-  volcano = p$visual$volcano
-  y = p$visual$y
-  x = p$visual$x
-  data = p$data
-  data[[y]] = ifelse(!volcano, data[[y]], -log10(data[[y]]))
+  if (!inherits(reference, "list")) stop('argumnt reference must be a namd list.')
   
   # convert reference to a single data.frame and omit non informative columns
-  if (is.data.frame(reference)) reference <- list(reference)
   overlay = do.call(rbind, lapply(reference, to_overlay_data))
-  if (is.na(overlay$dataset)) overlay$dataset = rownames(overlay)
+  overlay$dataset = rownames(overlay)
+  overlay =  merge(p$plot_env$df, overlay, by = 'gene')
   
-  # merge overlay and data
-  overlay =  merge(data[,unique(c('gene', 'logFC', 'pvalue','FDR','significant', x, y))], overlay, by = 'gene')
+  # make plot
+  p1 = p + geom_point(data = overlay, 
+                 mapping = aes_string(p$mapping$x, p$mapping$y),
+                 fill = ifelse(overlay$significant, levels(overlay$col_significant), levels(overlay$col_other)),
+                 size = overlay$gg.size,
+                 shape = overlay$shape,
+                 stroke = 0.75)
   
-  # set plotting parameters
-  overlay$color = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other))
-  
-  #p + geom_point(overlay, mapping=aes_string(x, y))
-  
-  
-  
-  # add points without stroke
-  #p1 = p + geom_point(overlay, 
-  #             mapping=aes_(x=overlay[[x]], y=yf(overlay[[y]])), 
-  #             size=ifelse('size' %in% colnames(overlay), overlay$size, ),
-  #             color=
-  
-  # add stroke
-  #p1 = p1 + geom_point(overlay[overlay$stroke, ],
-  #             mapping=aes_(x=overlay[[x]], y=yf(overlay[[y]])),
-  #             size=ifelse('size' %in% colnames(overlay), overlay$size, p$plot_env$size_point*1.05),
-  #             color = 'black',
-  #             shape = 1)
-  
-  
+  # make running list of overlay
+  if (!is.null(p1$overlay)) {p1$overlay = rbind(p1$overlay, overlay)} else {p1$overlay = overlay}
+  return(p1)
   
 }
