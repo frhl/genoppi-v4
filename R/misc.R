@@ -45,6 +45,7 @@ as.bait <- function(bait) return(list(bait=data.frame(gene=bait, col_significant
 #' @title color gradient
 #' @description makes a function for getting gradient colors
 #' @param x vector of values
+#' @family misc
 #' @export
 #' @source stackoverflow snippet
 color_gradient <- function(x, colors=c("green", 'red'), colsteps=100) {
@@ -54,6 +55,7 @@ color_gradient <- function(x, colors=c("green", 'red'), colsteps=100) {
 #' @title distinct coloring
 #' @description generates vector of 74 distinct colors from RColorBrewer.
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
+#' @family misc
 #' @export
 color_distinct <- function(){
   palette = brewer.pal.info[brewer.pal.info$category == 'qual',]

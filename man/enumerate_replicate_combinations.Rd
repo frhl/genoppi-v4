@@ -18,6 +18,8 @@ Other misc:
 \code{\link{as.bait}()},
 \code{\link{bold}()},
 \code{\link{catf}()},
+\code{\link{color_distinct}()},
+\code{\link{color_gradient}()},
 \code{\link{italics}()},
 \code{\link{lun}()},
 \code{\link{null_omit}()}

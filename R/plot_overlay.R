@@ -26,6 +26,7 @@
 #' p2
 #' }
 
+
 plot_overlay <- function(p, reference, x=NULL, y=NULL, point_expansion = 1.05){
   
   # check data of p format of reference
@@ -48,10 +49,10 @@ plot_overlay <- function(p, reference, x=NULL, y=NULL, point_expansion = 1.05){
   p1 = p + 
     # add points without stroke
     geom_point(mymerge, 
-                mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])), 
-                size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
-                #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
-                color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
+               mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])), 
+               size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
+               #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
+               color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
     
     # add stroke
     geom_point(mymerge[mymerge$stroke, ],
@@ -76,7 +77,7 @@ plot_overlay <- function(p, reference, x=NULL, y=NULL, point_expansion = 1.05){
   if (!is.null(p1$overlay)) {p1$overlay = rbind(p1$overlay, mymerge)} else {p1$overlay = mymerge}
   
   return(p1)
-
+  
   
 }
 
@@ -112,11 +113,13 @@ list_to_df <- function(lst){
     if ('opacity' %nin% cnames) df$opacity <- 1
     if ('size' %nin% cnames) df$size <- 9
     if ('legend_order' %nin% cnames) df$legend_order <- NA #df$legend_order <- 1:nrow(df)
-
+    
     return(df)
   })
   return(as.data.frame(do.call(rbind, tmp_lst)))
 }
+
+
 
 
 
@@ -143,4 +146,54 @@ validate_reference <- function(df, valid = c('gene','col_significant','col_other
 
 
 
+#' @title gg_overlay
+#' @description work in progress
+#' @keywords internal
 
+gg_overlay <- function(p, reference) {
+  
+  catf('deprecated.. work in progress.')
+  
+  # check for allowed input
+  if (is.null(p$visual)) stop('expected p$visual Found NULL. See ?gg_overlay for more info.')
+  if (is.null(p$data)) stop('expected p$data. Found NULL.')
+  if (is.ggplot(p)) stop('expected a ggplot object for gg_overlay input!')
+  
+  # set inherited parameters
+  volcano = p$visual$volcano
+  y = p$visual$y
+  x = p$visual$x
+  data = p$data
+  data[[y]] = ifelse(!volcano, data[[y]], -log10(data[[y]]))
+  
+  # convert reference to a single data.frame and omit non informative columns
+  if (is.data.frame(reference)) reference <- list(reference)
+  overlay = do.call(rbind, lapply(reference, to_overlay_data))
+  if (is.na(overlay$dataset)) overlay$dataset = rownames(overlay)
+  
+  # merge overlay and data
+  overlay =  merge(data[,unique(c('gene', 'logFC', 'pvalue','FDR','significant', x, y))], overlay, by = 'gene')
+  
+  # set plotting parameters
+  overlay$color = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other))
+  
+  #p + geom_point(overlay, mapping=aes_string(x, y))
+  
+  
+  
+  # add points without stroke
+  #p1 = p + geom_point(overlay, 
+  #             mapping=aes_(x=overlay[[x]], y=yf(overlay[[y]])), 
+  #             size=ifelse('size' %in% colnames(overlay), overlay$size, ),
+  #             color=
+  
+  # add stroke
+  #p1 = p1 + geom_point(overlay[overlay$stroke, ],
+  #             mapping=aes_(x=overlay[[x]], y=yf(overlay[[y]])),
+  #             size=ifelse('size' %in% colnames(overlay), overlay$size, p$plot_env$size_point*1.05),
+  #             color = 'black',
+  #             shape = 1)
+  
+  
+  
+}

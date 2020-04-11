@@ -19,6 +19,8 @@ Other misc:
 \code{\link{\%nin\%}()},
 \code{\link{as.bait}()},
 \code{\link{bold}()},
+\code{\link{color_distinct}()},
+\code{\link{color_gradient}()},
 \code{\link{enumerate_replicate_combinations}()},
 \code{\link{italics}()},
 \code{\link{lun}()},

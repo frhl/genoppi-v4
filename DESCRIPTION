@@ -64,6 +64,7 @@ Collate:
     'launch_genoppi.R'
     'misc.R'
     'theme_genoppi.R'
+    'to_overlay_data.R'
     'calculate_logfc.R'
     'read_input.R'
     'set_names_by_dataset.R'

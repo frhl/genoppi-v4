@@ -15,3 +15,16 @@ color_gradient(x, colors = c("green", "red"), colsteps = 100)
 \description{
 makes a function for getting gradient colors
 }
+\seealso{
+Other misc: 
+\code{\link{\%nin\%}()},
+\code{\link{as.bait}()},
+\code{\link{bold}()},
+\code{\link{catf}()},
+\code{\link{color_distinct}()},
+\code{\link{enumerate_replicate_combinations}()},
+\code{\link{italics}()},
+\code{\link{lun}()},
+\code{\link{null_omit}()}
+}
+\concept{misc}
