@@ -559,6 +559,7 @@ shinyServer(function(input, output, session){
       allowed = unlist(format$allowed[unlist(format$check)])
       allowed_cols = lapply(allowed, function(x) grepl(x, colnames(pulldown)))
       allowed_vec = apply(do.call(rbind, allowed_cols), 2, any)
+      allowed_vec = allowed_vec | 'gene' %in% colnames(pulldown)
       
       # ensure moderated t.test is only calculated on allowed columns
       pulldown = pulldown[,colnames(pulldown)[allowed_vec], with = FALSE]
