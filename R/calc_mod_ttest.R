@@ -7,7 +7,10 @@
 #' @export
 
 calc_mod_ttest <- function(df){
- 
+  
+  # check input
+  stopifnot(nrow(df) > 0)
+  
   # moderated t-test
   myfit <- limma::lmFit(subset(df, select=-c(gene)), method="robust")
   myfit <- limma::eBayes(myfit)

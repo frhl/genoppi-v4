@@ -537,20 +537,43 @@ shinyServer(function(input, output, session){
   # map accession_numbers to gene ids if needed
   a_orig_pulldown <- reactive({
     pulldown <- a_in_pulldown()
-    if (pulldown$format$accession_rep == TRUE){
+    if (pulldown$format$check$accession_rep == TRUE){
       pulldown$data <- map_gene_id(pulldown$data)} # this may also be in another namespace. check!
     pulldown$data$gene = toupper(pulldown$data$gene)
     return(pulldown$data)
   })  
   
+  
   # final pulldown formatted data.frame
   a_pulldown <- reactive({
+    
     pulldown <- a_orig_pulldown()
     format <- a_in_pulldown()$format
-    if (format$gene_rep | format$accession_rep){
-      result = calc_mod_ttest(pulldown) }
-    #result$all_gene_names <- result$gene
-    return(result)
+    
+    # moderated t.test still needed
+    if (format$check$gene_rep | format$check$accession_rep){
+      
+      # set allowed column names
+      allowed = unlist(format$allowed[unlist(format$check)])
+      allowed_cols = lapply(allowed, function(x) grepl(x, colnames(pulldown)))
+      allowed_vec = apply(do.call(rbind, allowed_cols), 2, any)
+      
+      # ensure moderated t.test is only calculated on allowed columns
+      pulldown = pulldown[,colnames(pulldown)[allowed_vec], with = FALSE]
+      result = calc_mod_ttest(pulldown) 
+      return(result)
+    }
+    
+    # pvalue, fdr is supplied from user
+    else if (format$check$gene_signif | format$check$accession_signif){
+      result = pulldown
+      return(result)
+    
+    # no valid columns found. 
+    } else {
+      stop('no valid columns were inputted. See supplementary protocol for addtional details.')
+    }
+
   })
   
   # id the enriched proteins
@@ -567,16 +590,34 @@ shinyServer(function(input, output, session){
   })
   
   
-  #a_snp_vennd <- reactive({
-  #  snp <- input$a_file_SNP_vennd
-  #  if(is.null(snp)){
-  #    return(NULL)
-  #  } else{
-  #    df <- read.csv(snp$datapath, header = FALSE)
-  #    df
-  #  }
-  #})
+  # monitor pulldown input, mapping and input
+  a_monitor_pulldown <- reactive({
+    
+    # monitor of some columns were discarded
+    pulldown <- a_in_pulldown()
+    allowed = unlist(pulldown$format$allowed[unlist(pulldown$format$check)])
+    allowed_cols = lapply(allowed, function(x) grepl(x, colnames(pulldown$data)))
+    allowed_vec = apply(do.call(rbind, allowed_cols), 2, any)
+    
+    # return to user
+    accepted = colnames(pulldown$data)[allowed_vec]
+    discarded = colnames(pulldown$data)[!allowed_vec]
+    
+    if (length(accepted) != length(allowed_vec)){
+      msg1 = paste0(bold('Warning'),': only ', length(accepted),'/',length(allowed_vec),' input column names were accepted.')
+      msg2 = paste0('The following column names were invalid and discarded: ', italics(paste0(discarded, collapse = ', ')),'.')
+      msg3 = paste0('See supplementary protocol for a description of allowed data inputs.')
+      return(HTML(paste(msg1, msg2, msg3)))
+    } else return(NULL)
+
+    # monitor how manny genes were mapped correcly
+    #
+    # tbd
+    #
+    
+  })
   
+ 
   # function for handling uploaded genes
   a_genes_upload <- reactive({
     filepath = input$a_file_genes_rep$datapath
@@ -1492,6 +1533,11 @@ shinyServer(function(input, output, session){
     validate(need(input$a_file_pulldown_r != '', " "))
     output <- a_vp_count_text()
     HTML(output)
+  })
+  
+  output$a_monitor_pulldown_ui <- renderUI({
+    req(a_monitor_pulldown())
+    return(a_monitor_pulldown())
   })
   
   output$ScatterPlot <- renderPlotly({
