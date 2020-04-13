@@ -10,13 +10,13 @@ to_overlay_data <- function(df, dataset=NULL) {
   cnames = colnames(df)
   # if the following columns are not specified in the reference
   # they are set to the default in this function.
-  df$dataset = dataset
-  if ('dataset' %nin% cnames) df$dataset <- NA
+  if ('dataset' %nin% cnames) df$dataset = dataset
   if ('label' %nin% cnames) df$label <- TRUE
   if ('stroke' %nin% cnames) df$stroke <- TRUE
   if ('col_significant' %nin% cnames) df$col_significant <- 'yellow'
   if ('col_other' %nin% cnames) df$col_other <- 'grey'
   if ('alt_label' %nin% cnames) df$alt_label <- NA
+  if ('label_size' %nin% cnames) df$label_size = 3
   if ('pLI' %nin% cnames) df$pLI <- NA
   if ('shape' %nin% cnames) df$shape <- 21
   if ('symbol' %nin% cnames) df$symbol <- 'circle'

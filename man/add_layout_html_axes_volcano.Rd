@@ -12,7 +12,7 @@ add_layout_html_axes_volcano(
 )
 }
 \arguments{
-\item{p}{a ggplot}
+\item{p}{a plotly object.}
 }
 \description{
 Format axes.

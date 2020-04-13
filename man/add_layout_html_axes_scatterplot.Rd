@@ -4,16 +4,10 @@
 \alias{add_layout_html_axes_scatterplot}
 \title{layout for scatterplot}
 \usage{
-add_layout_html_axes_scatterplot(
-  p,
-  repA,
-  repB,
-  title = "",
-  legend_title = bold("Overlay")
-)
+add_layout_html_axes_scatterplot(p, title = "", legend_title = bold("Overlay"))
 }
 \arguments{
-\item{p}{a ggplot}
+\item{p}{a plotly object.}
 }
 \description{
 format axes.

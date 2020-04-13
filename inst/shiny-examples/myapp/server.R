@@ -338,7 +338,7 @@ shinyServer(function(input, output, session){
     reps = sum(grepl('^rep[0-9]+$',colnames(d)))
     if (reps > 2){
       enum = enumerate_replicate_combinations(reps)
-      enum = apply(enum3, 2, function(x) paste0('rep', x))
+      enum = apply(enum, 2, function(x) paste0('rep', x))
       return(paste0(enum[,1],'.',enum[,2]))
     } else {return('rep1.rep2')}
   })
@@ -1175,7 +1175,7 @@ shinyServer(function(input, output, session){
   a_vp_layerx <- reactive({
     p <- a_vp_gg()
     p <- make_interactive(p, legend = T)
-    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
+    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene())
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
     p <- add_layout_html_axes_volcano(p, 500*0.8, 625*0.8)
     return(p)
@@ -1214,7 +1214,7 @@ shinyServer(function(input, output, session){
 
     # handle individual plot
     p1 = p[[input$a_select_scatterplot]]$ggplot
-    p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep), x=rep[1], y=rep[2])
+    p1 = plot_overlay(p1, as.bait(input$a_bait_search_rep))
     p1$r = format(p[[input$a_select_scatterplot]]$correlation, digits = 3)
     p1
 
@@ -1224,14 +1224,14 @@ shinyServer(function(input, output, session){
     
     # get basic stats
     p1 = a_sp_gg()
-    rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
+    #rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))
     r = p1$r
     
     # convert into interactive graphics
-    p1 = make_interactive(p1, x=rep[1], y=rep[2])
-    if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene(), x=rep[1], y=rep[2])
-    p1 = add_layout_html_axes_scatterplot(p1, rep[1], rep[2], paste0('r=',r))
-    p1 = add_line_unity(p1, x=rep[1], y=rep[2])
+    p1 = make_interactive(p1)
+    if (input$a_goi_search_rep != '') p1 <- add_markers_search(p1, a_search_gene())
+    p1 = add_layout_html_axes_scatterplot(p1, paste0('r=',r))
+    p1 = add_line_unity(p1)
     #p1 = add_line_lm(p1, x=rep[1], y=rep[2])
     
   })
@@ -1259,7 +1259,7 @@ shinyServer(function(input, output, session){
     p <- a_integrated_plot_gg()
     p <- make_interactive(p, source = "Multi_VolcanoPlot", legend = T, sig_text = sig_label)
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction,  sig_type = input$a_significance_type)
-    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
+    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene())
     p <- add_layout_html_axes_volcano(p, 550, 650) # error in searching overlay here when layout width/height supplied. 
     p
   })
@@ -1335,6 +1335,7 @@ shinyServer(function(input, output, session){
   # reactive to reduce overhead time
   a_pathway_mapping_initial <- reactive({
     req(a_pulldown_significant(), a_pathway_mapping_assign_freq())
+    
     
     #  # get raw data and assign frequency count
     overlap <- a_pathway_mapping_assign_freq()
@@ -1438,8 +1439,8 @@ shinyServer(function(input, output, session){
                                     list(rev(order(p$overlay$size))), list(order(p$overlay$dataset))))
 
     p <- make_interactive(p, legend = T)
-    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene(), volcano = T)
-    if (!is.null(input$a_pathway_mapping_search)) p <- add_markers_search_pathway(p, input$a_pathway_mapping_search, mapping = a_pathway_mapping_initial(),volcano = T)
+    if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene())
+    if (!is.null(input$a_pathway_mapping_search)) p <- add_markers_search_pathway(p, input$a_pathway_mapping_search, mapping = a_pathway_mapping_initial())
     p <- add_hover_lines_volcano(p, line_pvalue = input$a_pval_thresh, line_logfc = input$a_logFC_thresh, logfc_direction = input$a_logfc_direction, sig_type = input$a_significance_type)
     p <- add_layout_html_axes_volcano(p, 500, 875)
     return(p)

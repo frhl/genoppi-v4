@@ -4,7 +4,7 @@
 \alias{add_markers_search}
 \title{search volcano plots}
 \usage{
-add_markers_search(p, genes, x = "logFC", y = "pvalue", volcano = F)
+add_markers_search(p, genes)
 }
 \arguments{
 \item{p}{a ggplot}
@@ -12,8 +12,7 @@ add_markers_search(p, genes, x = "logFC", y = "pvalue", volcano = F)
 \item{genes}{a vector of genes}
 }
 \description{
-takes a ggplot and genelist as input 
-and searches the volcano plot.
+Adds search markers to a plot. Requires a plotly object.
 }
 \note{
 internal

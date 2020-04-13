@@ -14,14 +14,12 @@
 #' @param opacity opacity of line.
 #' @export
 
-add_line_unity <- function(p, data=NULL, x, y, color = 'black', width = 0.5, dash = 'solid', opacity = 0.5){
+add_line_unity <- function(p, data=NULL, color = 'black', width = 0.5, dash = 'solid', opacity = 0.5){
   
   if (is.null(data)) data = p$data
   stopifnot(!is.null(data))
-  stopifnot(x %in% colnames(data))
-  stopifnot(y %in% colnames(data))
-  limmin = floor(min(c(data[[x]], data[[y]])))
-  limmax = ceiling(max(c(data[[x]],data[[y]])))
+  limmin = floor(min(c(data[[quo_name(p$ggparams$mapping$x)]], data[[quo_name(p$ggparams$mapping$x)]])))
+  limmax = ceiling(max(c(data[[quo_name(p$ggparams$mapping$x)]],data[[quo_name(p$ggparams$mapping$x)]])))
   p1 = add_trace(p, x = limmin:limmax, y = limmin:limmax, 
                  type = 'scatter', 
                  mode = 'lines',

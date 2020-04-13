@@ -4,19 +4,10 @@
 \alias{add_markers_search_pathway}
 \title{search pathway plots}
 \usage{
-add_markers_search_pathway(
-  p,
-  pathways,
-  mapping = NULL,
-  x = "logFC",
-  y = "pvalue",
-  volcano = F
-)
+add_markers_search_pathway(p, pathways, mapping = NULL)
 }
 \arguments{
 \item{p}{a ggplot}
-
-\item{genes}{a vector}
 }
 \description{
 takes a ggplot and vector as input and highligts pathways in volcano.

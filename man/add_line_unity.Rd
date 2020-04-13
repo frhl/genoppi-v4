@@ -7,8 +7,6 @@
 add_line_unity(
   p,
   data = NULL,
-  x,
-  y,
   color = "black",
   width = 0.5,
   dash = "solid",
@@ -22,12 +20,6 @@ add_line_unity(
 default, the function will look for the data object within the
 plotly object.}
 
-\item{x}{x to establish limits and length of unity line. Will
-be a column in the data object.}
-
-\item{y}{y to establish limits and length of unity line. Same as
-for x.}
-
 \item{color}{color of line}
 
 \item{width}{width of line}
@@ -35,6 +27,12 @@ for x.}
 \item{dash}{dashed or solid?}
 
 \item{opacity}{opacity of line.}
+
+\item{x}{x to establish limits and length of unity line. Will
+be a column in the data object.}
+
+\item{y}{y to establish limits and length of unity line. Same as
+for x.}
 }
 \description{
 adds a unity line to plotly object

@@ -11,35 +11,25 @@
 add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = F, legend_group = ''){
   
   # pass previous environment to function
-  x = parameters$x
-  y = parameters$y
-  volcano = parameters$volcano
   global_colors = parameters$global_colors
   global_symbols = parameters$global_symbols
+  coords = parameters$ggparams
 
-  # function for mapping -log10 when volcano = T
-  yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
-
-  #
-  #if ('InWeb (enriched)' %in% data$dataset) browser()
-  
   # set legend order in trace
   if (!any(is.na(data$legend_order))) data$dataset = factor(data$dataset, levels = unique(data$dataset[data$legend_order]))
-  
-  #if (!volcano) browser()
   
   # make trace
   p1 <- add_trace(p, data = data, 
                   type = 'scatter',
                   mode = 'markers',
-                  x = data[[x]], 
-                  y = yf(data[[y]]), 
+                  x = coords$mapping$x, 
+                  y = coords$mapping$y, 
                   color = ~dataset, 
                   colors = global_colors,
                   symbol = ~dataset, 
                   symbols = global_symbols,
                   #size = ~size,
-                  sort = F,
+                  #sort = F,
                   key = ~gene,
                   name = ~dataset,
                   text = ~gene,
@@ -52,8 +42,8 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                   hoverinfo = "text", 
                   hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3),'<br>',ifelse(!is.na(data$alt_label), alt_label, dataset), sep = "<br>")),
                   textposition = ~ifelse(logFC>0,"top right","top left"),
-                  labels = ~gene,
-                  legendgroup = legend_group,
+                  #labels = ~gene,
+                  legendgroup = NULL, #legend_group,
                   showlegend = legend)
   
   return(p1)

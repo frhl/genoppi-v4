@@ -13,8 +13,10 @@
 
 plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col_signficant = "#41AB5D", col_other = 'grey'){
   
-  # no colors specified will result in standard color scheme
+  # set default parameters
   df$color = ifelse(df$significant, col_signficant, col_other)
+  if (is.null(df$dataset)) df$dataset = 'pulldown'
+  if (is.null(df$size)) df$size = 7
   
   # plot singlebasic scatter plot
   correlation = cor(df[,repA], df[,repB])
@@ -26,7 +28,7 @@ plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col
                               panel.background = element_blank())
   
   # set parameters for downstream processing
-  p$visual = list(volcano=F, x=repA, y=repB)
+  #p$visual = list(volcano=F, x=repA, y=repB)
   p$correlation = correlation
   return(p)
 }

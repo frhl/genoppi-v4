@@ -18,15 +18,19 @@
 #' 
 
 
-plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey', size_point = 3){
+plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey', gg.size = 3){
   
   # check input
   stop_invalid_columns(df,'plot_volcano_basic',c('gene','logFC', 'pvalue', 'significant'))
   
-  # map ping
+  # set default parameters
   df$color <- ifelse(df$significant, col_signficant, col_other)
+  if (is.null(df$dataset)) df$dataset = 'pulldown'
+  if (is.null(df$size)) df$size = 7
+  
+  # setup plotting  
   p <- ggplot(df, aes(x = logFC, y = -log10(pvalue))) +
-    geom_point(alpha=1, size=size_point, color=df$color, stroke = 0.6) +   
+    geom_point(alpha=1, size=gg.size, color=df$color, stroke = 0.6) +   
     geom_hline(yintercept=0, color="black") + 
     geom_vline(xintercept=0, color="black") +
     xlab(bquote(log[2]*"[fold change]")) + 
@@ -34,11 +38,6 @@ plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey
     theme(panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank(),
           panel.background = element_blank())
-  
-  p$visual = list(volcano=T, x='logFC', y='pvalue')
-  #p$genoppi <- list(mapping = list(x='logFC', y='pvalue', volcano=TRUE))
-  
-  
-  
+
   return(p)
 }

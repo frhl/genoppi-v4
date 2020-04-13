@@ -1,15 +1,19 @@
 #' @title layout for scatterplot
 #' @description format axes.
-#' @param p a ggplot
+#' @param p a plotly object.
 #' @importFrom plotly layout
 #' @family shiny
 #' @export
-add_layout_html_axes_scatterplot <- function(p, repA, repB, title='', legend_title = bold('Overlay')){
+add_layout_html_axes_scatterplot <- function(p, title='', legend_title = bold('Overlay')){
   
   toreplicate <- function(x) gsub('(R|r)ep','Replicate ', x)
   stopifnot(!is.null(p$data))
-  p <- p %>% layout(xaxis = list(title = paste(toreplicate(repA),"log<sub>2</sub>(Fold change)"), range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
-                    yaxis = list(title = paste(toreplicate(repB),"log<sub>2</sub>(Fold change)"), range=~c((min(p$data[[repA]], p$data[[repB]]))-1, (max(p$data[[repA]], p$data[[repB]]))+1)), 
+  p <- p %>% layout(xaxis = list(title = paste(toreplicate(quo_name(p$ggparams$mapping$x)),"log<sub>2</sub>(Fold change)"), 
+                                 range=~c((min(p$data[[quo_name(p$ggparams$mapping$x)]], p$data[[quo_name(p$ggparams$mapping$y)]]))-1, 
+                                          (max(p$data[[quo_name(p$ggparams$mapping$x)]], p$data[[quo_name(p$ggparams$mapping$y)]]))+1)), 
+                    yaxis = list(title = paste(toreplicate(quo_name(p$ggparams$mapping$y)),"log<sub>2</sub>(Fold change)"), 
+                                 range=~c((min(p$data[[quo_name(p$ggparams$mapping$x)]], p$data[[quo_name(p$ggparams$mapping$y)]]))-1, 
+                                          (max(p$data[[quo_name(p$ggparams$mapping$x)]], p$data[[quo_name(p$ggparams$mapping$y)]]))+1)), 
                     title = title, titlefont = list(size=15), 
                     legend=list(title=list(text=legend_title)),
                     height = 400, width = 450)
@@ -18,7 +22,7 @@ add_layout_html_axes_scatterplot <- function(p, repA, repB, title='', legend_tit
 
 #' @title layout for volcano plot.
 #' @description Format axes.
-#' @param p a ggplot
+#' @param p a plotly object.
 #' @family shiny
 #' @export
 add_layout_html_axes_volcano <- function(p, height = NULL, width = NULL, legend_title = bold('Overlay')){

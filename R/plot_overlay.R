@@ -1,172 +1,90 @@
 #' @title plot overlay
-#' @description Overlays a ggplot with a reference data set, e.g. a bait or a genelist. Can be applied iteratively.
-#' @param p a plot object returned from ggplot.
-#' @param reference a list of named data.frames.
-#' @param point_expansion percentage expansion of genelist points.
-#' @importFrom ggplot2 geom_point
+#' @description Takes a ggplot2 object and overlays points from a reference. 
+#' The function uses the mapping and plot environment from a previous ggplot to add an overlay
+#' with a matching 'reference' data.frame. This yields a new plot with items that intersect the 
+#' the original ggplot data and the reference data. Can be applied iteratively. 
+#' The user can input certain columns in the reference to gain more control over the plotting 
+#' parameters of individual points. See notes for additional details.
+#' 
+#' @note The following data.frame headers for a reference are accepted:
+#' \itemize{
+#'  \item{"gene"}{ A string tht indicates the gene name.}
+#'  \item{"label"} {A boolen that indicates whether the label should be plotted.}
+#'  \item{"label_size"}{A numeric that indicates the size of the label items.}
+#' }
+#' See ?validate_reference or additional details.
+#' 
+#' @param p A ggplot object. Usually passed down from \code{plot_volcano_basic} or \code{plot_scatter_basic}.
+#' @param reference a list of data.frames that are preferably named. The name of the list will passed down to
+#' the data.frame as the column 'dataset'. Alternatively, the dataset can have a column name dataset.
+#' @param match by what string should the ggplot and overlay be merged? Default is 'gene'.
+#' @param label A boolean. This will overwrite the \code{label} column in the reference data.frame.
+#' @param label.size numeric. Size of label. This will overwrite the \code{label.size} column in the reference data.frame.
+#' @param label.color the color of the label. Default is black.
+#' @param label.box.padding Amount of padding around bounding box. See \code{?ggrepel::geom_text_repel} 
+#' for more details.
+#' @param label.point.padding Amount of padding around label. See \code{?ggrepel::geom_text_repel}.
+#' @param label.arrowhead.size The size of the arrowhead. 0 means no arrowhead.
+#' 
+#' @return a ggplot
+#' 
+#' @examples 
+#' \dontrun{
+#' 
+#' # load experimental data (triplicates)
+#' data("BCL2vsIgG.GPiN")
+#'  
+#' # basic plotting of bait
+#' plt = BCL2vsIgG.GPiN %>% 
+#'   calc_mod_ttest() %>% 
+#'   id_enriched_proteins() %>%
+#'   plot_scatter_basic('rep1','rep3') %>% 
+#'   plot_overlay(as.bait('BCL2'))
+#'   
+#'   plt
+#'   
+#' # plotting of bait and inweb data 
+#' # but only label LARP1.
+#' inweb=get_inweb_list('BCL2')
+#' inweb$label = inweb$gene %in% 'LARP1'
+#' inweb = list(InWeb=inweb[inweb$significant, ])
+#' plt = plt %>% plot_overlay(inweb)
+#'
+#' plt
+#' 
+#' }
+#' @importFrom ggplot2 geom_point quo_name ggsave
 #' @import ggrepel
 #' @export
-#' @examples
-#' \dontrun{
-#' ## generate a random plot
-#' set.seed(3)
-#' df = data.frame(gene=letters, FDR=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
-#' p = plot_volcano(df) + labs(title='Random generated data and gglabs')
-#'
-#' ## Generate random dataset
-#' ref1= data.frame(gene=c('b'),col_significant='brown',col_other='black')
-#' ref2= data.frame(gene=c('d','e','f'),col_significant='blue',col_other='grey')
-#' reference = list(ref1, ref2)
-#' names(reference) = c('ASD genes', 'SCZ genes')
-#' 
-#' ## 
-#' p1 = plot_overlay(p, reference)
-#' p1
-#' p2 = plot_overlay(p1, list(bait=data.frame(gene='x', col_significant = 'red', col_other = 'orange')))
-#' p2
-#' }
 
-
-plot_overlay <- function(p, reference, x=NULL, y=NULL, point_expansion = 1.05){
-  
-  # check data of p format of reference
-  stopifnot(!is.null(p$data))
-  stopifnot(is.list(reference) & !is.data.frame(reference))
-  
-  # set initial paramaters depending on input
-  x = ifelse(is.null(x), p$visual$x, x)
-  y = ifelse(is.null(y), p$visual$y, y)
-  volcano = ifelse(!is.null(p$visual$volcano), p$visual$volcano, F)
-  
-  # convert list to data.frame
-  reference = validate_reference(list_to_df(reference))
-  mymerge = merge(p$data[,unique(c('gene', 'logFC', 'pvalue','FDR','significant', x, y))], reference, by = 'gene') 
-  
-  # function for mapping -log10 when volcano = T
-  yf <- function(x, v = volcano) if (v) return(-log10(x)) else return(x)
-  
-  # add the new point
-  p1 = p + 
-    # add points without stroke
-    geom_point(mymerge, 
-               mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])), 
-               size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
-               #shape = ifelse('shape' %in% colnames(mymerge), mymerge$shape, 21),
-               color=ifelse(mymerge$significant, as.character(mymerge$col_significant), as.character(mymerge$col_other))) +
-    
-    # add stroke
-    geom_point(mymerge[mymerge$stroke, ],
-               mapping=aes_(x=mymerge[[x]], y=yf(mymerge[[y]])),
-               size=ifelse('size' %in% colnames(mymerge), mymerge$size, p$plot_env$size_point*point_expansion),
-               color = 'black',
-               shape = 1)
-  
-  # annotate points
-  mymerge_labels = mymerge[mymerge$label,]
-  p1 =  p1 + geom_text_repel(mymerge_labels, 
-                             mapping=aes(label=ifelse(is.na(mymerge_labels$alt_label), 
-                                                      as.character(mymerge_labels$gene), 
-                                                      paste(as.character(mymerge_labels$gene),
-                                                            as.character(mymerge_labels$alt_label), sep = ','))), 
-                             arrow=arrow(length=unit(0.1, 'npc')),
-                             box.padding=unit(0.15, "lines"), point.padding=unit(0.2, "lines"), 
-                             size=ifelse('label_size' %in% colnames(mymerge_labels), mymerge_labels$labelsize, 3), 
-                             color="black")
-  
-  # save overlay and modify plotting data.frame
-  if (!is.null(p1$overlay)) {p1$overlay = rbind(p1$overlay, mymerge)} else {p1$overlay = mymerge}
-  
-  return(p1)
-  
-  
-}
-
-#' @title concert genoppi genelist to data.frame
-#' @description converts a named list of datasets to
-#' a single data.frame that also contains shape, label and color.
-#' @param lst a names reference list of data.frames
-#' @return a data.frame
-#' @note internal
-list_to_df <- function(lst){
-  # check input
-  if (is.null(names(lst))) stop('lists must be named!')
-  # check that the same columns are present in each data.frame
-  expected_cols = unique(unlist(lapply(lst, function(x) colnames(x))))
-  invalid_col = lapply(lst, function(x) any(expected_cols %nin% colnames(x)))
-  if (any(unlist(invalid_col))) stop('ALL data.frames in list must have SAME column names.')
-  # add columns to each data.frame
-  tmp_lst = lapply(1:length(lst), function(i) {
-    df = lst[[i]]
-    stopifnot(is.data.frame(df))
-    cnames = colnames(df)
-    
-    # expected columns
-    if ('dataset' %nin% cnames) df$dataset <- names(lst)[i]
-    if ('shape' %nin% cnames) df$shape <- 1 # ggplot2 specific
-    if ('label' %nin% cnames) df$label <- TRUE
-    if ('stroke' %nin% cnames) df$stroke <- TRUE
-    if ('col_significant' %nin% cnames) df$col_significant <- 'yellow'
-    if ('col_other' %nin% cnames) df$col_other <- 'grey'
-    if ('alt_label' %nin% cnames) df$alt_label <- NA
-    if ('pLI' %nin% cnames) df$pLI <- NA
-    if ('symbol' %nin% cnames) df$symbol <- 'circle' # plotly specific
-    if ('opacity' %nin% cnames) df$opacity <- 1
-    if ('size' %nin% cnames) df$size <- 9
-    if ('legend_order' %nin% cnames) df$legend_order <- NA #df$legend_order <- 1:nrow(df)
-    
-    return(df)
-  })
-  return(as.data.frame(do.call(rbind, tmp_lst)))
-}
-
-
-
-
-
-#' @title validate reference data.frame
-#' @description A function that checks the column names 
-#' of a data.frame to see whether they contain values
-#' that can be used by ggplot.
-#' @param df a data.frame
-#' @param valid a vector of valid ggplot options
-#' @return a data.frame
-#' @note internal
-validate_reference <- function(df, valid = c('gene','col_significant','col_other',
-                                             'shape','dataset','stroke','alt_label',
-                                            'label','size', 'symbol','pLI', 'opacity', 
-                                            'size', 'legend_order')){
-  
-  bool = colnames(df) %in% valid
-  cols = colnames(df)[!bool]
-  if (any(!bool)) warning(paste('columns:', paste(cols, collapse=', '),'from reference data.frame are not ggplot compatible and were ignored.'))
-  return(df[bool])
-}
-
-
-
-
-
-#' @title gg_overlay
-#' @description work in progress
-#' @keywords internal
-
-plot_overlay_new <- function(p, reference) {
+plot_overlay <- function(p, reference, match = 'gene', label = NULL, label.size = NULL, label.color = 'black', 
+                         label.box.padding = 0.30, label.point.padding = 0.50, label.arrowhead.size = 0.01) {
   
   # check for allowed input
   if (!inherits(reference, "list")) stop('argumnt reference must be a namd list.')
-  
+
   # convert reference to a single data.frame and omit non informative columns
-  overlay = do.call(rbind, lapply(reference, to_overlay_data))
-  overlay$dataset = rownames(overlay)
-  overlay =  merge(p$plot_env$df, overlay, by = 'gene')
+  overlay = do.call(rbind, lapply(names(reference), function(x) to_overlay_data(reference[[x]], x)))
+  plot.data = p$plot_env$df[,colnames(p$plot_env$df) %nin% c('dataset','color', 'size')]
+  overlay =  merge(plot.data, validate_reference(overlay), by = match)
   
-  # make plot
+  # add the overlay to the ggplot
   p1 = p + geom_point(data = overlay, 
-                 mapping = aes_string(p$mapping$x, p$mapping$y),
-                 fill = ifelse(overlay$significant, levels(overlay$col_significant), levels(overlay$col_other)),
+                 mapping = aes_string(x=p$mapping$x, y=p$mapping$y),
+                 fill = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other)),
                  size = overlay$gg.size,
                  shape = overlay$shape,
                  stroke = 0.75)
+  
+  # annotate plot
+  p1 = p1 + geom_text_repel(collapse_labels(overlay[unlist(ifelse(is.null(label), list(overlay$label), list(label))),]), 
+                       mapping=aes(label = gene),
+                       color=label.color,
+                       size=ifelse(is.null(label.size), overlay$label_size, label.size),
+                       arrow=arrow(length=unit(label.arrowhead.size, 'npc')),
+                       box.padding=unit(label.box.padding, "lines"),
+                       point.padding=unit(label.point.padding, "lines"))
+                  
   
   # make running list of overlay
   if (!is.null(p1$overlay)) {p1$overlay = rbind(p1$overlay, overlay)} else {p1$overlay = overlay}

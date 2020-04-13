@@ -14,4 +14,5 @@ data.frame containing containing df + logFC, pvalue, and FDR; sorted by decreasi
 }
 \description{
 Use moderated t-test implemented in limma package to calculate logFC, pvalue, and FDR.
+See \code{?limma::lmFit} and \code{?limma::eBayes} for more details.
 }
