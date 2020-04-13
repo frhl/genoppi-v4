@@ -18,6 +18,8 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
   # set legend order in trace
   if (!any(is.na(data$legend_order))) data$dataset = factor(data$dataset, levels = unique(data$dataset[data$legend_order]))
   
+  #if (any(data$size > 15)) browser()
+  
   # make trace
   p1 <- add_trace(p, data = data, 
                   type = 'scatter',
@@ -28,8 +30,7 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                   colors = global_colors,
                   symbol = ~dataset, 
                   symbols = global_symbols,
-                  #size = ~size,
-                  #sort = F,
+                  size = ~size, 
                   key = ~gene,
                   name = ~dataset,
                   text = ~gene,
@@ -37,7 +38,7 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                   marker = list(cmin = 0,
                                 cmax = 1, 
                                 line = list(width=stroke_width, color = "black"), 
-                                size = data$size,
+                                sizemode = 'diameter',
                                 opacity = data$opacity),
                   hoverinfo = "text", 
                   hovertemplate = ~paste(paste0(bold(gene), ", FDR=", signif(FDR, digits = 3),'<br>',ifelse(!is.na(data$alt_label), alt_label, dataset), sep = "<br>")),
@@ -48,3 +49,4 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
   
   return(p1)
 }
+

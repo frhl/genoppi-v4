@@ -18,17 +18,20 @@ make_interactive <- function(p, source = NULL, legend = T, sig_text = ''){
   overlay$color = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other))
     
   # get the global symbol and color mapping and save in local environemnt
+  sizes = c(min(c(p$data$size, p$overlay$size)), max(c(p$data$size, p$overlay$size)))
   global_colors = set_names_by_dataset(data, overlay, marker = 'color') 
   global_symbols = set_names_by_dataset(data, overlay, marker= 'symbol') 
   ggparams = p
   params = environment()
   
-  # add basic plot
-  p1 = plot_ly(source = source) %>% 
+  # make plot
+  p1 = plot_ly(source = source, sizes = sizes) %>%  # sizes=c(7,29)
     add_genoppi_trace(data[data$gene %nin% overlay$gene,], params)
   
   # add overlay
   if (nrow(overlay) > 0){
+    
+    #if (any(overlay$size > 12)) browser()
     
     p1 = p1 %>% 
       add_genoppi_trace(overlay[overlay$significant, ], params, stroke_width = 0.9, legend = legend) %>%
