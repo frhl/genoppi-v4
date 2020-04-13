@@ -128,7 +128,7 @@ findnamespace <- function(ns = ls(getNamespace('ggplot2')), directory = 'R'){
 }
 
 
-#findit('ggplot2')s
+#findit('RColorBrewer')
 #nsgg = ls(getNamespace('ggplot2'))
 #nsgg = nsgg[15:length(nsgg)] # remove special chars
 #unique(unlist(findnamespace(nsgg)))
