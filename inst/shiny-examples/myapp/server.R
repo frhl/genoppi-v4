@@ -538,7 +538,9 @@ shinyServer(function(input, output, session){
   a_orig_pulldown <- reactive({
     pulldown <- a_in_pulldown()
     if (pulldown$format$check$accession_rep == TRUE){
-      pulldown$data <- map_gene_id(pulldown$data)} # this may also be in another namespace. check!
+      mapping <- map_gene_id(pulldown$data)[[2]]
+      pulldown$data$gene = mapping$gene
+      } # this may also be in another namespace. check!
     pulldown$data$gene = toupper(pulldown$data$gene)
     return(pulldown$data)
   })  
@@ -593,23 +595,22 @@ shinyServer(function(input, output, session){
   
   # monitor pulldown input, mapping and input
   a_monitor_pulldown <- reactive({
+    req(a_in_pulldown())
     
     # monitor of some columns were discarded
     pulldown <- a_in_pulldown()
     allowed = unlist(pulldown$format$allowed[unlist(pulldown$format$check)])
     allowed_cols = lapply(allowed, function(x) grepl(x, colnames(pulldown$data)))
     allowed_vec = apply(do.call(rbind, allowed_cols), 2, any)
-    
-    # return to user
     accepted = colnames(pulldown$data)[allowed_vec]
     discarded = colnames(pulldown$data)[!allowed_vec]
     
     # pre-rendered messages
-    msg1 =  paste0(bold('Error'),': None of the inpputed column names are allowed')
-    msg2 = paste0(bold('Warning'),': only ', length(accepted),'/',length(allowed_vec),' input column names were accepted.')
+    msg1 = paste0(bold('Error:'),' None of the inpputed column names are allowed')
+    msg2 = paste0(bold('Warning:'),' only ', length(accepted),'/',length(allowed_vec),' input column names were accepted.')
     msg3 = paste0('The following column names were invalid and discarded: ', italics(paste0(discarded, collapse = ', ')),'.')
     msg4 = paste0('See supplementary protocol for a description of allowed data inputs.')
-    
+
     # no valid cols
     if (length(accepted) == 0){
       return(HTML(paste(msg1, msg4)))
@@ -619,7 +620,26 @@ shinyServer(function(input, output, session){
     } else return(NULL)
     
   })
-  
+ 
+  a_monitor_pulldown_mapping <- reactive({
+    req(a_orig_pulldown())
+    
+    # mapping failed
+    pulldown_mapping = a_orig_pulldown()
+    failed = pulldown_mapping$accession_number[is.na(pulldown_mapping$gene)]
+    absolute = paste0(length(failed),'/',nrow(pulldown_mapping))
+    fraction = paste0(format(100*length(failed)/nrow(pulldown_mapping), digits = 3),'%')
+    
+    # messages
+    msg1 = paste0(bold('Warning:'), absolute, ' (',fraction,') accesion_number(s) were not mapped to a gene(s).')
+    msg2 = paste0('The following accesion_number(s) were not mapped:', italics(paste0(failed,collapse=', ')),'.')
+    msg3 = paste0('These will need to have a manually specified "gene" column in for downstream analysis.')
+    
+    if (length(failed) > 0){
+      return(HTML(paste(msg1, msg2, msg3)))
+    } else return(NULL)
+    
+  }) 
  
   # function for handling uploaded genes
   a_genes_upload <- reactive({
@@ -1542,6 +1562,12 @@ shinyServer(function(input, output, session){
     req(a_monitor_pulldown())
     return(a_monitor_pulldown())
   })
+  
+  output$a_monitor_pulldown_mapping_ui <- renderUI({
+    req(a_monitor_pulldown_mapping())
+    return(a_monitor_pulldown_mapping())
+  })
+  
   
   output$ScatterPlot <- renderPlotly({
     validate(need(input$a_file_pulldown_r != '', "Upload file"))

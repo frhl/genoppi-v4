@@ -42,6 +42,9 @@ body <- dashboardBody(
                                             column(12, uiOutput("a_monitor_pulldown_ui"))
                                           ),
                                           fluidRow(
+                                            column(12, uiOutput("a_monitor_pulldown_mapping_ui"))
+                                          ),
+                                          fluidRow(
                                             br(),
                                             column(12, shinyjs::hidden(myDownloadButton("a_mttest_mapping_download", 'Pulldown data', icon("download"))))
                                           )

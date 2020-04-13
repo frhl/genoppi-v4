@@ -10,6 +10,7 @@ calc_mod_ttest <- function(df){
   
   # check input
   stopifnot(nrow(df) > 0)
+  stopifnot('gene' %in% colnames(df))
   
   # moderated t-test
   myfit <- limma::lmFit(subset(df, select=-c(gene)), method="robust")
