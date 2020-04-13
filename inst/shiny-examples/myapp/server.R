@@ -546,7 +546,7 @@ shinyServer(function(input, output, session){
   
   # final pulldown formatted data.frame
   a_pulldown <- reactive({
-    
+    req(a_orig_pulldown(), a_in_pulldown())
     pulldown <- a_orig_pulldown()
     format <- a_in_pulldown()$format
     
@@ -571,13 +571,14 @@ shinyServer(function(input, output, session){
     
     # no valid columns found. 
     } else {
-      stop('no valid columns were inputted. See supplementary protocol for addtional details.')
+      return(NULL)
     }
 
   })
   
   # id the enriched proteins
   a_pulldown_significant <- reactive({
+    req(a_pulldown())
     d = a_pulldown()
     if (input$a_significance_type == 'fdr'){
       d1 = id_enriched_proteins(d, fdr_cutoff = input$a_fdr_thresh, logfc_dir = input$a_logfc_direction, 
@@ -603,17 +604,19 @@ shinyServer(function(input, output, session){
     accepted = colnames(pulldown$data)[allowed_vec]
     discarded = colnames(pulldown$data)[!allowed_vec]
     
-    if (length(accepted) != length(allowed_vec)){
-      msg1 = paste0(bold('Warning'),': only ', length(accepted),'/',length(allowed_vec),' input column names were accepted.')
-      msg2 = paste0('The following column names were invalid and discarded: ', italics(paste0(discarded, collapse = ', ')),'.')
-      msg3 = paste0('See supplementary protocol for a description of allowed data inputs.')
-      return(HTML(paste(msg1, msg2, msg3)))
+    # pre-rendered messages
+    msg1 =  paste0(bold('Error'),': None of the inpputed column names are allowed')
+    msg2 = paste0(bold('Warning'),': only ', length(accepted),'/',length(allowed_vec),' input column names were accepted.')
+    msg3 = paste0('The following column names were invalid and discarded: ', italics(paste0(discarded, collapse = ', ')),'.')
+    msg4 = paste0('See supplementary protocol for a description of allowed data inputs.')
+    
+    # no valid cols
+    if (length(accepted) == 0){
+      return(HTML(paste(msg1, msg4)))
+    # enough valid but some invalid
+    } else if (length(accepted) != length(allowed_vec)){
+      return(HTML(paste(msg2, msg3, msg4)))
     } else return(NULL)
-
-    # monitor how manny genes were mapped correcly
-    #
-    # tbd
-    #
     
   })
   
