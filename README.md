@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/frhl/genoppi-v4.svg?branch=master)](https://travis-ci.com/frhl/genoppi-v4)
+
 # Overview
 
 Genoppi is an open-source software for performing quality control and analyzing quantitative proteomic data. Genoppi streamlines the integration of proteomic data with external datasets such as known protein-protein interactions in published literature, data from genetic studies, gene set annotations, or other user-defined inputs. This protocol provides instructions for installing the Genoppi package and shiny application, which is available at www.lagelab.org/genoppi.
