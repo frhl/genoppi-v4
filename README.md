@@ -2,18 +2,17 @@
 
 # Overview
 
-Genoppi is an open-source software for performing quality control and analyzing quantitative proteomic data. Genoppi streamlines the integration of proteomic data with external datasets such as known protein-protein interactions in published literature, data from genetic studies, gene set annotations, or other user-defined inputs. This README provides instructions for locally installing the Genoppi package and shiny application.
+Genoppi is an open-source software for performing quality control and analyzing quantitative proteomic data. Genoppi streamlines the integration of proteomic data with external datasets such as known protein-protein interactions in published literature, data from genetic studies, gene set annotations, or other user-defined inputs. This README provides instructions for locally installing the Genoppi package and shiny application within R.
 
 We also provide a [supplementary protocol](inst/shiny-examples/myapp/www/supplementary_protocol_20200414.pdf) to describe the user interface of the shiny application, which is also available at www.lagelab.org/genoppi.
 
 
 # Installation
 
-Installation can be done from within R using the the devtools package:
-
 ```R
 
-# download and install Genoppi
+# download and install Genoppi using the devtools package:
+install.packages("devtools")
 library(devtools)
 devtools::install_github('frhl/genoppi-v4')
 
