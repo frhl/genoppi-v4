@@ -1,8 +1,6 @@
 context('get_inweb_list')
-library(testthat)
 
 # BCL2 test case
-require(hash)
 inwebDf <- data.frame(gene=keys(inweb_hash))
 inwebDf$significant <- inwebDf$gene %in% inweb_hash[["BCL2"]]
 

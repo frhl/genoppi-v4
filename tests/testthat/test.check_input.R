@@ -1,5 +1,4 @@
 context('check_input')
-library(testthat)
 
 # make artificial data
 df1 = data.frame(gene = letters, rep1=rnorm(26), rep2=rnorm(26))

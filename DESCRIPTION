@@ -15,7 +15,7 @@ Description: Tools for working with proteomics data.
 License: MIT + file LICENSE
 LazyData: true
 Depends:
-    R (>= 3.6.1)
+    R (>= 3.6)
 Suggests:
     devtools
 Imports:

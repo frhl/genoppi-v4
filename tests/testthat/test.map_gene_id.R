@@ -1,5 +1,4 @@
 context('map_gene_id')
-library(testthat)
 
 # read in test data
 df <- data.frame(accession_number=c('Q96DR7', 'Q13148', 'P17948'), rep1=1:3, rep2=4:6)

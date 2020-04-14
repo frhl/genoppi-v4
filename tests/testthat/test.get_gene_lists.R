@@ -1,5 +1,4 @@
 context('get_gene_lists')
-library(testthat)
 
 # ALS genes test files
 geneFile <- "data/test.ALSgenes.txt" # file with a single gene column

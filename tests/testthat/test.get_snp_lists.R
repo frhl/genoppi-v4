@@ -1,5 +1,4 @@
 context('get_snp_lists')
-library(testthat)
 
 # SNP list test file
 snpFile <- "data/test.snps.txt" # two columns with header: listName, SNP

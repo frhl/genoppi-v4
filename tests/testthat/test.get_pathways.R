@@ -1,5 +1,4 @@
 context('get_pathways')
-library(testthat)
 
 # test data
 genes <- c("FAM167A","SUSD1","PRSS21")

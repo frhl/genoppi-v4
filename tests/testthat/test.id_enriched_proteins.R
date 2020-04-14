@@ -1,5 +1,4 @@
 context('id_enriched_proteins')
-library(testthat)
 
 # read in test data
 df <- read.table("data/test.BCL2vsIgG.GPiN.txt",sep="\t",header=T)

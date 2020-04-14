@@ -1,5 +1,4 @@
 context('susbset_snp_loci')
-library(testthat)
 
 # test SNP-gene data.frame
 df <- data.frame(SNP=c("SNP1","SNP2","SNP3","SNP4","SNP1","SNP4","SNP1"),

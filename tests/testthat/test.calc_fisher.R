@@ -1,5 +1,4 @@
 context('calc_fisher')
-library(testthat)
 
 # read in test data
 df <- read.table("data/test.BCL2vsIgG.GPiN.txt",header=T,sep="\t")

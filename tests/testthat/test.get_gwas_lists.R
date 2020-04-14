@@ -1,5 +1,4 @@
 context('get_gwas_lists')
-library(testthat)
 
 # test GWAS traits
 traits <- c("Amyotrophic lateral sclerosis","Amyotrophic lateral sclerosis (sporadic)")

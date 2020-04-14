@@ -1,6 +1,4 @@
 context('read_input')
-library(testthat)
-library(data.table)
 
 # make artificial data
 df1 = data.table(gene=letters, rep1=rnorm(26), rep2=rnorm(26), rep3=rnorm(26))
