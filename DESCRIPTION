@@ -37,8 +37,6 @@ Imports:
     VennDiagram,
     colourpicker,
     futile.logger
-biocViews:
-    limma
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
@@ -81,4 +79,4 @@ Collate:
     'stop_invalid.R'
     'subset_snp_loci.R'
     'validate_reference.R'
-
+biocViews: limma

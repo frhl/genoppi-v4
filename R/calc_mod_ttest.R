@@ -3,10 +3,11 @@
 #' See \code{?limma::lmFit} and \code{?limma::eBayes} for more details.
 #' @param df data.frame/data.table containing gene and rep (replicate logFC)  columns
 #' @return data.frame containing containing df + logFC, pvalue, and FDR; sorted by decreasing logFC
-#' @importFrom limma topTable eBayes lmFit
 #' @export
 
 calc_mod_ttest <- function(df){
+  
+  # importFrom limma topTable eBayes lmFit
   
   # check input
   stopifnot(nrow(df) > 0)
