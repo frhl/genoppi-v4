@@ -1,12 +1,16 @@
 Package: genoppi
 Title: genoppi
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: 
     c(person(given = "Frederik",
              family = "Lassen",
              role = c("aut", "cre"),
-             email = "frhl@gmail.com"))
-Maintainer: Frederik <frhl@gmail.com>
+             email = "flassen@broadinstitute.org"),
+      person(given = "Yu-Han",
+             family = "Hsu",
+             role = c("aut"),
+             email = "yuhanhsu@broadinstitute.org"))
+Maintainer: Frederik Lassen <flassen@broadinstitute.org>
 Description: Tools for working with proteomics data.
 License: MIT + file LICENSE
 LazyData: true
