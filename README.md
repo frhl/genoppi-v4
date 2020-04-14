@@ -1,5 +1,25 @@
-# genoppi-v4 (developer version)
-Genoppi version 4. See 'issues' for current development todo's. Run the current shiny app development by loading the package and running:
+# Overview
+
+Genoppi is an open-source software for performing quality control and analyzing quantitative proteomic data. Genoppi streamlines the integration of proteomic data with external datasets such as known protein-protein interactions in published literature, data from genetic studies, gene set annotations, or other user-defined inputs. This protocol provides instructions for installing the Genoppi package and shiny application, which is available at www.lagelab.org/genoppi.
+
+
+# Installation
+Installation can be done from within R using the the devtools package:
+
+```R
+
+# download applicaiton
+library(devtools)
+devtools::install_github('frhl/genoppi-v4')
+
+# launch application
+library(genoppi)
+launch_genoppi()
+
+```
+
+
+# Usage
 
 ```R
 # load immunoprecipitation experiment
@@ -7,14 +27,6 @@ Genoppi version 4. See 'issues' for current development todo's. Run the current 
 # within neurons
 library(genoppi)
 data("BCL2vsIgG.GPiN")
-
-# look at replicate correlation
-BCL2vsIgG.GPiN %>% 
-  calc_mod_ttest() %>% 
-  id_enriched_proteins() %>%
-  plot_scatter_basic('rep1','rep3') %>% 
-  plot_overlay(as.bait('BCL2')) %>% 
-  make_interactive()
 
 # look at basic voclcano plot
 BCL2vsIgG.GPiN %>% 
@@ -29,13 +41,5 @@ BCL2vsIgG.GPiN %>%
 # tally overlap
 ```
 
-## R-package development
 
-```R
-library(devtools)
-1. devtools::document()
-2. devtools::check()
-```
 
-1. devtools::load_all()
-2. launch_genoppi()
