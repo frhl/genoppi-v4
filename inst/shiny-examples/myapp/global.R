@@ -29,8 +29,8 @@ plotly_symbols = schema(F)$traces$scatter$attributes$marker$symbol$values
 allowed_plotly_symbols = plotly_symbols[!grepl('^[0-9]+$', plotly_symbols)]
 
 #up_to_hgnc <- read.table("data/HGNC_gene_to_UniProt_accession_number_Genoppi_ready.csv", header = T, sep = "\t", stringsAsFactors = F)
-prot_fam <- read.table(file.path(main, "protFams_genes_cols.txt"),  sep = "\t", quote = "", na.strings=c("","NA"), header = T, check.names = F)
-prot_fam_t <- data.frame(t(prot_fam))
+#prot_fam <- read.table(file.path(main, "protFams_genes_cols.txt"),  sep = "\t", quote = "", na.strings=c("","NA"), header = T, check.names = F)
+#prot_fam_t <- data.frame(t(prot_fam))
 flog.threshold(ERROR) # for ensuring venn diagrams does not make logs
 
 
