@@ -16,6 +16,7 @@ A table containing 479,444 MSigDB curated gene set annotations (20,738 unique ge
 }
 \seealso{
 Other datasets: 
+\code{\link{accession_gene_table}},
 \code{\link{genes_snps}},
 \code{\link{gnomad_table}},
 \code{\link{goa_bp_table}},

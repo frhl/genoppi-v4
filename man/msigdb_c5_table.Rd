@@ -16,6 +16,7 @@ A table containing 868,350 MSigDB GO gene set annotations (18,046 unique gene sy
 }
 \seealso{
 Other datasets: 
+\code{\link{accession_gene_table}},
 \code{\link{genes_snps}},
 \code{\link{gnomad_table}},
 \code{\link{goa_bp_table}},

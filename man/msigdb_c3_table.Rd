@@ -16,6 +16,7 @@ A table containing 843,716 MSigDB regulatory target gene set annotations (26,647
 }
 \seealso{
 Other datasets: 
+\code{\link{accession_gene_table}},
 \code{\link{genes_snps}},
 \code{\link{gnomad_table}},
 \code{\link{goa_bp_table}},
