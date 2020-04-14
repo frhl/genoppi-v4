@@ -22,8 +22,6 @@ if (!'genoppi' %in% .packages()) devtools::load_all()
 #main = '../../..'
 
 main = system.file('extdata', package = 'genoppi')
-
-#main = ''
 marker_cols <- read.table(file.path(main, 'colors.txt'))
 add_marker_cols <- read.table(file.path(main, 'colors_markers.txt'))
 allowed_colors = unique(c('#41AB5D', 'red','green','#808080', 'blue', 'yellow', 'cyan', '#FF00FF', '#A52A2A'))

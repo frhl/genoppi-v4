@@ -7,7 +7,7 @@
 #' @param legend boolean. Show legend for significant interactors?
 #' 
 #' @family interactivity
-#' @importFrom plotly add_markers add_annotations plot_ly plotly
+#' @importFrom plotly add_markers add_annotations plot_ly plotly schema
 #' @export
 
 make_interactive <- function(p, source = NULL, legend = T, sig_text = ''){
