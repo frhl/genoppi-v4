@@ -1,7 +1,7 @@
 context('calc_fisher')
 
 # read in test data
-df <- read.table("data/test.BCL2vsIgG.GPiN.txt",header=T,sep="\t")
+df <- read_input("data/test.BCL2vsIgG.GPiN.txt",header=T,sep="\t")$data
 statsDf <- calc_mod_ttest(df)
 sigDf <- id_enriched_proteins(statsDf)
 

@@ -10,19 +10,13 @@ map_gene_id <- function(df){
   
   # strip any isoform suffixes (separated by . or -) before mapping
   accession_noIsoform <- sapply(strsplit(as.character(df$accession_number),'(\\-)|(\\.)'),'[',1)
-  
-  # map data
-  dataPath <- system.file("extdata", "uniprotid_to_hgnc", package="genoppi")
-  
-  # removed hashmap dependency.. must fix asap.
-  hm <- load_hashmap(dataPath)  # importFrom hashmap load_hashmap
-  mappedGenes <- as.factor(hm[[accession_noIsoform]])
-
-  # mapping result
-  mapDf <- data.frame(accession_number=df$accession_number,gene=mappedGenes)
+ 
+  # map accession_number in df to gene (unmapped entries shown as NA)
+  matchInds <- match(accession_noIsoform,accession_gene_table$accession_number)
+  mapDf <- data.frame(accession_number=df$accession_number,gene=accession_gene_table$gene[matchInds]) 
 
   # replace accession_number with gene in input df
-  df$accession_number <- mappedGenes
+  df$accession_number <- mapDf$gene
   colnames(df)[colnames(df)=="accession_number"] <- "gene"
  
   return(list(df,mapDf)) 

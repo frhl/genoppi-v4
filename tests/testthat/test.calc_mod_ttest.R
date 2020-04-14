@@ -1,7 +1,7 @@
 context('calc_mod_ttest')
 
 # read in test data
-df <- read.table("data/test.BCL2vsIgG.GPiN.txt",sep="\t",header=T)
+df <- read_input("data/test.BCL2vsIgG.GPiN.txt",header=T,sep="\t")$data
 
 test_that('calc_mod_ttest can return results in data.frame',{
 
