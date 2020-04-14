@@ -2,7 +2,6 @@
 #' @description Map and replace accession_number column in a data.frame with gene column. Isoforms (indicated by suffixes separated by . or - in acession_number) are mapped to the same gene names.
 #' @param df data.frame containing accession_number column
 #' @return list of (df with accession_number column replaced by gene column, df with accession_number and gene columns)
-#' @importFrom hashmap load_hashmap
 #' @export
 
 map_gene_id <- function(df){
@@ -14,7 +13,9 @@ map_gene_id <- function(df){
   
   # map data
   dataPath <- system.file("extdata", "uniprotid_to_hgnc", package="genoppi")
-  hm <- load_hashmap(dataPath)  
+  
+  # removed hashmap dependency.. must fix asap.
+  hm <- load_hashmap(dataPath)  # importFrom hashmap load_hashmap
   mappedGenes <- as.factor(hm[[accession_noIsoform]])
 
   # mapping result

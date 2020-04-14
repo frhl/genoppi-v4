@@ -19,12 +19,7 @@ Depends:
 Suggests:
     devtools
 Imports:
-    assertthat,
     stats,
-    utils,
-    R6,
-    crayon,
-    rprojroot,
     hash,
     ggplot2,
     ggrepel,
