@@ -7,7 +7,7 @@
 plot_scatter_basic_all(
   df,
   size_point = 3,
-  col_signficant = "#41AB5D",
+  col_significant = "#41AB5D",
   col_other = "grey"
 )
 }
@@ -16,13 +16,9 @@ plot_scatter_basic_all(
 
 \item{size_point}{size of point.}
 
-\item{col_other}{color for other protein interactors.}
-
-\item{repA}{string that is column in df.}
-
-\item{size_text}{size of the text label.}
-
 \item{col_significant}{color for significant protein interactors.}
+
+\item{col_other}{color for other protein interactors.}
 }
 \value{
 a list of gg scatter plots.

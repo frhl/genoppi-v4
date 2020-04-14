@@ -8,6 +8,12 @@ add_markers_search_pathway(p, pathways, mapping = NULL)
 }
 \arguments{
 \item{p}{a ggplot}
+
+\item{pathways}{a vector of strings containing pathway names.}
+
+\item{mapping}{a data.frame containing a pathway column and a gene column. Will generate
+a mapping between genes in the plot, and their corresponding pathways found in argument
+pathways.}
 }
 \description{
 takes a ggplot and vector as input and highligts pathways in volcano.

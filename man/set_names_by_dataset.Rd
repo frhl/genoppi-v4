@@ -10,6 +10,10 @@ set_names_by_dataset(data, overlay, marker = "color", by = "dataset")
 \item{data}{a data.frame object.}
 
 \item{overlay}{a data.frame object.}
+
+\item{marker}{what should be organized?}
+
+\item{by}{what should marker be organized by?}
 }
 \description{
 the marker (e.g. colors) supplied to plotly must be in a global 

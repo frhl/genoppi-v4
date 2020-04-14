@@ -2,9 +2,11 @@
 #' @description Takes a ggplot and turns it into 
 #' an interactive plot.
 #' 
-#' @param x string. The x-column to be used from \code{p$overlay}.
-#' @param y string. The y-column to be used from \code{p$overlay}.
+#' @param p a ggplot
+#' @param source string. Used to connect plotly object other plotly objects.
 #' @param legend boolean. Show legend for significant interactors?
+#' @param sig_text what legend text should be added to a significant
+#' item?
 #' 
 #' @family interactivity
 #' @importFrom plotly add_markers add_annotations plot_ly plotly schema

@@ -27,12 +27,6 @@ plotly object.}
 \item{dash}{dashed or solid?}
 
 \item{opacity}{opacity of line.}
-
-\item{x}{x to establish limits and length of unity line. Will
-be a column in the data object.}
-
-\item{y}{y to establish limits and length of unity line. Same as
-for x.}
 }
 \description{
 adds a unity line to plotly object

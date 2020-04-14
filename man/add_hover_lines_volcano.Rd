@@ -18,6 +18,10 @@ add_hover_lines_volcano(
 \item{line_pvalue}{the pvalue threshold}
 
 \item{line_logfc}{the logfc threshold}
+
+\item{logfc_direction}{string. Can be either \code{'positive'}, \code{'negative'} or \code{'both'}.}
+
+\item{sig_type}{string. Can be either \code{'fdr'} or \code{'pvalue'}.}
 }
 \description{
 A function that adds reactive dashed lines to a plotly object.

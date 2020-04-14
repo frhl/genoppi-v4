@@ -4,11 +4,13 @@
 #' @param p a plot_ly() object. 
 #' @param data a data.frame with columns dataset, gene, 
 #' @param parameters a list of parameters or an environement generated with \code{environment()}.
+#' @param stroke_width numeric. the line width/stroke of a given point.
+#' @param legend Boolean. should legend be displayed?
 #' @note global variable 'global_colors' must be specified using setNames().
 #' @importFrom plotly add_trace
 #' @export
 
-add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = F, legend_group = ''){
+add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = F){
   
   # pass previous environment to function
   global_colors = parameters$global_colors

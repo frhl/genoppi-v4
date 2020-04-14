@@ -4,10 +4,6 @@
 #' @param data the data object used to draw the plotly object. By
 #' default, the function will look for the data object within the
 #' plotly object.
-#' @param x x to establish limits and length of unity line. Will
-#' be a column in the data object.
-#' @param y y to establish limits and length of unity line. Same as
-#' for x.
 #' @param color color of line
 #' @param width width of line
 #' @param dash dashed or solid?

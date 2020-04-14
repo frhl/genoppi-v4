@@ -21,6 +21,12 @@ collapse_labels(
 \item{collapse}{the column that will contain the collapsed entries.}
 
 \item{collapse_by}{what identifying colummn is the data to be collapsed by?}
+
+\item{dataset_collapse_sep}{how should the dataset column and collapse-column 
+be seperated by when collapsed?}
+
+\item{item_sep}{how should each collapsed item be seperated from the next? Default is
+newline.}
 }
 \description{
 a data.frame used to overlay items in genoppi

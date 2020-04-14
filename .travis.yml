@@ -1,5 +1,17 @@
+# Travis CI for automatic building.
+
 language: r
   - oldrel
   - release
   - devel
   - bioc-devel
+
+warnings_are_errors: false
+
+
+# handle bioconductor
+use_bioc: true
+bioc_required: true
+bioc_packages:
+  - limma
+  

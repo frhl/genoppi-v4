@@ -2,16 +2,15 @@
 #' @description Draws a pair of specific replicates in a scatter plot.
 #' @param df A data.frame containing at least gene, significant, replicate/triplicate columns.
 #' @param repA string that is column in df.
-#' @param repA string that is column in df.
+#' @param repB string that is column in df.
 #' @param size_point size of point.
-#' @param size_text size of the text label.
 #' @param col_significant color for significant protein interactors.
 #' @param col_other color for other protein interactors.
 #' @return a gg scatter plot.
 #' @importFrom ggplot2 ggplot geom_point geom_abline labs theme_minimal
 #' @export
 
-plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col_signficant = "#41AB5D", col_other = 'grey'){
+plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col_significant = "#41AB5D", col_other = 'grey'){
   
   # set default parameters
   df$color = ifelse(df$significant, col_signficant, col_other)
@@ -37,15 +36,12 @@ plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col
 #' @title plot a list of basic scatter plots
 #' @description Draw qll pairs of replicates in multiple scatter plot.
 #' @param df A data.frame containing at least gene, significant, replicate/triplicate columns.
-#' @param repA string that is column in df.
-#' @param repA string that is column in df.
 #' @param size_point size of point.
-#' @param size_text size of the text label.
 #' @param col_significant color for significant protein interactors.
 #' @param col_other color for other protein interactors.
 #' @return a list of gg scatter plots.
 #' @export
-plot_scatter_basic_all <- function(df, size_point = 3, col_signficant = "#41AB5D", col_other = 'grey'){
+plot_scatter_basic_all <- function(df, size_point = 3, col_significant = "#41AB5D", col_other = 'grey'){
   
   # check input
   expected_columns = c('logFC', 'FDR', 'pvalue', 'significant', 'gene')

@@ -9,9 +9,9 @@ stop_invalid_columns(data, prefix, need)
 \arguments{
 \item{data}{a data.frame}
 
-\item{need}{vector of strings needed in data}
+\item{prefix}{e.g. 'snpData'}
 
-\item{a}{prefix, e.g. 'snpData'}
+\item{need}{vector of strings needed in data}
 }
 \description{
 yields an informative error message

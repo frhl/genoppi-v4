@@ -6,6 +6,11 @@
 \usage{
 assign_freq(df, col)
 }
+\arguments{
+\item{df}{a data.frame}
+
+\item{col}{the column which to assign frequency to.}
+}
 \description{
 assign a frequency of occurences to a dataframe
 }

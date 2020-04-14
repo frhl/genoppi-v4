@@ -3,7 +3,7 @@
 #' if the a data object doesnt contain the correct
 #' or verified column names.
 #' @param data a data.frame
-#' @param a prefix, e.g. 'snpData'
+#' @param prefix e.g. 'snpData'
 #' @param need vector of strings needed in data
 
 stop_invalid_columns <- function(data, prefix, need){

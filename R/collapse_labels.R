@@ -7,8 +7,11 @@
 #' @param dataset the main dataset name that is to be combined.
 #' @param collapse the column that will contain the collapsed entries.
 #' @param collapse_by what identifying colummn is the data to be collapsed by?
-#' 
-#' 
+#' @param dataset_collapse_sep how should the dataset column and collapse-column 
+#' be seperated by when collapsed?
+#' @param item_sep how should each collapsed item be seperated from the next? Default is
+#' newline.
+#' @export
 
 collapse_labels <- function(overlay, dataset = 'dataset', collapse = 'alt_label', collapse_by = 'gene', dataset_collapse_sep = ': ', item_sep = ' <br>'){
   

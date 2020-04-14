@@ -8,9 +8,13 @@ add_layout_html_axes_scatterplot(p, title = "", legend_title = bold("Overlay"))
 }
 \arguments{
 \item{p}{a plotly object.}
+
+\item{title}{the title of the plot.}
+
+\item{legend_title}{the title of the legend.}
 }
 \description{
-format axes.
+format axes of a plotly object.
 }
 \seealso{
 Other shiny: 

@@ -45,6 +45,8 @@ as.bait <- function(bait) return(list(bait=data.frame(gene=bait, col_significant
 #' @title color gradient
 #' @description makes a function for getting gradient colors
 #' @param x vector of values
+#' @param colors colors from which to form gradient.
+#' @param colsteps how many colors should be created?
 #' @family misc
 #' @export
 #' @source stackoverflow snippet
@@ -64,6 +66,8 @@ color_distinct <- function(){
 
 #' @title assign frequency
 #' @description assign a frequency of occurences to a dataframe
+#' @param df a data.frame
+#' @param col the column which to assign frequency to.
 #' @export
 assign_freq <- function(df, col){
   tabl = as.data.frame(table(df[[col]]))

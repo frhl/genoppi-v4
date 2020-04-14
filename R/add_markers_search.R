@@ -23,8 +23,10 @@ add_markers_search <- function(p, genes){
 #' @title search pathway plots
 #' @description takes a ggplot and vector as input and highligts pathways in volcano.
 #' @param p a ggplot
-#' 
-#' 
+#' @param pathways a vector of strings containing pathway names.
+#' @param mapping a data.frame containing a pathway column and a gene column. Will generate
+#' a mapping between genes in the plot, and their corresponding pathways found in argument
+#' pathways.
 #' @note internal
 #' @importFrom plotly add_markers
 #' @family shiny

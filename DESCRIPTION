@@ -31,7 +31,8 @@ Imports:
     RColorBrewer,
     VennDiagram,
     colourpicker,
-    futile.logger
+    futile.logger,
+    limma,
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 Collate: 
@@ -56,7 +57,6 @@ Collate:
     'get_gwas_lists.R'
     'get_gnomad_constraints.R'
     'get_pathways.R'
-    'get_protein_families.R'
     'launch_genoppi.R'
     'misc.R'
     'make_interactive.R'

@@ -7,11 +7,14 @@
 make_interactive(p, source = NULL, legend = T, sig_text = "")
 }
 \arguments{
+\item{p}{a ggplot}
+
+\item{source}{string. Used to connect plotly object other plotly objects.}
+
 \item{legend}{boolean. Show legend for significant interactors?}
 
-\item{x}{string. The x-column to be used from \code{p$overlay}.}
-
-\item{y}{string. The y-column to be used from \code{p$overlay}.}
+\item{sig_text}{what legend text should be added to a significant
+item?}
 }
 \description{
 Takes a ggplot and turns it into 

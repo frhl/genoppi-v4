@@ -6,6 +6,9 @@
 \usage{
 theme_genoppi_bar(rotate = F)
 }
+\arguments{
+\item{rotate}{boolean. Rotates axis titles.}
+}
 \description{
 genoppi themed bar for shiny
 }

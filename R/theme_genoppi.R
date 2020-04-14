@@ -17,6 +17,7 @@ theme_genoppi <- function(){
 }
 
 #' @title genoppi themed bar
+#' @param rotate boolean. Rotates axis titles.
 #' @description genoppi themed bar for shiny
 theme_genoppi_bar <- function(rotate = F){
   if (rotate == FALSE){

@@ -4,6 +4,8 @@
 #' the appropiate mapping, so that the color scheme can be correctly plotted.
 #' @param data a data.frame object.
 #' @param overlay a data.frame object.
+#' @param marker what should be organized?
+#' @param by what should marker be organized by?
 #' @family interactivity
 #' @export
 set_names_by_dataset <- function(data, overlay, marker = 'color', by = 'dataset'){

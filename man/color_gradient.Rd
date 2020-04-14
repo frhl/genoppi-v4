@@ -11,6 +11,10 @@ color_gradient(x, colors = c("green", "red"), colsteps = 100)
 }
 \arguments{
 \item{x}{vector of values}
+
+\item{colors}{colors from which to form gradient.}
+
+\item{colsteps}{how many colors should be created?}
 }
 \description{
 makes a function for getting gradient colors

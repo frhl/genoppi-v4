@@ -3,6 +3,8 @@
 #' @param p a ggplot
 #' @param line_pvalue the pvalue threshold
 #' @param line_logfc the logfc threshold 
+#' @param logfc_direction string. Can be either \code{'positive'}, \code{'negative'} or \code{'both'}.
+#' @param sig_type string. Can be either \code{'fdr'} or \code{'pvalue'}.
 #' @importFrom plotly add_lines
 #' @note internal
 #' @family shiny

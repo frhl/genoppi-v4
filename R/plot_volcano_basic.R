@@ -3,10 +3,9 @@
 #' to draw a volcano. Optionally, a column indicating 'color' (string) can be supplied to 
 #' indicate the volcano color scheme and whether to draw names of specific proteins.
 #' @param df a data.frame with at least columns gene, logFC, pvalue and significant.
-#' @param bait the gene name of the bait.
 #' @param col_significant the color of significant proteins/rows.
 #' @param col_other the color of non-significnt proteins/rows.
-#' @param size_point the size of the points. 
+#' @param gg.size the size of the points. 
 #' @export
 #' @importFrom ggplot2 ggplot geom_point geom_hline geom_vline xlab ylab theme aes_ aes aes_string geom_text
 #' @examples
@@ -18,7 +17,7 @@
 #' 
 
 
-plot_volcano_basic <- function(df, col_signficant = "#41AB5D", col_other = 'grey', gg.size = 3){
+plot_volcano_basic <- function(df, col_significant = "#41AB5D", col_other = 'grey', gg.size = 3){
   
   # check input
   stop_invalid_columns(df,'plot_volcano_basic',c('gene','logFC', 'pvalue', 'significant'))

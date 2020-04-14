@@ -13,6 +13,12 @@ add_layout_html_axes_volcano(
 }
 \arguments{
 \item{p}{a plotly object.}
+
+\item{height}{the heigh of the plotly object.}
+
+\item{width}{the width of the plotly object.}
+
+\item{legend_title}{the title of the legend.}
 }
 \description{
 Format axes.

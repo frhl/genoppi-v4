@@ -4,14 +4,7 @@
 \alias{add_genoppi_trace}
 \title{add genoppi trace}
 \usage{
-add_genoppi_trace(
-  p,
-  data,
-  parameters,
-  stroke_width = 0.2,
-  legend = F,
-  legend_group = ""
-)
+add_genoppi_trace(p, data, parameters, stroke_width = 0.2, legend = F)
 }
 \arguments{
 \item{p}{a plot_ly() object.}
@@ -19,6 +12,10 @@ add_genoppi_trace(
 \item{data}{a data.frame with columns dataset, gene,}
 
 \item{parameters}{a list of parameters or an environement generated with \code{environment()}.}
+
+\item{stroke_width}{numeric. the line width/stroke of a given point.}
+
+\item{legend}{Boolean. should legend be displayed?}
 }
 \description{
 adding a trace with new data to plotly is non-trivial. This function takes
