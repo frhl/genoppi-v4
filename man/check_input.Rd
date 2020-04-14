@@ -10,7 +10,7 @@ check_input(tabl)
 \item{tabl}{a data.frame}
 }
 \value{
-list of boolean vairables indicating if input match a format
+list of boolean vairables indicating if input match a format and allowed formats
 }
 \description{
 Check if input data columns match one of the four allowed formats.

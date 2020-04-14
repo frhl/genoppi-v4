@@ -7,7 +7,7 @@
 calc_mod_ttest(df)
 }
 \arguments{
-\item{df}{data.frame containing gene and rep (replicate logFC)  columns}
+\item{df}{data.frame/data.table containing gene and rep (replicate logFC)  columns}
 }
 \value{
 data.frame containing containing df + logFC, pvalue, and FDR; sorted by decreasing logFC

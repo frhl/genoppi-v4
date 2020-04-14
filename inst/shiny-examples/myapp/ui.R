@@ -570,7 +570,13 @@ body <- dashboardBody(
             )
     ),
     tabItem(tabName = "guide",
-            uiOutput("how_to_guide")
+            
+            tags$iframe(src = "supplementary_protocol_20200414.pdf",
+                                           style="width:100%;",  #frameborder="0"
+                                           height = "3100px")
+            #tags$iframe(style="height:400px; width:100%; scrolling=yes", 
+            #            src="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf")
+            #uiOutput("how_to_guide")
     )
   )
   )

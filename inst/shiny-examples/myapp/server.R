@@ -530,7 +530,7 @@ shinyServer(function(input, output, session){
   # loading the data and getting the pulldown
   a_in_pulldown <- reactive({
     req(input$a_file_pulldown_r)
-    d <- read_input(input$a_file_pulldown_r$datapath)
+    d <- read_input(input$a_file_pulldown_r$datapath, sep = '\t', header = T)
     return(d)
   })
   
@@ -541,7 +541,9 @@ shinyServer(function(input, output, session){
       mapping <- map_gene_id(pulldown$data)[[2]]
       pulldown$data$gene = mapping$gene
       } # this may also be in another namespace. check!
-    pulldown$data$gene = toupper(pulldown$data$gene)
+    
+    #pulldown$data$gene = toupper(pulldown$data$gene)
+    
     return(pulldown$data)
   })  
   
@@ -884,10 +886,19 @@ shinyServer(function(input, output, session){
     req(input$a_bait_rep, a_pulldown_significant())
     inweb_output = get_inweb_list(input$a_bait_rep)
     if (!is.null(inweb_output)){
+      
+      #browser()
+      
       # gather all inweb data
       inweb_list = data.frame(listName="InWeb", inweb_output)
       inweb_intersect = data.frame(listName="InWeb", intersectN=T)
       data = a_pulldown_significant()
+      
+      #sta
+      #data$gene[!sigDf$gene == data$gene]
+      #sigDf$gene[!sigDf$gene == data$gene]
+      #data$gene[grepl('or',data$gene)]
+      
       # compile venn diagram information
       hyper = calc_hyper(data, inweb_list, inweb_intersect, bait = input$a_bait_search_rep)
       hyper[['venn']][['A']] <- hyper$genes$InWeb$success_genes # pulldown
@@ -940,7 +951,7 @@ shinyServer(function(input, output, session){
   # hypergeometric overlap gene upload
   a_genes_upload_calc_hyper <- reactive({
     req(a_genes_upload(), a_pulldown_significant(), input$a_select_venn_list_genes_upload)
-
+    
     # get data for overlap calculation
     pulldown = a_pulldown_significant()
     genes_uploaded = a_genes_upload()
@@ -953,6 +964,7 @@ shinyServer(function(input, output, session){
     intersect_selected = intersect[intersect$listName %in% genelist | genelist == 'combined',]
     genes_selected = genes[genes$listName %in% genelist | genelist == 'combined',]
     hyper = calc_hyper(pulldown, genes_selected, intersect_selected, input$a_bait_search_rep)
+    
     return(hyper)
   })
   
@@ -1502,7 +1514,7 @@ shinyServer(function(input, output, session){
     # see github issues for more details. In the future, this should be a reactive.
     p$overlay$legend_order = unlist(ifelse(input$a_pathway_mapping_type_sort == 'freq',
                                     list(rev(order(p$overlay$size))), list(order(p$overlay$dataset))))
-
+    
     p <- make_interactive(p, legend = T)
     if (input$a_goi_search_rep != '') p <- add_markers_search(p, a_search_gene())
     if (!is.null(input$a_pathway_mapping_search)) p <- add_markers_search_pathway(p, input$a_pathway_mapping_search, mapping = a_pathway_mapping_initial())
@@ -1595,10 +1607,16 @@ shinyServer(function(input, output, session){
   #documentation
   
   getPage_guide<-function() {
-    return(tags$iframe(src = "how-to.html"
-                       , style="width:100%;",  frameborder="0"
-                       , height = "3100px"))
+    
+    
+    
+    
+    #return(tags$iframe(src = "supplementary_protocol_20200414.pdf",
+    #                   style="width:100%;",  #frameborder="0"
+    #                   height = "3100px"))
   }
+  
+  
   
   output$how_to_guide <- renderUI({
     getPage_guide()
