@@ -22,7 +22,8 @@ Depends:
     plotly,
 Suggests:
     devtools,
-    covr
+    covr,
+    testthat (>= 2.1.0)
 Imports:
     stats,
     hash,
