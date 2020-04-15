@@ -19,8 +19,8 @@ r_build_args: --no-build-vignettes --no-manual
 r_check_args: --no-build-vignettes --no-manual --timings
 
 # for codecov
-#r_packages:
-#  - covr
+r_packages:
+   - covr
   
 # we need to install BiocInstaller for testing Bioconductor packages
 use_bioc: true
@@ -33,5 +33,5 @@ bioc_packages:
 
 
 # only report coverage for the release version
-#after_success:
-#  - test $TRAVIS_R_VERSION_STRING = 'release' && Rscript -e 'covr::codecov()'
+after_success:
+  - test $TRAVIS_R_VERSION_STRING = 'release' && Rscript -e 'covr::codecov()'
