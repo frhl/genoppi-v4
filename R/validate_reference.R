@@ -6,6 +6,7 @@
 #' @return a data.frame
 #' @export
 validate_reference <- function(df, valid = c('gene',
+                                             'accession_number',
                                              'col_significant',
                                              'col_other',
                                              'shape',

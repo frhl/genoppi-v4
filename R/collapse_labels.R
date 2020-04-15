@@ -14,13 +14,14 @@
 #' @export
 #' 
 
-collapse_labels <- function(overlay, dataset = 'dataset', collapse = 'alt_label', collapse_by = 'gene', dataset_collapse_sep = ': ', item_sep = ' <br>'){
+collapse_labels <- function(overlay, dataset = 'dataset', collapse_into = 'alt_label', collapse_by = 'gene', 
+                            dataset_collapse_sep = ': ', item_sep = ' <br>'){
   
   # exepct parameters
   stopifnot(is.data.frame(overlay))
   stopifnot(dataset %in% colnames(overlay))
   stopifnot(collapse_by %in% colnames(overlay))
-  if (collapse %nin% colnames(overlay)) overlay[[collapse]] <- ''
+  if (collapse_into %nin% colnames(overlay)) overlay[[collapse_into]] <- ''
   
   # which rows are non-unique?
   drows = unlist(lapply(overlay[[collapse_by]], function(x) sum(overlay[[collapse_by]] == x))) > 1
@@ -28,15 +29,14 @@ collapse_labels <- function(overlay, dataset = 'dataset', collapse = 'alt_label'
   # combine overlapping overlays into a single lines 
   new = lapply(unique(overlay[drows, ][[collapse_by]]), function(g) {
     z = overlay[overlay[[collapse_by]] %in% g, ]
-    z[[collapse]][is.na(z[[collapse]])] <- ''
-    z[[collapse]] = paste(apply(z[,c(dataset, collapse)] , 1 , paste , collapse = dataset_collapse_sep), collapse = item_sep)
-    # how do we deal with merging colors?
+    z[[collapse_into]][is.na(z[[collapse_into]])] <- ''
+    z[[collapse_into]] = paste(apply(z[,c(dataset, collapse_into)] , 1 , paste , collapse = dataset_collapse_sep), collapse = item_sep)
     return(z[1,])
-    })
+  })
   
   # deal with single labels 
   old = overlay[!drows, ]
-  old[[collapse]] = apply(old[,c(dataset, collapse)] , 1 , paste , collapse = dataset_collapse_sep)
+  old[[collapse_into]] = apply(old[,c(dataset, collapse_into)] , 1 , paste , collapse = dataset_collapse_sep)
   
   # conbine the filtered new overlays with alt labels with old
   combined = as.data.frame(rbind(do.call(rbind, new), old))

@@ -7,9 +7,8 @@
 
 calc_mod_ttest <- function(df){
   
-  # importFrom limma topTable eBayes lmFit
-  
   # check input
+  stopifnot(data.table::is.data.table(df))
   stopifnot(nrow(df) > 0)
   columns = grepl('rep[0-9]',colnames(df))
   

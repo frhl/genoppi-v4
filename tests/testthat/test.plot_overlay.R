@@ -3,13 +3,15 @@ context('plot_overlay')
 # read in test data
 df <- read_input("data/test.BCL2vsIgG.GPiN.txt",header=T,sep="\t")$data
 df <- calc_mod_ttest(df)
+#func = 'plot_overlay'
 
 test_that('simple overlay of a bait',{
   
   # a few different test cases
+  id = 'A1'
   df <- id_enriched_proteins(df)
   p = plot_volcano_basic(df) + ggtitle('BCL2 vs IgG in GPiNs') 
-  plot_overlay(p, as.bait('BCL2')) ## testcase here..
+  p = plot_overlay(p, as.bait('BCL2')) ## testcase here..
   
 })
 
@@ -28,7 +30,8 @@ test_that('iterative overlay of ggobjects',{
   names(reference) = c('genes (I)', 'genes (II)')
   
   # overlay second list
-  plot_overlay(p1, reference) # testcase here..
+  p1 = plot_overlay(p1, reference) # testcase here..
+
 })
 
 test_that('iterative overlay of ggobjects with multiple shapes',{

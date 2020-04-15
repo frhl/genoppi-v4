@@ -15,8 +15,8 @@
 make_interactive <- function(p, source = NULL, legend = T, sig_text = ''){
   
   # ensure data and overlay has appropiate columns for plotting
-  data = to_overlay_data(combine_dataset_and_significance(p$data)) 
-  overlay = to_overlay_data(combine_dataset_and_significance(p$overlay, sig_text = sig_text))
+  data = to_overlay_data(append_to_column(p$data)) 
+  overlay = to_overlay_data(append_to_column(p$overlay, sig_text = sig_text))
   overlay$color = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other))
     
   # get the global symbol and color mapping and save in local environemnt
@@ -32,8 +32,6 @@ make_interactive <- function(p, source = NULL, legend = T, sig_text = ''){
   
   # add overlay
   if (nrow(overlay) > 0){
-    
-    #if (any(overlay$size > 12)) browser()
     
     p1 = p1 %>% 
       add_genoppi_trace(overlay[overlay$significant, ], params, stroke_width = 0.9, legend = legend) %>%

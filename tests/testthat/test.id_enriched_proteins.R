@@ -20,3 +20,11 @@ test_that('id_enriched_proteins return correct enriched proteins',{
   expect_equal(sum(result$significant),16)  
  
 })
+
+test_that('function fails when no mapping is not provided',{
+  
+  expect_error(id_enriched_proteins(df, logfc_dir=NULL,logfc_cutoff=NULL,p_cutoff=NULL,fdr_cutoff=0.1))
+  expect_error(id_enriched_proteins(df, logfc_dir=NULL,logfc_cutoff=NULL,p_cutoff=0.1,fdr_cutoff=NULL))
+  expect_error(id_enriched_proteins(df, logfc_dir=NULL,logfc_cutoff=0.1,p_cutoff=NULL,fdr_cutoff=NULL))
+
+})

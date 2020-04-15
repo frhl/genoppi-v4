@@ -538,12 +538,8 @@ shinyServer(function(input, output, session){
   a_orig_pulldown <- reactive({
     pulldown <- a_in_pulldown()
     if (pulldown$format$check$accession_rep == TRUE){
-      mapping <- map_gene_id(pulldown$data)[[2]]
-      pulldown$data$gene = mapping$gene
-      } # this may also be in another namespace. check!
-    
-    #pulldown$data$gene = toupper(pulldown$data$gene)
-    
+      pulldown$data <- map_gene_id(pulldown$data)
+      }
     return(pulldown$data)
   })  
   

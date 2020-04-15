@@ -8,6 +8,7 @@
 
 read_input <- function(filename, header = 'auto', sep = 'auto'){
   
+  #input = read.table(filename, header = header, sep = sep)
   input = data.table::fread(filename, header = header, sep = sep)
   check = check_input(input)
   

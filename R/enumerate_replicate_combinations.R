@@ -10,5 +10,6 @@ enumerate_replicate_combinations <- function(len){
   enumerate = enumerate[!duplicated(enumerate), ]
   enumerate = enumerate[enumerate$V1 != enumerate$V2,]
   colnames(enumerate) = c('repA', 'repB')
+  rownames(enumerate) = NULL
   return(enumerate)
 }
