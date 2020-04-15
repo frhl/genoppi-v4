@@ -21,7 +21,8 @@ Depends:
     shinydashboard,
     plotly,
 Suggests:
-    devtools
+    devtools,
+    covr
 Imports:
     stats,
     hash,
