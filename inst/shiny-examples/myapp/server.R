@@ -1284,6 +1284,7 @@ shinyServer(function(input, output, session){
   
   a_sp_gg <- reactive({
     
+  
     # what replicates are inputted
     req(input$a_select_scatterplot, a_pulldown_significant())
     rep = unlist(strsplit(input$a_select_scatterplot,'\\.'))

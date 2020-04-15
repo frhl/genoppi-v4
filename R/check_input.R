@@ -27,7 +27,7 @@ check_input <- function(tabl){
   check = lapply(allowed_formats, function(x){
     mat = lapply(x, function(y) grepl(y,colnames(tabl)))
     vec = apply(do.call(rbind, mat), 2, any)
-    return(length(vec) >= length(x) & all(lapply(mat, any)))
+    return(length(vec) >= length(x) & all(unlist(lapply(mat, any))))
   })
   
   # should we remove the remaining columns?

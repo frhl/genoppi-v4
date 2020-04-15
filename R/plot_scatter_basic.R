@@ -12,6 +12,10 @@
 
 plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col_significant = "#41AB5D", col_other = 'grey'){
   
+  # check input
+  if (!is.numeric(df[,repA])) stop('repA must be a numeric column.')
+  if (!is.numeric(df[,repB])) stop('repB must be a numeric column.')
+  
   # set default parameters
   df$color = ifelse(df$significant, col_significant, col_other)
   if (is.null(df$dataset)) df$dataset = 'pulldown'
@@ -51,10 +55,10 @@ plot_scatter_basic_all <- function(df, size_point = 3, col_significant = "#41AB5
   reps = regmatches(colnames(df), regexpr('rep[0-9]',colnames(df)))
   combinations = enumerate_replicate_combinations(length(reps))
   plts = lapply(1:nrow(combinations), function(i){
-    repA = reps[combinations$repA[i]]
-    repB = reps[combinations$repB[i]]
+    repA = paste0('rep',combinations[i, 1])
+    repB = paste0('rep',combinations[i, 2])
     name = paste0(repA,'.',repB)
-    p = plot_scatter_basic(df, repA, repB, size_point, col_significant, col_other)
+    p = plot_scatter_basic(df, repA = repA, repB = repB, size_point = size_point, col_significant = col_significant, col_other = col_other)
     return(list(name = name, ggplot = p, correlation = p$correlation))
   })
   
