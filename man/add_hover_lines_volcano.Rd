@@ -26,9 +26,6 @@ add_hover_lines_volcano(
 \description{
 A function that adds reactive dashed lines to a plotly object.
 }
-\note{
-internal
-}
 \seealso{
 Other shiny: 
 \code{\link{add_layout_html_axes_scatterplot}()},

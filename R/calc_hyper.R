@@ -52,7 +52,7 @@ calc_hyper <- function(df, listDf, intersectDf, bait=NULL){
     notSample <- setdiff(population,sample) 
 
     # Hypergeometric test (one-tailed)
-    hyperP <- phyper(length(successInSample)-1, length(sample), length(notSample), length(success), lower.tail=F)
+    hyperP <- stats::phyper(length(successInSample)-1, length(sample), length(notSample), length(success), lower.tail=F)
 
     # add results to outDf (overlap counts and p-value) and outList (gene names coresponding to overalp counts)
     outDf <- rbind(outDf, data.frame(list_name=l, successInSample_count=length(successInSample), 

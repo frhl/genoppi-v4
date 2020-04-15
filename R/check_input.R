@@ -3,12 +3,14 @@
 #' @param tabl a data.frame
 #' @note An item in the approved format list can appear more than once
 #' @return list of boolean vairables indicating if input match a format and allowed formats
+#' @export
 #' @examples
 #' \dontrun{
 #' tabl1 = data.frame(gene = letters,rep1=runif(26), rep2=rnorm(26))
 #' tabl2 = data.frame(gene = letters,rep1=runif(26), rep2=rnorm(26), somethingelse=1:26)
 #' check_input(tabl1)
 #' }
+#' 
 
 
 check_input <- function(tabl){

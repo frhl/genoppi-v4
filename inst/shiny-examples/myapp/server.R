@@ -859,15 +859,14 @@ shinyServer(function(input, output, session){
     }
   )
   
-  
   # show/hide data download buttons
-  observeEvent(input$a_file_pulldown_r, {toggle(id="a_mttest_mapping_download", condition=!is.null(input$a_file_pulldown_r))})
-  observeEvent(input$a_bait_rep, {toggle(id="a_inweb_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
-  observe({toggle(id="a_snp_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_SNP_rep$datapath))})
-  observe({toggle(id="a_gene_upload_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_genes_rep))})
-  observe({toggle(id="a_gwas_catalogue_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
-  observe({toggle(id="a_gnomad_mapping_download", condition=!is.null(a_pulldown_significant()) & input$a_select_gnomad_pli_type == 'threshold')})
-  observe({toggle(id="a_pathway_mapping_download", condition=!is.null(a_pulldown_significant()))})
+  observeEvent(input$a_file_pulldown_r, {shinyjs::toggle(id="a_mttest_mapping_download", condition=!is.null(input$a_file_pulldown_r))})
+  observeEvent(input$a_bait_rep, {shinyjs::toggle(id="a_inweb_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
+  observe({shinyjs::toggle(id="a_snp_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_SNP_rep$datapath))})
+  observe({shinyjs::toggle(id="a_gene_upload_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_genes_rep))})
+  observe({shinyjs::toggle(id="a_gwas_catalogue_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
+  observe({shinyjs::toggle(id="a_gnomad_mapping_download", condition=!is.null(a_pulldown_significant()) & input$a_select_gnomad_pli_type == 'threshold')})
+  observe({shinyjs::toggle(id="a_pathway_mapping_download", condition=!is.null(a_pulldown_significant()))})
   
   # show/hide plot download buttons
   observeEvent(!is.null(a_pulldown_significant()),{
@@ -1241,9 +1240,10 @@ shinyServer(function(input, output, session){
   
   # basic volcano plot
   a_vp_gg <- reactive({
+    req(a_pulldown_significant())
     d <- a_pulldown_significant()
     req(input$a_color_indv_sig, input$a_color_indv_insig)
-    p <- plot_volcano_basic(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
+    p <- plot_volcano_basic(d, col_significant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
     p <- plot_overlay(p, as.bait(input$a_bait_search_rep)) # add bait
     return(p)
   })
@@ -1278,7 +1278,7 @@ shinyServer(function(input, output, session){
     # handle all scatter plots
     req(a_pulldown_significant())
     d = a_pulldown_significant()
-    p = plot_scatter_basic_all(d, col_signficant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
+    p = plot_scatter_basic_all(d, col_significant = input$a_color_indv_sig, col_other = input$a_color_indv_insig)
     return(p)
   })
   

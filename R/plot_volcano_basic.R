@@ -8,13 +8,9 @@
 #' @param gg.size the size of the points. 
 #' @export
 #' @importFrom ggplot2 ggplot geom_point geom_hline geom_vline xlab ylab theme aes_ aes aes_string geom_text
-#' @examples
-#' \dontrun{
-#' # artifical data 
-#' df = data.frame(gene=letters, fdr=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
-#' p = plot_volcano(df) + labs(title='Random generated data and gglabs')
-#' }
 #' 
+
+
 
 
 plot_volcano_basic <- function(df, col_significant = "#41AB5D", col_other = 'grey', gg.size = 3){
@@ -23,7 +19,7 @@ plot_volcano_basic <- function(df, col_significant = "#41AB5D", col_other = 'gre
   stop_invalid_columns(df,'plot_volcano_basic',c('gene','logFC', 'pvalue', 'significant'))
   
   # set default parameters
-  df$color <- ifelse(df$significant, col_signficant, col_other)
+  df$color <- ifelse(df$significant, col_significant, col_other)
   if (is.null(df$dataset)) df$dataset = 'pulldown'
   if (is.null(df$size)) df$size = 7
   

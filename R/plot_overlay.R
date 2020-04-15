@@ -69,7 +69,7 @@ plot_overlay <- function(p, reference, match = 'gene', label = NULL, label.size 
   overlay =  merge(plot.data, validate_reference(overlay), by = match)
   
   # add the overlay to the ggplot
-  p1 = p + geom_point(data = overlay, 
+  p1 = p + ggplot2::geom_point(data = overlay, 
                  mapping = aes_string(x=p$mapping$x, y=p$mapping$y),
                  fill = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other)),
                  size = overlay$gg.size,
@@ -77,7 +77,7 @@ plot_overlay <- function(p, reference, match = 'gene', label = NULL, label.size 
                  stroke = 0.75)
   
   # annotate plot
-  p1 = p1 + geom_text_repel(collapse_labels(overlay[unlist(ifelse(is.null(label), list(overlay$label), list(label))),]), 
+  p1 = p1 + ggrepel::geom_text_repel(collapse_labels(overlay[unlist(ifelse(is.null(label), list(overlay$label), list(label))),]), 
                        mapping=aes(label = gene),
                        color=label.color,
                        size=ifelse(is.null(label.size), overlay$label_size, label.size),

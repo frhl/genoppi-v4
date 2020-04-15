@@ -60,8 +60,8 @@ color_gradient <- function(x, colors=c("green", 'red'), colsteps=100) {
 #' @family misc
 #' @export
 color_distinct <- function(){
-  palette = brewer.pal.info[brewer.pal.info$category == 'qual',]
-  return(rep(unlist(mapply(brewer.pal, palette$maxcolors, rownames(palette))),10))
+  palette = RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
+  return(rep(unlist(mapply(RColorBrewer::brewer.pal, palette$maxcolors, rownames(palette))),10))
 }
 
 #' @title assign frequency
@@ -132,7 +132,7 @@ findnamespace <- function(ns = ls(getNamespace('ggplot2')), directory = 'R'){
 }
 
 
-#findit('RColorBrewer')
+findit('RColorBrewer')
 
 #nsgg = ls(getNamespace('hashmap'))
 #nsgg = ls(getNamespace('assertthat'))
@@ -148,12 +148,12 @@ findnamespace <- function(ns = ls(getNamespace('ggplot2')), directory = 'R'){
 
 
 
-#findit('ggplot2')
-#nsgg = ls(getNamespace('VennDiagram')) # remove special chars
-#nsgg = nsgg[15:length(nsgg)] # remove special chars
+#findit('data.table')
+#nsgg = ls(getNamespace('stats')) # remove special chars
+#nsgg = nsgg[10:length(nsgg)] # remove special chars
 
 #nsgg = nsgg[!grepl('\\[|\\]', nsgg)]
 
-#x = findnamespace(nsgg, directory = 'inst/shiny-examples/myapp/')
+#x = findnamespace(c('fread'), directory = 'inst/shiny-examples/myapp/')
 #x = findnamespace(nsgg)
 

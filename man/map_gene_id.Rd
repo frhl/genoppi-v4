@@ -10,8 +10,8 @@ map_gene_id(df)
 \item{df}{data.frame containing accession_number column}
 }
 \value{
-list of (df with accession_number column replaced by gene column, df with accession_number and gene columns)
+data.frame consisting of input df + new gene column
 }
 \description{
-Map and replace accession_number column in a data.frame with gene column. Isoforms (indicated by suffixes separated by . or - in acession_number) are mapped to the same gene names.
+Add gene column to data.frame containing accesion_number column. Isoforms (indicated by suffixes separated by . or - in acession_number) are mapped to the same gene names.
 }

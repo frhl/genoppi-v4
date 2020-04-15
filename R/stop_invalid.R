@@ -5,6 +5,8 @@
 #' @param data a data.frame
 #' @param prefix e.g. 'snpData'
 #' @param need vector of strings needed in data
+#' @export
+#' 
 
 stop_invalid_columns <- function(data, prefix, need){
   # check format of infile

@@ -15,7 +15,11 @@ Description: Tools for working with proteomics data.
 License: MIT + file LICENSE
 LazyData: true
 Depends:
-    R (>= 3.6)
+    R (>= 3.6),
+    hash,
+    ggplot2,
+    shinydashboard,
+    plotly,
 Suggests:
     devtools
 Imports:
@@ -32,6 +36,7 @@ Imports:
     VennDiagram,
     colourpicker,
     futile.logger,
+    DT,
     limma,
 Encoding: UTF-8
 RoxygenNote: 7.0.2

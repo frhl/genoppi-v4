@@ -40,7 +40,7 @@ calc_fisher <- function(df, listDf, intersectDf, bait=NULL){
       neither <- setdiff(setdiff(population,sigDf),sigList)
 
       # Fisher's exact test (one-tailed)
-      fisherP <- fisher.test(matrix(c(length(overlap),length(dfOnly),
+      fisherP <- stats::fisher.test(matrix(c(length(overlap),length(dfOnly),
         length(listOnly),length(neither)),nrow=2),alternative="greater")$p
 
       # add results to outDf (overlap counts and p-value) and outList (gene names coresponding to overalp counts)

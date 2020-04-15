@@ -22,7 +22,7 @@ set_names_by_dataset <- function(data, overlay, marker = 'color', by = 'dataset'
   tabl = rbind(tabl_data, tabl_overlay)
   
   # set colors
-  global_colors <- setNames(tabl[[marker]], tabl$dataset)
+  global_colors <- stats::setNames(tabl[[marker]], tabl$dataset)
   
   return(global_colors)
   

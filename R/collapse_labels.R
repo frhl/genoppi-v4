@@ -12,6 +12,7 @@
 #' @param item_sep how should each collapsed item be seperated from the next? Default is
 #' newline.
 #' @export
+#' 
 
 collapse_labels <- function(overlay, dataset = 'dataset', collapse = 'alt_label', collapse_by = 'gene', dataset_collapse_sep = ': ', item_sep = ' <br>'){
   

@@ -25,11 +25,3 @@ takes in a data.frane with the columns gene, logFC, pvalue and significant
 to draw a volcano. Optionally, a column indicating 'color' (string) can be supplied to 
 indicate the volcano color scheme and whether to draw names of specific proteins.
 }
-\examples{
-\dontrun{
-# artifical data 
-df = data.frame(gene=letters, fdr=runif(26), pvalue=runif(26), logFC = rnorm(26), significant = c(rep(T,10), rep(F, 16)))
-p = plot_volcano(df) + labs(title='Random generated data and gglabs')
-}
-
-}

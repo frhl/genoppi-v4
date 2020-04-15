@@ -24,4 +24,5 @@ tabl1 = data.frame(gene = letters,rep1=runif(26), rep2=rnorm(26))
 tabl2 = data.frame(gene = letters,rep1=runif(26), rep2=rnorm(26), somethingelse=1:26)
 check_input(tabl1)
 }
+
 }

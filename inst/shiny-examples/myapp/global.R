@@ -25,13 +25,13 @@ main = system.file('extdata', package = 'genoppi')
 marker_cols <- read.table(file.path(main, 'colors.txt'))
 add_marker_cols <- read.table(file.path(main, 'colors_markers.txt'))
 allowed_colors = unique(c('#41AB5D', 'red','green','#808080', 'blue', 'yellow', 'cyan', '#FF00FF', '#A52A2A'))
-plotly_symbols = schema(F)$traces$scatter$attributes$marker$symbol$values
+plotly_symbols = plotly::schema(F)$traces$scatter$attributes$marker$symbol$values
 allowed_plotly_symbols = plotly_symbols[!grepl('^[0-9]+$', plotly_symbols)]
 
 #up_to_hgnc <- read.table("data/HGNC_gene_to_UniProt_accession_number_Genoppi_ready.csv", header = T, sep = "\t", stringsAsFactors = F)
 #prot_fam <- read.table(file.path(main, "protFams_genes_cols.txt"),  sep = "\t", quote = "", na.strings=c("","NA"), header = T, check.names = F)
 #prot_fam_t <- data.frame(t(prot_fam))
-flog.threshold(ERROR) # for ensuring venn diagrams does not make logs
+futile.logger::flog.threshold(futile.logger::ERROR) # for ensuring venn diagrams does not make logs
 
 
 myDownloadButton <- function(outputId, label = "Download", img = icon("camera")){

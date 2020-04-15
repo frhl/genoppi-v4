@@ -13,12 +13,12 @@
 plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col_significant = "#41AB5D", col_other = 'grey'){
   
   # set default parameters
-  df$color = ifelse(df$significant, col_signficant, col_other)
+  df$color = ifelse(df$significant, col_significant, col_other)
   if (is.null(df$dataset)) df$dataset = 'pulldown'
   if (is.null(df$size)) df$size = 7
   
   # plot singlebasic scatter plot
-  correlation = cor(df[,repA], df[,repB])
+  correlation = stats::cor(df[,repA], df[,repB])
   p = ggplot(df, mapping=aes_(x=as.name(repA), y=as.name(repB))) + 
     geom_point(alpha=1, size=size_point, color=ifelse(df$significant, "#41AB5D", "grey"), stroke = 0.6) +
     geom_abline(intercept=0, slope=1, linetype="longdash", size=0.2) +
@@ -54,7 +54,7 @@ plot_scatter_basic_all <- function(df, size_point = 3, col_significant = "#41AB5
     repA = reps[combinations$repA[i]]
     repB = reps[combinations$repB[i]]
     name = paste0(repA,'.',repB)
-    p = plot_scatter_basic(df, repA, repB, size_point, col_signficant, col_other)
+    p = plot_scatter_basic(df, repA, repB, size_point, col_significant, col_other)
     return(list(name = name, ggplot = p, correlation = p$correlation))
   })
   
