@@ -1,7 +1,7 @@
 context('calc_hyper')
 
 # read in test data
-df <- read_input("data/test.BCL2vsIgG.GPiN.txt",header=T,sep="\t")$data
+df <- read_input("data/test.data.txt",header=T,sep="\t")$data
 statsDf <- calc_mod_ttest(df)
 sigDf <- id_enriched_proteins(statsDf)
 
@@ -18,12 +18,12 @@ test_that('calc_hyper can return correct overlap results',{
   
   # InWeb
   result <- calc_hyper(sigDf,inwebDf,inwebInterDf,"BCL2")
-  expect_equal(format(result[[1]]$pvalue,digits=3),"0.908")
-  expect_equal(result[[2]][["InWeb"]]$successInSample_genes,"LARP1")
-  
+  expect_equal(format(result[[1]]$pvalue,digits=3),"0.175")
+  expect_true(all(result[[2]][["InWeb"]]$successInSample_genes %in% c("HSP90AA1","BAX","RPL8","RPLP2")))
+
   # gene list
   result <- calc_hyper(sigDf,geneDf,intersectDf,"BCL2")
-  expect_equal(format(result[[1]]$pvalue,digits=3),"0.00513")
-  expect_identical(sort(result[[2]][["ALS"]]$successInSample_genes),c("ATXN2","FUS","PFN1","TAF15"))
-  
+  expect_equal(format(result[[1]]$pvalue,digits=3),"0.567")
+  expect_true(result[[2]][["ALS"]]$successInSample_genes %in% c("HNRNPA2B1"))
+
 })
