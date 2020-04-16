@@ -6,7 +6,7 @@ func = 'draw_venn_simple'
 
 # read in test data
 data <- read_input("data/test.data.txt",header=T,sep="\t")$data
-data <- calc_mod_ttest(data)
+data <- suppressWarnings(calc_mod_ttest(data))
 data = id_enriched_proteins(data)
 
 test_that('inweb is correctly illustrated in venn diagram',{
