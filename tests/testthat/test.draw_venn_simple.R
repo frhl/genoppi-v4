@@ -13,7 +13,7 @@ test_that('inweb is correctly illustrated in venn diagram',{
   
   # get paths for image based comparison
   id = 'A1'
-  #paths = make_test_path(func, id)
+  paths = make_test_path(func, id)
   
   # get inweb hyper geometric data
   inweb_output = get_inweb_list('BCL2')
@@ -27,12 +27,12 @@ test_that('inweb is correctly illustrated in venn diagram',{
   
   # draw venn
   venn = draw_genoppi_venn(hyper$venn)
-  #png(paths$res)
+  png(paths$res)
   grid::grid.newpage()
   grid::grid.draw(venn)
-  #dev.off()
+  dev.off()
  
   # make comparison
-  #expect_true(test_png_identity(paths))
+  expect_true(test_png_identity(paths))
   
 })

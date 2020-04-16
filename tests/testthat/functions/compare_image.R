@@ -37,6 +37,7 @@ compare_with_reference <- function(plt, func, id, type = 'png', width = 3, heigh
 }
 
 test_png_identity <- function(paths){
+  require(png)
   if (!all(unlist(lapply(paths, file.exists)))) stop('either ref or res does not exist!')
   images = lapply(paths, function(x) as.matrix(readPNG(x)[,,1]))
   if (all(dim(images$res) != dim(images$ref))) stop('image dimensions are not the same!')
