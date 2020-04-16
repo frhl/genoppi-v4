@@ -1,9 +1,3 @@
-# contains functions for making direct image comparison
-# based on pixel level. Ideally, these functions should
-# be able to also rasterize an iamge.
-
-
-
 # from tools package.. to extract file exntesion
 file.ext = function(x) {
   pos <- regexpr("\\.([[:alnum:]]+)$", x)
@@ -13,40 +7,49 @@ file.ext = function(x) {
 # function to generate test paths
 make_test_path <- function(func, id, type = 'png', create.dir = T){
   fname = paste(func,id,type, sep = '.')
-  main = system.file('tests','testthat','reference', package = "genoppi")
-  if (!dir.exists(file.path(main,func)) & create.dir) {
-    newdir = file.path(main,func)
-    dir.create(newdir)
-    write(paste('created',newdir),stderr()) 
+  dirs = system.file('tests','testthat',c('reference','result'), package = "genoppi")
+  dirs = file.path(dirs, func)
+  if (create.dir){
+    if (!dir.exists(dirs[[1]])) dir.create(dirs[[1]])
+    if (!dir.exists(dirs[[2]])) dir.create(dirs[[2]])
   }
-  paths = file.path(main,func,fname)
-  return(paths)
+  paths = file.path(dirs, fname)
+  return(list(ref=paths[1],res=paths[2]))
 }
 
 # save a reference
-save_gg_reference <- function(plt, func, id, type = 'png', width = 1, height = 1){
+save_gg_reference <- function(plt, func, id, type = 'png', width = 3, height = 3, seed = 1){
   paths = make_test_path(func, id, type)
-  ggsave(filename = paths, plt, width = width, height = height)
+  catf(paste('[SAVE]',paths$ref))
+  set.seed(seed)
+  ggsave(filename = paths$ref, plt, width = width, height = height)
 }
 
 
-# read binary
-png_make_links <- function(plt, func, id, type = 'png', width = 1, height = 1){
-
-  ref = make_test_path(func, id, type)
-  if (!file.exists(ref)) stop(paste(ref,'does not exist!'))
-  #res = tempfile(fileext = paste0('.',type))
-  res = 'tmp-res.png'
-  ggsave(filename = res, plt, width = width, height = height)
-  return(list(res=res,ref=ref))
-}
-
-# compare the result
-compare_with_ref <- function(plt, func, id, type = 'png', width=1, height=1){
-  
-  links = png_make_links(plt, func, id, width = width, height = height)
-  images = lapply(links, function(x) as.matrix(readPNG(x)[,,1]))
+#
+compare_with_reference <- function(plt, func, id, type = 'png', width = 3, height = 3, seed = 1){
+  require(png)
+  paths = make_test_path(func, id, type)
+  if (file.exists(paths$res)) unlink(paths$res)
+  set.seed(seed)
+  ggsave(filename = paths$res, plt, width = width, height = height)
+  if (!all(unlist(lapply(paths, file.exists)))) stop('either ref or res does not exist!')
+  images = lapply(paths, function(x) as.matrix(readPNG(x)[,,1]))
   if (all(dim(images$res) != dim(images$ref))) stop('image dimensions are not the same!')
   return(all(images$ref == images$res))
 }
+
+compare_both <- function(plt, func, id){
+  require(png)
+  paths = make_test_path(func, id, type)
+  if (!all(unlist(lapply(paths, file.exists)))) stop('either ref or res does not exist!')
+  images = lapply(paths, function(x) as.matrix(readPNG(x)[,,1]))
+  if (all(dim(images$res) != dim(images$ref))) stop('image dimensions are not the same!')
+  img.comp = abs(images$ref-images$res)
+  img.comp = images$ref+8*(img.comp)
+  img.comp = img.comp/max(img.comp)
+  grid.raster(img.comp)
+}
+
+
 

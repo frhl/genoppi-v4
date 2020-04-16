@@ -53,7 +53,6 @@ Collate:
     'calc_fisher.R'
     'calc_hyper.R'
     'calc_mod_ttest.R'
-    'calculate_logfc.R'
     'check_input.R'
     'collapse_labels.R'
     'data.R'
