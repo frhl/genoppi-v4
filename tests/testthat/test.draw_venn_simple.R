@@ -1,7 +1,7 @@
 context('draw_venn_simple')
 
 # for comparing images
-#('functions/compare_image.R')
+source('functions/compare_image.R')
 func = 'draw_venn_simple'
 
 # read in test data
