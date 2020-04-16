@@ -1,6 +1,6 @@
 Package: genoppi
 Title: genoppi
-Version: 0.1.3
+Version: 0.1.4
 Authors@R: 
     c(person(given = "Frederik",
              family = "Lassen",
@@ -23,6 +23,8 @@ Depends:
 Suggests:
     devtools,
     covr,
+    grid,
+    png,
     testthat (>= 2.1.0)
 Imports:
     stats,

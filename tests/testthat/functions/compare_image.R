@@ -33,13 +33,18 @@ compare_with_reference <- function(plt, func, id, type = 'png', width = 3, heigh
   if (file.exists(paths$res)) unlink(paths$res)
   set.seed(seed)
   ggsave(filename = paths$res, plt, width = width, height = height)
+  return(test_png_identity(paths))
+}
+
+test_png_identity <- function(paths){
   if (!all(unlist(lapply(paths, file.exists)))) stop('either ref or res does not exist!')
   images = lapply(paths, function(x) as.matrix(readPNG(x)[,,1]))
   if (all(dim(images$res) != dim(images$ref))) stop('image dimensions are not the same!')
   return(all(images$ref == images$res))
 }
 
-compare_both <- function(plt, func, id){
+
+compare_both <- function(func, id){
   require(png)
   paths = make_test_path(func, id, type)
   if (!all(unlist(lapply(paths, file.exists)))) stop('either ref or res does not exist!')
