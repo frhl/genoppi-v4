@@ -166,3 +166,14 @@
 #' @source c7.all.v7.1.symbols.gmt file downloaded on 2020-04-03 (https://www.gsea-msigdb.org/gsea/msigdb/collections.jsp#H).
 
 "msigdb_c7_table"
+
+
+#' @title example proteomic data
+#' @description Simulated proteomic dataset containing gene symbol and corresponding log2 fold change values for 3 replciates
+#' @format data.table object with columns: gene, rep1, rep2, rep3
+#' @family datasets
+#' @docType data
+#' @source simulated data, do not represent true biology. 
+
+"example_data"
+
