@@ -27,10 +27,10 @@ test_that('inweb is correctly illustrated in venn diagram',{
   
   # draw venn
   venn = draw_genoppi_venn(hyper$venn)
-  png(paths$res)
+  #png(paths$res)
   grid::grid.newpage()
   grid::grid.draw(venn)
-  dev.off()
+  #dev.off()
  
   # make comparison
   #expect_true(test_png_identity(paths))
