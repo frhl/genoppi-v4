@@ -55,16 +55,12 @@ sig_df <- id_enriched_proteins(stats_df)
 # generate volcano plot with bait protein labeled
 basic_volcano <- plot_volcano_basic(sig_df)
 bait_volcano <- plot_overlay(basic_volcano,as.bait('BCL2'))
+print(bait_volcano)
 
 # generate correlation scatter plot for two replicates
 basic_scatter <- plot_scatter_basic(sig_df,"rep1","rep2")
 bait_scatter <- plot_overlay(basic_scatter,as.bait('BCL2'))
-
-# output volcano and scatter plots as PDF
-pdf("example_basic_plots.pdf",height=7,width=7)
-print(bait_volcano)
 print(bait_scatter)
-dev.off()
 
 # NOTE: the piping (%>%) command can be used to streamline steps, e.g.: 
 example_data %>%
@@ -94,11 +90,12 @@ plot_overlay(bait_volcano,inweb_list)
 overlap_results <- calc_hyper(sig_df, inweb_df,
   data.frame(listName="InWeb",intersectN=T), bait='BCL2')
 
-### NOT WORKING: plot not showing?
 # Venn diagram of overlap
-#venn_list <- list(Enriched=overlap_results[[2]]$InWeb$success_genes,
-#  InWeb=overlap_results[[2]]$InWeb$sample_genes)
-#draw_genoppi_venn(venn_list)
+venn_list <- list(Enriched=overlap_results$genes$InWeb$success_genes,
+  InWeb=overlap_results$genes$InWeb$sample_genes)
+venn_diagram <- draw_genoppi_venn(venn_list)
+grid.newpage()
+grid.draw(venn_diagram)
 
 
 ### ------------------------------------------------------------------
