@@ -5,7 +5,7 @@
 #' and their corrsponding dataset.
 #' @param overlay a data.frame
 #' @param dataset the main dataset name that is to be combined.
-#' @param collapse the column that will contain the collapsed entries.
+#' @param collapse_into the column that will contain the collapsed entries.
 #' @param collapse_by what identifying colummn is the data to be collapsed by?
 #' @param dataset_collapse_sep how should the dataset column and collapse-column 
 #' be seperated by when collapsed?

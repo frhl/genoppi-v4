@@ -1,7 +1,7 @@
 context('draw_venn_simple')
 
 # for comparing images
-source('functions/compare_image.R')
+#('functions/compare_image.R')
 func = 'draw_venn_simple'
 
 # read in test data
@@ -13,7 +13,7 @@ test_that('inweb is correctly illustrated in venn diagram',{
   
   # get paths for image based comparison
   id = 'A1'
-  paths = make_test_path(func, id)
+  #paths = make_test_path(func, id)
   
   # get inweb hyper geometric data
   inweb_output = get_inweb_list('BCL2')
