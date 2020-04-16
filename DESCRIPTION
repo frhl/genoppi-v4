@@ -63,7 +63,6 @@ Collate:
     'get_inweb_list.R'
     'get_gene_lists.R'
     'get_gwas_lists.R'
-    'get_gnomad_constraints.R'
     'get_pathways.R'
     'launch_genoppi.R'
     'misc.R'
