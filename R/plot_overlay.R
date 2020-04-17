@@ -28,31 +28,6 @@
 #' 
 #' @return a ggplot
 #' 
-#' @examples 
-#' \dontrun{
-#' 
-#' # load experimental data (triplicates)
-#' data("BCL2vsIgG.GPiN")
-#'  
-#' # basic plotting of bait
-#' plt = BCL2vsIgG.GPiN %>% 
-#'   calc_mod_ttest() %>% 
-#'   id_enriched_proteins() %>%
-#'   plot_scatter_basic('rep1','rep3') %>% 
-#'   plot_overlay(as.bait('BCL2'))
-#'   
-#'   plt
-#'   
-#' # plotting of bait and inweb data 
-#' # but only label LARP1.
-#' inweb=get_inweb_list('BCL2')
-#' inweb$label = inweb$gene %in% 'LARP1'
-#' inweb = list(InWeb=inweb[inweb$significant, ])
-#' plt = plt %>% plot_overlay(inweb)
-#'
-#' plt
-#' 
-#' }
 #' @importFrom ggplot2 geom_point quo_name ggsave
 #' @import ggrepel
 #' @export
@@ -61,7 +36,7 @@ plot_overlay <- function(p, reference, match = 'gene', label = NULL, label.size 
                          label.box.padding = 0.30, label.point.padding = 0.50, label.arrowhead.size = 0.01) {
   
   # check for allowed input
-  if (!inherits(reference, "list")) stop('argumnt reference must be a namd list.')
+  if (!inherits(reference, "list")) stop('argumnt reference must be a named list.')
 
   # convert reference to a single data.frame and omit non informative columns
   overlay = do.call(rbind, lapply(names(reference), function(x) to_overlay_data(reference[[x]], x)))

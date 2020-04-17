@@ -23,5 +23,6 @@ test_that('get_gene_lists can return correct data.frame',{
   expect_equal(length(result3[[1]]$gene),56)
   expect_equal(sum(result3[[1]]$significant),54)
   expect_identical(result3[[2]]$intersectN,c(FALSE,TRUE))
-
+  
 })
+

@@ -27,3 +27,11 @@ test_that('calc_hyper can return correct overlap results',{
   expect_true(result[[2]][["ALS"]]$successInSample_genes %in% c("HNRNPA2B1"))
 
 })
+
+test_that('errors are reported correctly',{
+
+  expect_warning(calc_hyper(sigDf,inwebDf,inwebInterDf,bait = NULL))
+  expect_error(calc_hyper(sigDf,inwebDf,NULL,bait = 'BCL2'))
+  
+})
+

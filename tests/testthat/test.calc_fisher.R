@@ -27,3 +27,12 @@ test_that('calc_fisher can return correct overlap results',{
   expect_true(result[[2]][["ALS"]]$overlap_genes %in% c("HNRNPA2B1"))
 
 })
+
+test_that('errors are reported correctly',{
+  
+  # InWeb
+  expect_warning(calc_fisher(sigDf,inwebDf,inwebInterDf,bait = NULL))
+  expect_error(calc_fisher(sigDf,inwebDf,NULL,bait = 'BCL2'))
+  
+})
+

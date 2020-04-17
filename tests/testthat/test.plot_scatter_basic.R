@@ -36,3 +36,15 @@ test_that('plot scatter basic all',{
   expect_equal(res$rep1.rep2$ggplot$correlation, 0.6908477)
   
 })
+
+test_that('expected_errors',{
+  
+  # make single comparison 
+  data$rep1 <- as.character(data$rep1)
+  expect_error(plot_scatter_basic(data, repA = 'rep1', repB = 'rep2'))
+  expect_true(!is.null(plot_scatter_basic(data, repA = 'rep2', repB = 'rep3')))
+  data$rep3 <- as.factor(data$rep3)
+  expect_error(plot_scatter_basic(data, repA = 'rep2', repB = 'rep3'))
+  
+})
+

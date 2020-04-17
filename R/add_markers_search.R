@@ -34,7 +34,9 @@ add_markers_search <- function(p, genes){
 add_markers_search_pathway <- function(p, pathways, mapping=NULL){
   
   if (is.null(p$ggparams)) stop('p$ggparams is null. Expected a ggplot!')
-  
+  if (!any(mapping$pathway %in% pathways)) stop('arg pathways must be present in mapping')
+  # c('alt_label','pathway','gene') must be present as well..
+
   # search main data for genes that are also in selected pathways
   data = p$data[p$data$significant, ]
   pathway_sharing_genes = mapping[mapping$pathway %in% pathways & mapping$gene %in% data$gene,]$gene
@@ -42,7 +44,7 @@ add_markers_search_pathway <- function(p, pathways, mapping=NULL){
   # make labels bold and collapse 
   mapping[mapping$pathway %in% pathways,]$pathway <- bold(mapping[mapping$pathway %in% pathways,]$pathway)
   alt = mapping[mapping$gene %in% pathway_sharing_genes,]
-  alt = collapse_labels(alt, dataset = 'pathway', collapse = 'alt_label', dataset_collapse_sep = '')[,c('alt_label','pathway','gene')]
+  alt = collapse_labels(alt, dataset = 'pathway', collapse_into = 'alt_label', dataset_collapse_sep = '')[,c('alt_label','pathway','gene')]
 
   # remove duplicates
   search = merge(data, alt, by = 'gene')

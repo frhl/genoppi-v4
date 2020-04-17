@@ -63,7 +63,7 @@ test_that('inweb and gnomad overlay',{
   
 })
 
-test_that('invalid columns in overlay gives warning',{
+test_that('invalid columns in overlay gives warning and errrs',{
   
   # invalid columns in overlay gives warning
   df <- id_enriched_proteins(df, fdr_cutoff=0.1)
@@ -73,5 +73,8 @@ test_that('invalid columns in overlay gives warning',{
   reference = list(ref1, ref2)
   names(reference) = c('SCZ genelist', 'ASD genelist')
   expect_warning(plot_overlay(p, reference))
+  
+  # check invalid input 
+  expect_error(plot_overlay(p, reference$`SCZ genelist`)) # must be a named list
   
 })
