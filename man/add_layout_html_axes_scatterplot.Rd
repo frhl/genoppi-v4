@@ -18,6 +18,10 @@ add_layout_html_axes_scatterplot(
 \item{title}{the title of the plot.}
 
 \item{legend_title}{the title of the legend.}
+
+\item{width}{the width of the plotly object.}
+
+\item{height}{the heigh of the plotly object.}
 }
 \description{
 format axes of a plotly object.
