@@ -51,9 +51,7 @@ test_that('pathway search',{
   expect_equal(quo_name(m$y), "-log10(pvalue)")
 
   
-})
-
-test_that('errors',{
+  ## check errors
   
   # if mapping is null return error
   expect_error(add_markers_search_pathway(result, 'Y_PATHWAY',NULL))

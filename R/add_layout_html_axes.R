@@ -3,6 +3,8 @@
 #' @param p a plotly object.
 #' @param title the title of the plot.
 #' @param legend_title the title of the legend.
+#' @param height the heigh of the plotly object.
+#' @param width the width of the plotly object.
 #' @importFrom plotly layout
 #' @family shiny
 #' @export

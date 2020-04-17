@@ -70,10 +70,9 @@ example_data %>%
   plot_overlay(as.bait('BCL2'))
 
 
-### NOT WORKING (accession_number error)
 # interactive volcano plot
-#make_interactive(bait_volcano) %>%
-#  add_layout_html_axes_volcano(width = NULL, height = NULL)
+make_interactive(bait_volcano) %>%
+  add_layout_html_axes_volcano()
 
 
 ### ------------------------------------------------------------------
