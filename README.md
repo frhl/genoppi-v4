@@ -93,19 +93,9 @@ overlap_results <- calc_hyper(sig_df, inweb_df,
 venn_list <- list(Enriched=overlap_results$genes$InWeb$success_genes,
   InWeb=overlap_results$genes$InWeb$sample_genes)
 venn_diagram <- draw_genoppi_venn(venn_list)
+library(grid)
 grid.newpage()
 grid.draw(venn_diagram)
-
-
-### ------------------------------------------------------------------
-### (3) Gene set annotations (using HGNC gene groups as example)
-
-# get HGNC gene group annotations
-annot_df <- get_pathways('hgnc', sig_df$gene)
-
-### TO DO: which function? just plot_overlay?
-# volcano plot with annotations
-
 
 ```
 
