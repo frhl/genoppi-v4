@@ -6,7 +6,7 @@
 #' @importFrom plotly layout
 #' @family shiny
 #' @export
-add_layout_html_axes_scatterplot <- function(p, title='', legend_title = bold('Overlay')){
+add_layout_html_axes_scatterplot <- function(p, title='', legend_title = bold('Overlay'), width=NULL, height=NULL){
   
   toreplicate <- function(x) gsub('(R|r)ep','Replicate ', x)
   stopifnot(!is.null(p$data))
@@ -16,9 +16,9 @@ add_layout_html_axes_scatterplot <- function(p, title='', legend_title = bold('O
                     yaxis = list(title = paste(toreplicate(quo_name(p$ggparams$mapping$y)),"log<sub>2</sub>(Fold change)"), 
                                  range=~c((min(p$data[[quo_name(p$ggparams$mapping$x)]], p$data[[quo_name(p$ggparams$mapping$y)]]))-1, 
                                           (max(p$data[[quo_name(p$ggparams$mapping$x)]], p$data[[quo_name(p$ggparams$mapping$y)]]))+1)), 
-                    title = title, titlefont = list(size=15), 
+                    title = title, #titlefont = list(size=15), 
                     legend=list(title=list(text=legend_title)),
-                    height = 400, width = 450)
+                    height = height, width =width)
   p
 }
 

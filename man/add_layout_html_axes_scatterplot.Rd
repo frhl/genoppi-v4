@@ -4,7 +4,13 @@
 \alias{add_layout_html_axes_scatterplot}
 \title{layout for scatterplot}
 \usage{
-add_layout_html_axes_scatterplot(p, title = "", legend_title = bold("Overlay"))
+add_layout_html_axes_scatterplot(
+  p,
+  title = "",
+  legend_title = bold("Overlay"),
+  width = NULL,
+  height = NULL
+)
 }
 \arguments{
 \item{p}{a plotly object.}
