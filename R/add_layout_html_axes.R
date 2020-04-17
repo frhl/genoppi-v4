@@ -6,6 +6,7 @@
 #' @param height the heigh of the plotly object.
 #' @param width the width of the plotly object.
 #' @importFrom plotly layout
+#' @importFrom shiny HTML
 #' @family shiny
 #' @export
 add_layout_html_axes_scatterplot <- function(p, title='', legend_title = bold('Overlay'), width=NULL, height=NULL){
@@ -31,6 +32,8 @@ add_layout_html_axes_scatterplot <- function(p, title='', legend_title = bold('O
 #' @param width the width of the plotly object.
 #' @param legend_title the title of the legend.
 #' @family shiny
+#' @importFrom plotly layout
+#' @importFrom shiny HTML
 #' @export
 add_layout_html_axes_volcano <- function(p, height = NULL, width = NULL, legend_title = bold('Overlay')){
   stopifnot(!is.null(p$data))

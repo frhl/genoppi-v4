@@ -48,6 +48,7 @@ as.bait <- function(bait) return(list(bait=data.frame(gene=bait, col_significant
 #' @param colors colors from which to form gradient.
 #' @param colsteps how many colors should be created?
 #' @family misc
+#' @importFrom grDevices colorRampPalette
 #' @export
 #' @source stackoverflow snippet
 color_gradient <- function(x, colors=c("green", 'red'), colsteps=100) {

@@ -3,6 +3,7 @@
 #' @param filename file path of gene list file (contain headers: listName, gene and (optional) significant columns)
 #' @param sep file delimiter
 #' @return list of two data.frames. First data.frame contains listName, gene and significant columns. Second data.frame contains listName and intersectN columns; intersectN = boolean variable indicating if non-significant genes are included in each list (for calling overlap enrichement functions)) 
+#' @importFrom utils read.table
 #' @export
 
 get_gene_lists <- function(filename, sep="\t"){

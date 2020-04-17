@@ -1,6 +1,8 @@
 #' @title launch genoppi
 #' @description launches genoppi in a seperte shiny application
 #' @param local boolean. Launch locally on your machine or try connect to server (to be implemented)
+#' @import shiny
+#' @import shinydashboard
 #' @export
 
 
