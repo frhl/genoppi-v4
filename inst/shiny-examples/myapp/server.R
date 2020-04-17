@@ -594,7 +594,7 @@ shinyServer(function(input, output, session){
   
   # monitor pulldown input, mapping and input
   a_monitor_pulldown <- reactive({
-    req(a_in_pulldown())
+    req(a_pulldown_significant())
     
     # monitor of some columns were discarded
     pulldown <- a_in_pulldown()

@@ -4,7 +4,9 @@
 #' @param df a data.frame
 #' @param valid a vector of valid downstream ggplot/plotly.
 #' @return a data.frame
+#' @family overlay
 #' @export
+
 validate_reference <- function(df, valid = c('gene',
                                              'accession_number',
                                              'col_significant',

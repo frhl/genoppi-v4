@@ -20,9 +20,9 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
   # set legend order in trace
   if (!any(is.na(data$legend_order))) data$dataset = factor(data$dataset, levels = unique(data$dataset[data$legend_order]))
   
-  
   #if (any(data$size > 7.5)) browser()
     
+  #if (is.null(data$accession_number)) browser()
   
   # make trace
   p1 <- add_trace(p, data = data, 
@@ -46,7 +46,7 @@ add_genoppi_trace <- function(p, data, parameters, stroke_width = 0.2, legend = 
                                 opacity = data$opacity),
                   hoverinfo = "text", 
                   hovertemplate = ~paste(paste0(bold(ifelse(!is.na(gene), as.character(gene), '<NA>')),
-                                                #bold(ifelse(!is.null(accession_number), paste0(' [',accession_number,']'), '')),
+                                                bold(ifelse(!is.na(accession_number), paste0(' [',accession_number,']'), '')),
                                                 ", FDR=", signif(FDR, digits = 3),'<br>',
                                                 ifelse(!is.na(data$alt_label), alt_label, dataset), 
                                                 sep = "<br>")),

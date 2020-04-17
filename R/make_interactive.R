@@ -18,7 +18,12 @@ make_interactive <- function(p, source = NULL, legend = T, sig_text = ''){
   data = to_overlay_data(append_to_column(p$data)) 
   overlay = to_overlay_data(append_to_column(p$overlay, sig_text = sig_text))
   overlay$color = ifelse(overlay$significant, as.character(overlay$col_significant), as.character(overlay$col_other))
-    
+  
+  # this is quick fix for displaying both accession number and genes
+  # this should be handled upstream in the future
+  if (is.null(overlay$accession_number) & nrow(overlay) > 0) overlay$accession_number <- NA
+  if (is.null(data$accession_number) & nrow(data) > 0) data$accession_number <- NA
+  
   # get the global symbol and color mapping and save in local environemnt
   sizes = c(min(c(p$data$size, p$overlay$size)), max(c(p$data$size, p$overlay$size)))
   global_colors = set_names_by_dataset(data, overlay, marker = 'color') 
