@@ -1,5 +1,7 @@
 context('draw_venn_simple')
 
+
+#futile.logger::
 # for comparing images
 #source('functions/compare_image.R')
 func = 'draw_venn_simple'
@@ -26,7 +28,7 @@ test_that('inweb is correctly illustrated in venn diagram',{
   hyper[['venn' ]][['B']] <- hyper$genes$InWeb$sample_genes # inweb
   
   # draw venn
-  venn = draw_genoppi_venn(hyper$venn)
+  #venn = draw_genoppi_venn(hyper$venn)
   #png(paths$res)
   #grid::grid.newpage()
   #grid::grid.draw(venn)

@@ -17,6 +17,7 @@ A table containing 91,037 MSigDB computational gene set annotations (10,004 uniq
 \seealso{
 Other datasets: 
 \code{\link{accession_gene_table}},
+\code{\link{example_data}},
 \code{\link{genes_snps}},
 \code{\link{gnomad_table}},
 \code{\link{goa_bp_table}},

@@ -16,15 +16,19 @@ test_that('basic test to see if function works',{
   
   # interactive volcano plot
   result = make_interactive(bait_volcano) %>%
-    add_layout_html_axes_volcano(width = NULL, height = NULL)
-  expect_true(!is.null(result))
+    add_hover_lines_volcano(sig_type = 'pvalue',line_pvalue = 0.05,line_logfc = 5)
   
-  # look at nnotations
-  m = result$x$layoutAttrs[[1]]$annotations
-  expect_equal(quo_name(m$x),'logFC')
-  expect_equal(quo_name(m$y),'-log10(pvalue)')
-  expect_equal(quo_name(m$text),'BCL2')
+  # check that  pvalyelines are plotted
+  m1 = result$x$attrs[[5]]
+  expect_true(!is.null(m1$line))
+  expect_equal(m1$mode, 'lines')
+  expect_equal(m1$text, "pvalue = 0.05")
+  
+  # check that logfc lines are plotted
+  m2 = result$x$attrs[[6]]
+  expect_true(!is.null(m2$line))
+  expect_equal(m2$mode, 'lines')
+  expect_equal(m2$text, "logFC = -5")
+
   
 })
-
-

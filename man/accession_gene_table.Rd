@@ -16,6 +16,7 @@ A table containing 67,744 entries of accession_number to gene (HGNC symbol) mapp
 }
 \seealso{
 Other datasets: 
+\code{\link{example_data}},
 \code{\link{genes_snps}},
 \code{\link{gnomad_table}},
 \code{\link{goa_bp_table}},

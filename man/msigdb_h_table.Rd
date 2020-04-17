@@ -17,6 +17,7 @@ A table containing 7,321 MSigDB hallmark gene set annotations (4,383 unique gene
 \seealso{
 Other datasets: 
 \code{\link{accession_gene_table}},
+\code{\link{example_data}},
 \code{\link{genes_snps}},
 \code{\link{gnomad_table}},
 \code{\link{goa_bp_table}},

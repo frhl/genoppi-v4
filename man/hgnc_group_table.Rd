@@ -17,6 +17,7 @@ A table containing 28,677 gene group annotations from HGNC (23,874 unique symbol
 \seealso{
 Other datasets: 
 \code{\link{accession_gene_table}},
+\code{\link{example_data}},
 \code{\link{genes_snps}},
 \code{\link{gnomad_table}},
 \code{\link{goa_bp_table}},

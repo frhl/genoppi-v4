@@ -18,6 +18,7 @@ Depends:
     R (>= 3.6),
     hash,
     ggplot2,
+    shiny,
     shinydashboard,
     plotly,
 Suggests:
