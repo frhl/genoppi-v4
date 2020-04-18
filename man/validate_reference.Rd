@@ -23,3 +23,4 @@ a data.frame
 Input a data.frame and check whether it contains a pre-specified
 set of valid columns. Invalid columns will be omitted alongside a warning.
 }
+\concept{overlay}

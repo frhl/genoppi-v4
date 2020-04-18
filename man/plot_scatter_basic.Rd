@@ -16,7 +16,7 @@ plot_scatter_basic(
 \arguments{
 \item{df}{A data.frame containing at least gene, significant, replicate/triplicate columns.}
 
-\item{repA}{string that is column in df.}
+\item{repA}{string that is column in df. Expects name to be in the form of rep[0-9], e.g. 'rep1'.}
 
 \item{repB}{string that is column in df.}
 

@@ -4,6 +4,7 @@
 #' @param genes a vector of genes
 #' @note internal
 #' @importFrom plotly add_markers
+#' @export
 #' @family shiny
 
 add_markers_search <- function(p, genes){
@@ -29,6 +30,7 @@ add_markers_search <- function(p, genes){
 #' pathways.
 #' @note internal
 #' @importFrom plotly add_markers
+#' @export
 #' @family shiny
 
 add_markers_search_pathway <- function(p, pathways, mapping=NULL){

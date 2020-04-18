@@ -1,7 +1,7 @@
 #' @title plot a basic scatte plot 
 #' @description Draws a pair of specific replicates in a scatter plot.
 #' @param df A data.frame containing at least gene, significant, replicate/triplicate columns.
-#' @param repA string that is column in df.
+#' @param repA string that is column in df. Expects name to be in the form of rep[0-9], e.g. 'rep1'.
 #' @param repB string that is column in df.
 #' @param size_point size of point.
 #' @param col_significant color for significant protein interactors.
@@ -27,10 +27,10 @@ plot_scatter_basic <- function(df, repA='rep1', repB='rep2', size_point = 3, col
     geom_point(alpha=1, size=size_point, color=ifelse(df$significant, "#41AB5D", "grey"), stroke = 0.6) +
     geom_abline(intercept=0, slope=1, linetype="longdash", size=0.2) +
     labs(title = paste("r =",format(correlation,digits=3))) + 
-    xlab(repA) + 
-    ylab(repB) +
+    xlab(bquote(.(gsub('(R|r)ep','Replicate ', repA))  ~log[2]~'(Fold Change)')) +
+    ylab(bquote(.(gsub('(R|r)ep','Replicate ', repB))  ~log[2]~'(Fold Change)')) +
     theme_minimal() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                              panel.background = element_blank())
+                            panel.background = element_blank())
   
   # set parameters for downstream processing
   #p$visual = list(volcano=F, x=repA, y=repB)
