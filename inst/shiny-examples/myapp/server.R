@@ -645,7 +645,7 @@ shinyServer(function(input, output, session){
     filepath = input$a_file_genes_rep$datapath
     if (!is.null(filepath)){
       genes = get_gene_lists(filepath)
-      genes$data$dataset = ifelse(is.null(genes$data$listName), 'Upload', as.character(genes$data$listName))
+      genes$data$dataset = paste('Genes', ifelse(is.null(genes$data$listName), 'Upload', as.character(genes$data$listName)))
       genes$data$col_significant = input$a_color_genes_upload_sig
       genes$data$col_other = input$a_color_genes_upload_insig
       genes$data$symbol = input$a_symbol_genes_upload
@@ -676,7 +676,7 @@ shinyServer(function(input, output, session){
     mapping$col_other = input$a_color_snp_insig
     mapping$symbol = input$a_symbol_snp
     mapping$label = input$a_label_snp
-    mapping$dataset = mapping$listName 
+    mapping$dataset =  paste('SNPs', mapping$listName)
     return(mapping)
   })
   
