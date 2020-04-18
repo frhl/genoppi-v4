@@ -855,6 +855,52 @@ shinyServer(function(input, output, session){
     }
   )
   
+  # # # venn diagrams # # #
+  
+  # venn diagram inweb mapping for inweb
+  output$a_inweb_venn_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("inweb_venn_mapping",".csv", sep="")
+    },
+    content = function(file) {
+      venn = a_inweb_calc_hyper()$venn
+      write.csv(venn_to_table(venn), file, row.names = F)
+   }
+  )
+  
+  # venn diagram mapping for gnomad
+  output$a_gnomad_venn_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("gnomad_venn_mapping",".csv", sep="")
+    },
+    content = function(file) {
+      venn = a_gnomad_calc_hyper()$venn
+      write.csv(venn_to_table(venn), file, row.names = F)
+    }
+  )
+  
+  # venn diagram mapping for gwas catalogue
+  output$a_gwas_catalogue_venn_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("a_gwas_catalogue_venn_mapping",".csv", sep="")
+    },
+    content = function(file) {
+      #venn = a_gnomad_calc_hyper()$venn
+      #write.csv(venn_to_table(venn), file, row.names = F)
+    }
+  )
+  
+  # venn diagram mapping for uploaded genes
+  output$a_genes_upload_venn_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("a_gwas_catalogue_venn_mapping",".csv", sep="")
+    },
+    content = function(file) {
+      #venn = a_gnomad_calc_hyper()$venn
+      #write.csv(venn_to_table(venn), file, row.names = F)
+    }
+  )
+  
   # show/hide data download buttons
   observeEvent(input$a_file_pulldown_r, {shinyjs::toggle(id="a_mttest_mapping_download", condition=!is.null(input$a_file_pulldown_r))})
   observeEvent(input$a_bait_rep, {shinyjs::toggle(id="a_inweb_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
@@ -863,6 +909,14 @@ shinyServer(function(input, output, session){
   observe({shinyjs::toggle(id="a_gwas_catalogue_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
   observe({shinyjs::toggle(id="a_gnomad_mapping_download", condition=!is.null(a_pulldown_significant()) & input$a_select_gnomad_pli_type == 'threshold')})
   observe({shinyjs::toggle(id="a_pathway_mapping_download", condition=!is.null(a_pulldown_significant()))})
+  
+  # venn diagrams
+  observeEvent(input$a_bait_rep, {shinyjs::toggle(id="a_inweb_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
+  #observe({shinyjs::toggle(id="<id>", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_SNP_rep$datapath))})
+  #observe({shinyjs::toggle(id="<id>", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_genes_rep))})
+  #observe({shinyjs::toggle(id="a_gwas_catalogue_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
+  observe({shinyjs::toggle(id="a_gnomad_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & input$a_select_gnomad_pli_type == 'threshold')})
+  
   
   # show/hide plot download buttons
   observeEvent(!is.null(a_pulldown_significant()),{
@@ -1079,7 +1133,7 @@ shinyServer(function(input, output, session){
     loci = gsub('single','single-gene loci',loci)
     A <- paste0("A = pull down subsetted by ", thresholds, " &#40;", bold(length(diagram[[1]])), "&#41;")
     B <- paste0("B = ",bold(selected)," genes mapped from ", loci,"&#40;", bold(length(unique(diagram[[2]]))), "&#41;")
-    total <- paste0("Total population in pull down", " &#40;", bold(nrow(pulldown)), "&#41;")
+    total <- paste0("Total population =", " &#40;", bold(nrow(pulldown)), "&#41;")
     return(list(A=A, B=B, total=total))
   })
   

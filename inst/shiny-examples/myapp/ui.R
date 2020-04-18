@@ -195,7 +195,7 @@ body <- dashboardBody(
                                           column(4, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
                                           column(5, br(), br(), br(), br(),
                                                     uiOutput("a_inweb_venn_verbatim_ui")),
-                                          column(3, ''),
+                                          column(3, shinyjs::hidden(myDownloadButton("a_inweb_venn_mapping_download", 'overlap', icon("download"))))
                                          ),
                                       ),
                                       tabPanel('GWAS catalog',
@@ -211,10 +211,10 @@ body <- dashboardBody(
                                                  column(4, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px")),
                                                  column(5, br(), br(), br(), br(),
                                                         uiOutput("a_gnomad_venn_verbatim_ui")),
-                                                 column(3, ''),
+                                                 column(3, shinyjs::hidden(myDownloadButton("a_gnomad_venn_mapping_download", 'overlap', icon("download"))))
                                                )
                                       ),
-                                      tabPanel('SNP upload',
+                                      tabPanel('SNPs upload',
                                          fluidRow(
                                           column(4, plotOutput('a_snp_venn_ui', width = "220px", height = "220px")),
                                           column(5, br(), br(), br(), br(),
