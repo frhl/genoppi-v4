@@ -1,5 +1,6 @@
 #' @title Draw venn diagrams
-#' @description drwas a simple 1 by 1 overlap venn diagram.
+#' @description drwas a simple 1 by 1 overlap venn diagram. 
+#' @note NAs in x will be discarded and produce a warning.
 #' @param x a list of two vectors that contain some overlapping strings.
 #' @param colors color scheme.
 #' @param main title, typically a p-value.

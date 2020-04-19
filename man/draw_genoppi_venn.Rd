@@ -16,3 +16,6 @@ draw_genoppi_venn(x, main = "", colors = c("cornflowerblue", "yellow1"))
 \description{
 drwas a simple 1 by 1 overlap venn diagram.
 }
+\note{
+NAs in x will be discarded and produce a warning.
+}
