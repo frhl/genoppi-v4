@@ -885,19 +885,30 @@ shinyServer(function(input, output, session){
       paste("a_gwas_catalogue_venn_mapping",".csv", sep="")
     },
     content = function(file) {
-      #venn = a_gnomad_calc_hyper()$venn
-      #write.csv(venn_to_table(venn), file, row.names = F)
+      venn = a_gwas_catalogue_mapping_venn()
+      write.csv(venn_to_table(venn), file, row.names = F)
+    }
+  )
+  
+  # venn diagram mapping snps
+  output$a_snp_venn_mapping_download <- downloadHandler(
+    filename = function() {
+      paste("a_snp_venn_mapping",".csv", sep="")
+    },
+    content = function(file) {
+      venn = a_snp_venn()
+      write.csv(venn_to_table(venn), file, row.names = F)
     }
   )
   
   # venn diagram mapping for uploaded genes
   output$a_genes_upload_venn_mapping_download <- downloadHandler(
     filename = function() {
-      paste("a_gwas_catalogue_venn_mapping",".csv", sep="")
+      paste("a_genes_upload_venn_mapping",".csv", sep="")
     },
     content = function(file) {
-      #venn = a_gnomad_calc_hyper()$venn
-      #write.csv(venn_to_table(venn), file, row.names = F)
+      venn = a_genes_upload_venn()
+      write.csv(venn_to_table(venn), file, row.names = F)
     }
   )
   
@@ -912,9 +923,9 @@ shinyServer(function(input, output, session){
   
   # venn diagrams
   observeEvent(input$a_bait_rep, {shinyjs::toggle(id="a_inweb_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & any(input$a_bait_rep %in% hash::keys(inweb_hash)))})
-  #observe({shinyjs::toggle(id="<id>", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_SNP_rep$datapath))})
-  #observe({shinyjs::toggle(id="<id>", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_genes_rep))})
-  #observe({shinyjs::toggle(id="a_gwas_catalogue_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
+  observe({shinyjs::toggle(id="a_snp_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_SNP_rep$datapath))})
+  observe({shinyjs::toggle(id="a_genes_upload_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_genes_rep))})
+  observe({shinyjs::toggle(id="a_gwas_catalogue_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
   observe({shinyjs::toggle(id="a_gnomad_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & input$a_select_gnomad_pli_type == 'threshold')})
   
   

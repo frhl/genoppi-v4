@@ -193,24 +193,21 @@ body <- dashboardBody(
                                       tabPanel('InWeb',
                                         fluidRow(
                                           column(4, plotOutput('a_inweb_venn_ui', width = "220px", height = "220px")),
-                                          column(5, br(), br(), br(), br(),
-                                                    uiOutput("a_inweb_venn_verbatim_ui")),
+                                          column(5, br(), br(), br(), br(), uiOutput("a_inweb_venn_verbatim_ui")),
                                           column(3, shinyjs::hidden(myDownloadButton("a_inweb_venn_mapping_download", 'overlap', icon("download"))))
                                          ),
                                       ),
                                       tabPanel('GWAS catalog',
                                                fluidRow(
                                                  column(4, plotOutput('a_gwas_catalogue_venn_all_ui', width = "220px", height = "220px")),
-                                                 column(5, br(), br(), br(), br(),
-                                                        uiOutput('a_gwas_catalogue_venn_verbatim_ui')),
-                                                 column(3, '')
+                                                 column(5, br(), br(), br(), br(), uiOutput('a_gwas_catalogue_venn_verbatim_ui')),
+                                                 column(3, shinyjs::hidden(myDownloadButton("a_gwas_catalogue_venn_mapping_download", 'overlap', icon("download"))))
                                                ),
                                       ),
                                       tabPanel('gnomAD',
                                                fluidRow(
                                                  column(4, plotOutput('a_gnomad_venn_ui', width = "220px", height = "220px")),
-                                                 column(5, br(), br(), br(), br(),
-                                                        uiOutput("a_gnomad_venn_verbatim_ui")),
+                                                 column(5, br(), br(), br(), br(), uiOutput("a_gnomad_venn_verbatim_ui")),
                                                  column(3, shinyjs::hidden(myDownloadButton("a_gnomad_venn_mapping_download", 'overlap', icon("download"))))
                                                )
                                       ),
@@ -220,7 +217,8 @@ body <- dashboardBody(
                                           column(5, br(), br(), br(), br(),
                                                     uiOutput('a_snp_venn_verbatim_ui')),
                                           column(3, uiOutput('a_select_venn_snp_ui'),
-                                                    uiOutput('a_select_venn_snp_loci_ui'))
+                                                    uiOutput('a_select_venn_snp_loci_ui'),
+                                                    shinyjs::hidden(myDownloadButton("a_snp_venn_mapping_download", 'overlap', icon("download"))))
                                          )
                                       ),
                                       tabPanel('Genes upload',
@@ -228,7 +226,8 @@ body <- dashboardBody(
                                                  column(4, plotOutput('a_genes_upload_venn_ui', width = "220px", height = "220px")),
                                                  column(5, br(), br(), br(), br(),
                                                         uiOutput('a_genes_upload_venn_verbatim_ui')),
-                                                 column(3, uiOutput('a_select_venn_genes_upload_ui')),
+                                                 column(3, uiOutput('a_select_venn_genes_upload_ui'),
+                                                           shinyjs::hidden(myDownloadButton("a_genes_upload_venn_mapping_download", 'overlap', icon("download")))),
                                                ),
                                       )
                                     )
