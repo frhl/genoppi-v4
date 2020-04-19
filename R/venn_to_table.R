@@ -17,6 +17,7 @@ venn_to_table <- function(venn){
     stringsAsFactors = F
   )
   dat$overlap = 0
-  dat[!is.na(dat$A) & !is.na(dat$B),]$overlap = 1
+  bool = !is.na(dat$A) & !is.na(dat$B)
+  if (any(bool)) dat[bool,]$overlap = 1
   return(dat)
 }

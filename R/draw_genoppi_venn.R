@@ -9,15 +9,22 @@
 #' @export
 
 
-draw_genoppi_venn <- function(x,main='',colors = c("cornflowerblue", "yellow1")){
-  
-  # @importFrom grid grid.newpage grid.draw unit arrow
+draw_genoppi_venn <- function(x, main='',colors = c("cornflowerblue", "yellow1")){
   
   # check input
   stopifnot(length(x) == 2)
   stopifnot(length(colors) == 2)
   
-  # call package to setuo draw
+  # check for NAs
+  x = lapply(x, function(i){
+    genes = as.character(i)
+    count = sum(is.na(genes))
+    if (count > 0) warning(paste(count,'gene(s) was not mapped and therefore removed from venn diagram.'))
+    genes = as.character(na.omit(genes))
+    return(genes)
+  })
+  
+  # draw actual venn diagram
   v <- VennDiagram::venn.diagram(x,
                             col = colors, margin=0.05, filename = NULL, resolution = 900, height = 400, force.unique = T,
                             main = main,

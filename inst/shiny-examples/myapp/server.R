@@ -926,8 +926,10 @@ shinyServer(function(input, output, session){
   observe({shinyjs::toggle(id="a_snp_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_SNP_rep$datapath))})
   observe({shinyjs::toggle(id="a_genes_upload_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_file_genes_rep))})
   observe({shinyjs::toggle(id="a_gwas_catalogue_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(input$a_gwas_catalogue))})
-  observe({shinyjs::toggle(id="a_gnomad_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & input$a_select_gnomad_pli_type == 'threshold')})
+  observe({shinyjs::toggle(id="a_gnomad_venn_mapping_download", condition=!is.null(a_pulldown_significant()) & !is.null(a_gnomad_mapping_threshold()) & input$a_select_gnomad_pli_type == 'threshold')})
   
+  # warning boxes
+  # observeEvent(!is.null(a_pulldown_significant()),{shinyjs::toggle(id="box_mapping_warning_ui")})
   
   # show/hide plot download buttons
   observeEvent(!is.null(a_pulldown_significant()),{

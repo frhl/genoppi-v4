@@ -49,11 +49,10 @@ body <- dashboardBody(
                                             column(12, shinyjs::hidden(myDownloadButton("a_mttest_mapping_download", 'Pulldown data', icon("download"))))
                                           )
                                         ),
-                                        
                                         shinyjs::hidden(box(
-                                          id = 'box1', title = "Gene mapping", width = NULL, solidHeader = TRUE, status = "primary", collapsible = TRUE, collapsed = FALSE,
+                                          id='box_mapping_warning_ui', title = "Gene mapping", width = NULL, solidHeader = TRUE, status = "warning", collapsible = TRUE, collapsed = FALSE,
                                           fluidRow(
-                                            h3('Explore mapping of accession to gene symbol')
+                                            h6('Explore mapping of accession to gene symbol')
                                           )
                                         ))
                                  ),
