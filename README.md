@@ -20,7 +20,7 @@ In addition, we provide a [welcome guide](inst/shiny-examples/myapp/www/welcome_
 # download and install Genoppi using the devtools package:
 install.packages("devtools")
 library(devtools)
-devtools::install_github('lagelab/Genoppi') 
+devtools::install_github('frhl/genoppi-v4') # UPDATE WHEN UPLOAD TO LAGELAB
 
 ```
 
