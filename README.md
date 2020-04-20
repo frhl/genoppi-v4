@@ -5,7 +5,6 @@
 <!-- badges: end -->
 
 
-**This is a legacy version. See https://github.com/lagelab/Genoppi for the newest version**
 
 # Overview
 
