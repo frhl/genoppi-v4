@@ -4,7 +4,7 @@
 [![Codecov test coverage](https://codecov.io/gh/frhl/genoppi-v4/branch/master/graph/badge.svg)](https://codecov.io/gh/frhl/genoppi-v4?branch=master)
 <!-- badges: end -->
 
-
+**This is a legacy version. See https://github.com/lagelab/Genoppi for the newest version**
 
 # Overview
 
