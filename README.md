@@ -4,6 +4,9 @@
 [![Codecov test coverage](https://codecov.io/gh/frhl/genoppi-v4/branch/master/graph/badge.svg)](https://codecov.io/gh/frhl/genoppi-v4?branch=master)
 <!-- badges: end -->
 
+
+**This is a legacy version. See https://github.com/lagelab/Genoppi for the newest version**
+
 # Overview
 
 Genoppi is an open-source software for performing quality control and analyzing quantitative proteomic data. In particular, it streamlines the integration of proteomic data with external datasets such as known protein-protein interactions in published literature, data from genetic studies, gene set annotations, or other user-defined inputs.
