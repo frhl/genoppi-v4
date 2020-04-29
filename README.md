@@ -1,6 +1,6 @@
 
 
-**NOTE: This is a legacy version. See https://github.com/lagelab/Genoppi for the newest version.**
+**NOTE: This is a legacy version and is out of date. See https://github.com/lagelab/Genoppi for the newest version.**
 
 
 
